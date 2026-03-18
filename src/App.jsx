@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users, Loader2 } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users, Loader2, Menu, X } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
@@ -14,7 +14,7 @@ import logoLight from './assets/logo-light.png';
 import logoDark from './assets/logo-dark.png';
 import './App.css'; 
 
-const Sidebar = ({ currentUser, onLogout, isDark }) => {
+const Sidebar = ({ currentUser, onLogout, isDark, isOpen, onClose }) => {
   const location = useLocation();
   
   const navItems = [
@@ -25,11 +25,18 @@ const Sidebar = ({ currentUser, onLogout, isDark }) => {
   ];
 
   return (
-    <div className="sidebar">
-      <div className="flex items-center gap-2" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-        <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
-        <span className="font-bold text-xl tracking-tight">Skillhub</span>
-      </div>
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
+      <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="flex items-center justify-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="flex items-center gap-2">
+            <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <span className="font-bold text-xl tracking-tight">Skillhub</span>
+          </div>
+          <button className="mobile-close-btn p-1 text-secondary hover:text-primary transition-colors" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
       
       <div className="flex-col flex-1" style={{ padding: '1.5rem 0', overflowY: 'auto' }}>
         {navItems.map((item) => (
@@ -60,14 +67,20 @@ const Sidebar = ({ currentUser, onLogout, isDark }) => {
           <LogOut size={20} /> Logout
         </button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
-const Header = ({ currentUser, title }) => {
+const Header = ({ currentUser, title, onMenuClick }) => {
   return (
     <div className="header">
-      <h1 className="text-xl font-bold">{title}</h1>
+      <div className="flex items-center gap-3">
+        <button className="mobile-menu-btn" onClick={onMenuClick}>
+          <Menu size={20} />
+        </button>
+        <h1 className="text-xl font-bold">{title}</h1>
+      </div>
       <div className="flex items-center gap-4">
         <span className="badge" style={{ textTransform: 'capitalize' }}>
           {currentUser.role} Mode
@@ -162,8 +175,14 @@ const Dashboard = ({ currentUser }) => {
 };
 
 const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   
+  // Close sidebar on route change automatically
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
   const getRouteTitle = () => {
     if (location.pathname.startsWith('/projects/')) return 'Project Workspace';
     switch (location.pathname) {
@@ -178,9 +197,9 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
 
   return (
     <div className="app-layout">
-      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} />
+      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="main-content">
-        <Header currentUser={currentUser} title={getRouteTitle()} />
+        <Header currentUser={currentUser} title={getRouteTitle()} onMenuClick={() => setIsSidebarOpen(true)} />
         <div className="page-content" style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
           <div className="h-full container">
             <Routes>

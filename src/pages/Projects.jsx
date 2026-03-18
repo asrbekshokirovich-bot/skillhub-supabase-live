@@ -263,10 +263,11 @@ const Projects = ({ currentUser }) => {
                    >
                      Open Workspace
                    </button>
-                   <div className="flex gap-2 w-full">
+                   <div className="flex gap-2 w-full flex-wrap">
                      {currentUser?.role === 'admin' && (
                        <button
                          className="btn btn-secondary flex-1"
+                         style={{ minWidth: '120px' }}
                          onClick={() => {
                            setReassignProjectId(project.id);
                            setNewAssignee(project.assignee === 'Unassigned' ? '' : project.assignee);
@@ -278,6 +279,7 @@ const Projects = ({ currentUser }) => {
                      {(currentUser?.role === 'admin' || currentUser?.role === 'developer') && (
                        <button
                          className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
+                         style={{ minWidth: '120px' }}
                          onClick={() => {
                            setVaultProjectName(project.name);
                            setVaultProjectId(project.id);

@@ -416,8 +416,8 @@ const Discussions = ({ currentUser }) => {
                 />
               </div>
               
-              <div className="flex gap-4">
-                <div className="flex-col gap-2 flex-1">
+              <div className="flex gap-4 flex-wrap">
+                <div className="flex-col gap-2 flex-1" style={{ minWidth: '150px' }}>
                   <label className="text-sm font-bold">Type</label>
                   <select 
                     value={newType} 
@@ -430,7 +430,7 @@ const Discussions = ({ currentUser }) => {
                     <option>Task</option>
                   </select>
                 </div>
-                <div className="flex-col gap-2 flex-1">
+                <div className="flex-col gap-2 flex-1" style={{ minWidth: '150px' }}>
                   <label className="text-sm font-bold">Urgency</label>
                   <select 
                     value={newUrgency} 
@@ -483,9 +483,9 @@ const Discussions = ({ currentUser }) => {
         </div>
       )}
 
-      <div className="flex gap-6 h-full items-start overflow-x-auto pb-4">
+      <div className="kanban-board">
         {Columns.map((column, colIndex) => (
-          <div key={column} className={`flex-col gap-4 bg-secondary animate-fade-in delay-${(colIndex + 1) * 100}`} style={{ backgroundColor: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', minHeight: '500px', width: '400px', flexShrink: 0 }}>
+          <div key={column} className={`kanban-column animate-fade-in delay-${(colIndex + 1) * 100}`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold">{column}</h3>
               <span className="badge">{issues.filter(i => i.status === column).length}</span>
@@ -614,7 +614,7 @@ const Discussions = ({ currentUser }) => {
 
       {selectedIssue && (
         <div className="fixed inset-0 z-[100] animate-fade-in flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(3px)' }} onClick={() => setSelectedIssue(null)}>
-          <div className="relative flex shadow-2xl w-[95vw] max-w-[1100px]" style={{ maxHeight: '90vh', backgroundColor: '#000000', border: '1px solid #333333', borderRadius: '12px', padding: '0', gap: '0', color: '#FFFFFF', overflowY: 'auto', overflowX: 'hidden' }} onClick={e => e.stopPropagation()}>
+          <div className="task-modal-layout relative flex shadow-2xl w-[95vw] max-w-[1100px]" style={{ maxHeight: '90vh', backgroundColor: '#000000', border: '1px solid #333333', borderRadius: '12px', padding: '0', gap: '0', color: '#FFFFFF', overflowY: 'auto', overflowX: 'hidden' }} onClick={e => e.stopPropagation()}>
 
             {/* ─── LEFT: main content ─────────────────────────────── */}
             <div className="flex flex-col h-full overflow-y-auto flex-1" style={{ padding: '24px 24px 0 24px', gap: '18px', scrollbarColor: '#1E293B transparent' }}>
@@ -917,7 +917,7 @@ const Discussions = ({ currentUser }) => {
             </div> {/* end left */}
 
             {/* RIGHT SIDEBAR — #7 background contrast + increased internal padding */}
-            <div className="flex flex-col shrink-0" style={{width:'290px',backgroundColor:'#060910',borderLeft:'1px solid #1A2436',overflow:'hidden'}}>
+            <div className="task-modal-right-panel flex flex-col shrink-0" style={{width:'290px',backgroundColor:'#060910',borderLeft:'1px solid #1A2436',overflow:'hidden'}}>
 
               {/* Tabs — #7 more padding */}
               <div className="px-4 py-3.5 border-b border-[#333333]">

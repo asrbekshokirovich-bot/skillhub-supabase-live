@@ -413,3 +413,160 @@ input:focus, textarea:focus, select:focus {
 :root[data-theme="dark"] .glass-input:focus {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
+
+/* --- Mobile Optimization --- */
+
+.mobile-menu-btn {
+  display: none; /* hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  
+  .sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .main-content {
+    width: 100vw;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+  
+  .mobile-close-btn {
+    display: flex !important;
+  }
+
+  /* Reduce padding on mobile */
+  .header {
+    padding: 0 1rem;
+    height: 60px;
+  }
+  
+  .page-content {
+    padding: 1rem !important;
+  }
+  
+  .header h1 {
+    font-size: 1.125rem;
+  }
+  
+  .header .badge {
+    display: none; /* Hide role badge to save space */
+  }
+
+  /* Kanban Mobile Optimization */
+  .kanban-board {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .kanban-column {
+    width: 85vw !important;
+    padding: 1rem !important;
+  }
+
+  /* Task Detail Modal Mobile */
+  .task-modal-layout {
+    flex-direction: column !important;
+    height: 95vh !important;
+    max-height: 95vh !important;
+  }
+  .task-modal-right-panel {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid #222222 !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Vault Modal Mobile */
+  .vault-layout {
+    flex-direction: column !important;
+  }
+  .vault-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #222222 !important;
+    padding: 0.5rem !important;
+  }
+  .vault-tabs-container {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    padding-bottom: 0.25rem !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-close-btn {
+    display: none !important;
+  }
+}
+
+/* --- Kanban Board Generic Support --- */
+.kanban-board {
+  display: flex;
+  gap: 1.5rem;
+  height: 100%;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  min-height: 500px;
+  width: 400px;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+}

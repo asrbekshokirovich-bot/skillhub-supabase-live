@@ -97,7 +97,7 @@ const ProjectVault = ({ projectId, projectName, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.8)', padding: '1rem', backdropFilter: 'blur(4px)' }}>
-      <div className="flex flex-col" style={{ width: '100%', maxWidth: '1000px', height: '85vh', backgroundColor: '#000000', border: '1px solid #333333', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+      <div className="flex flex-col w-[95vw] md:w-full" style={{ width: '95vw', maxWidth: '1000px', height: '85vh', backgroundColor: '#000000', border: '1px solid #333333', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
         
         {/* Header */}
         <div className="flex items-center justify-between" style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #222222', backgroundColor: '#050505', flexShrink: 0 }}>
@@ -114,18 +114,18 @@ const ProjectVault = ({ projectId, projectName, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="flex flex-1" style={{ overflow: 'hidden' }}>
+        <div className="vault-layout" style={{ overflow: 'hidden' }}>
           {/* Sidebar */}
-          <div className="flex flex-col" style={{ width: '250px', borderRight: '1px solid #222222', backgroundColor: '#0A0A0A', padding: '1rem', flexShrink: 0, overflowY: 'auto' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#666666', marginBottom: '1rem', padding: '0 0.5rem' }}>Categories</div>
-            <div className="flex flex-col gap-2">
+          <div className="vault-sidebar" style={{ backgroundColor: '#0A0A0A' }}>
+            <div className="hidden md:block" style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#666666', marginBottom: '1rem', padding: '0 0.5rem' }}>Categories</div>
+            <div className="vault-tabs-container flex flex-col gap-2">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => { setActiveTab(cat.id); setIsEditing(false); }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 flex-shrink-0"
                   style={{ 
-                    padding: '0.625rem 0.75rem', borderRadius: '8px', fontSize: '14px', fontWeight: 500, transition: 'all 0.2s',
+                    padding: '0.625rem 0.75rem', borderRadius: '8px', fontSize: '14px', fontWeight: 500, transition: 'all 0.2s', whiteSpace: 'nowrap',
                     backgroundColor: activeTab === cat.id ? '#1A1A1A' : 'transparent',
                     color: activeTab === cat.id ? '#FFFFFF' : '#888888',
                     border: activeTab === cat.id ? '1px solid #333333' : '1px solid transparent'
