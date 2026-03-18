@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users, Loader2 } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import Login from './pages/Login';
 import Discussions from './pages/Discussions';
 import Projects from './pages/Projects';
@@ -84,32 +84,82 @@ const Header = ({ currentUser, title }) => {
 };
 
 // --- Page Components (Placeholders) ---
-const Dashboard = ({ currentUser }) => (
-  <div className="flex-col gap-6 w-full">
-    <div className="flex gap-6 w-full flex-wrap">
-      <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-100">
-        <div className="card-body flex justify-between items-center">
-          <span className="text-secondary font-medium">Active Projects</span>
-          <span className="text-3xl font-bold">0</span>
-        </div>
-      </div>
-      <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-200">
-        <div className="card-body flex justify-between items-center">
-          <span className="text-secondary font-medium">Open Tasks</span>
-          <span className="text-3xl font-bold">0</span>
-        </div>
-      </div>
-      {currentUser.role !== 'developer' && (
-        <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-300">
+const Dashboard = ({ currentUser }) => {
+  const [stats, setStats] = useState({ activeProjects: 0, openTasks: 0, pendingInvoices: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      try {
+        // 1. Fetch Active Projects
+        const projectsSnap = await getDocs(collection(db, 'projects'));
+        const allProjects = projectsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        // Filter based on role (similar to Projects.jsx)
+        let relevantProjects = allProjects;
+        if (currentUser.role === 'developer') {
+          relevantProjects = allProjects.filter(p => p.assignee === currentUser.name);
+        } else if (currentUser.role === 'client') {
+          relevantProjects = allProjects.filter(p => p.client === currentUser.name);
+        }
+        
+        const activeProjects = relevantProjects.filter(p => p.status !== 'Done' && p.status !== 'Completed');
+        
+        // 2. Fetch Open Tasks for relevant projects
+        let openTasksCount = 0;
+        await Promise.all(activeProjects.map(async (proj) => {
+          try {
+            const tasksSnap = await getDocs(collection(db, 'projects', proj.id, 'tasks'));
+            const openTasks = tasksSnap.docs.filter(t => t.data().status !== 'Done' && t.data().status !== 'Completed');
+            openTasksCount += openTasks.length;
+          } catch (e) {
+            console.error(e);
+          }
+        }));
+
+        setStats({
+          activeProjects: activeProjects.length,
+          openTasks: openTasksCount,
+          pendingInvoices: 0 // Mocked for now until Finance is connected
+        });
+      } catch (err) {
+        console.error("Error fetching dashboard stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
+  }, [currentUser]);
+
+  return (
+    <div className="flex-col gap-6 w-full">
+      <div className="flex gap-6 w-full flex-wrap">
+        <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-100">
           <div className="card-body flex justify-between items-center">
-            <span className="text-secondary font-medium">Pending Invoices</span>
-            <span className="text-3xl font-bold">0</span>
+            <span className="text-secondary font-medium">Active Projects</span>
+            {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.activeProjects}</span>}
           </div>
         </div>
-      )}
+        <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-200">
+          <div className="card-body flex justify-between items-center">
+            <span className="text-secondary font-medium">Open Tasks</span>
+            {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.openTasks}</span>}
+          </div>
+        </div>
+        {currentUser.role !== 'developer' && (
+          <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-300">
+            <div className="card-body flex justify-between items-center">
+              <span className="text-secondary font-medium">Pending Invoices</span>
+              {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.pendingInvoices}</span>}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const location = useLocation();
