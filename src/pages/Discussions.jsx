@@ -630,7 +630,7 @@ const Discussions = ({ currentUser }) => {
               </div>
 
               {/* Title row — #1 stronger weight + size */}
-              <div className="flex items-start justify-between w-full shrink-0" style={{ gap: '12px' }}>
+              <div className="flex items-start justify-between w-full shrink-0" style={{ gap: '12px', marginBottom: '14px' }}>
                 {editingField === 'title' ? (
                   <input
                     autoFocus
@@ -640,19 +640,19 @@ const Discussions = ({ currentUser }) => {
                     onBlur={() => { if (editValue.trim() !== selectedIssue.title) updateTaskField('title', editValue.trim()); setEditingField(null); }}
                     onKeyDown={e => { if (e.key === 'Enter') { if (editValue.trim() !== selectedIssue.title) updateTaskField('title', editValue.trim()); setEditingField(null); } }}
                     className="font-[700] tracking-[-0.025em] outline-none flex-1"
-                    style={{ fontSize: '28px', lineHeight: '36px', backgroundColor: 'transparent', color: '#F1F5F9', border: 'none', borderBottom: '2px solid #6366f1', paddingBottom: '2px' }}
+                    style={{ fontSize: '28px', lineHeight: '1.25', backgroundColor: 'transparent', color: '#F1F5F9', border: 'none', borderBottom: '2px solid #6366f1', paddingBottom: '2px' }}
                   />
                 ) : (
                   <h1
                     className="font-[700] tracking-[-0.025em] text-[#F1F5F9] hover:bg-[#0F172A] px-1 -ml-1 rounded cursor-pointer transition-colors flex-1"
-                    style={{ fontSize: '28px', lineHeight: '36px' }}
+                    style={{ fontSize: '28px', lineHeight: '1.25' }}
                     onClick={() => { setEditingField('title'); setEditValue(selectedIssue.title || ''); }}
                   >
                     {selectedIssue.title}
                   </h1>
                 )}
-                <button className="shrink-0 mt-1.5 p-1.5 hover:bg-[#1E293B] rounded transition-colors text-[#3D4F63] hover:text-[#94A3B8]" onClick={e => { e.stopPropagation(); setSelectedIssue(null); }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <button className="shrink-0 mt-2 p-1.5 hover:bg-[#1E293B] rounded transition-colors text-[#3D4F63] hover:text-[#94A3B8]" onClick={e => { e.stopPropagation(); setSelectedIssue(null); }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
 
@@ -661,11 +661,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Status — #8 reduced badge visual weight, #9 normalized icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Status</span>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex flex-1 items-center">
                     <div
                       onClick={() => setActivePopover(activePopover === 'status' ? null : 'status')}
                       className="flex items-center cursor-pointer font-[600] tracking-wider select-none hover:opacity-80 transition-opacity"
@@ -693,11 +695,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Assignee — #9 icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Assignee</span>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex flex-1 items-center">
                     <div onClick={() => setActivePopover(activePopover === 'assignee' ? null : 'assignee')} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
                       <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ backgroundColor: '#7C3AED' }}>
                         {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0) : '?'}
@@ -715,11 +719,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Priority — #9 icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Priority</span>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex flex-1 items-center">
                     <div onClick={() => setActivePopover(activePopover === 'priority' ? null : 'priority')} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
                       <span style={{ width: 7, height: 7, borderRadius: '50%', display: 'inline-block', backgroundColor: (selectedIssue.priority||'Medium')==='Urgent'?'#EF4444':(selectedIssue.priority||'Medium')==='High'?'#F97316':(selectedIssue.priority||'Medium')==='Medium'?'#EAB308':'#71717A' }}/>
                       <span className="text-[13px] text-[#CBD5E1] font-[500]">{selectedIssue.priority || 'Medium'}</span>
@@ -738,11 +744,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Dates — #9 icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Dates</span>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex flex-1 items-center">
                     <div onClick={() => setActivePopover(activePopover === 'dates' ? null : 'dates')} className="flex items-center gap-1 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
                       <span className="text-[13px] text-[#CBD5E1] font-[500] whitespace-nowrap">
                         {selectedIssue.startDate ? new Date(selectedIssue.startDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'}&nbsp;→&nbsp;{selectedIssue.dueDate ? new Date(selectedIssue.dueDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'}
@@ -759,11 +767,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Time estimate — #9 icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Time estimate</span>
                   </div>
-                  <div>
+                  <div className="flex-1 flex items-center">
                     {editingField === 'time' ? (
                       <input autoFocus type="text" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated',editValue.trim());setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 text-[13px] text-[#E5E7EB] outline-none w-24 border border-indigo-500" style={{backgroundColor:'#1E293B',height:'26px'}}/>
                     ) : (
@@ -776,11 +786,13 @@ const Discussions = ({ currentUser }) => {
 
                 {/* Tags — #9 icon 14px */}
                 <div className="flex items-center" style={{ minHeight: '32px' }}>
-                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                  <div className="flex items-center shrink-0" style={{ width: '120px' }}>
+                    <div className="w-[20px] shrink-0 flex justify-center mr-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    </div>
                     <span className="text-[12px] font-[500] text-[#3D4F63]">Tags</span>
                   </div>
-                  <div className="relative">
+                  <div className="relative flex flex-1 items-center">
                     <div onClick={()=>setActivePopover(activePopover==='tags'?null:'tags')} className="flex items-center gap-1 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors flex-wrap -ml-2">
                       {(selectedIssue.tags||[]).length>0 ? selectedIssue.tags.map(t=>(
                         <span key={t} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{backgroundColor:'#1E1B4B',color:'#A5B4FC'}}>{t}</span>
@@ -797,9 +809,9 @@ const Discussions = ({ currentUser }) => {
                 </div>
 
                 {/* #6 AI banner — tertiary / lower emphasis */}
-                <div className="w-fit flex items-center gap-1.5 cursor-pointer mt-4 opacity-60 hover:opacity-90 transition-opacity" style={{padding:'4px 9px',borderRadius:'5px',border:'1px solid #2D3748'}}>
-                  <span className="text-[12px]">✨</span>
-                  <span className="text-[11px] font-medium text-[#64748B]">Ask Brain to summarize, generate subtasks or find similar milestones</span>
+                <div className="w-fit flex items-center gap-2 cursor-pointer mt-4 opacity-80 hover:opacity-100 transition-opacity" style={{padding:'4px 10px',borderRadius:'5px',border:'1px solid #2D3748'}}>
+                  <span className="text-[14px]">✨</span>
+                  <span className="text-[12px] font-medium text-[#818CF8]">Ask Brain to summarize, generate subtasks or find similar milestones</span>
                 </div>
 
               </div>
@@ -807,7 +819,7 @@ const Discussions = ({ currentUser }) => {
               {/* Description — #4 border contrast + focus ring, #5 button hierarchy */}
               <div className="flex flex-col shrink-0" style={{ gap: '8px' }}>
                 <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#3D4F63]">Description</h3>
-                <div className="w-full relative group" style={{minHeight:'90px',backgroundColor:'#0D111A',borderRadius:'8px',padding:'10px 12px',border:'1px solid #263040',transition:'border-color 0.15s'}}>
+                <div className="w-full relative group transition-all duration-200" style={{minHeight:'90px',backgroundColor:'#0D111A',borderRadius:'8px',padding:'12px 14px',border:`1px solid ${editingField==='description'?'#4F46E5':'#263040'}`,boxShadow:editingField==='description'?'0 0 0 3px rgba(79, 70, 229, 0.12)':''}} onMouseEnter={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#3A465B'}} onMouseLeave={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#263040'}}>
                   {editingField==='description' ? (
                     <div className="flex flex-col gap-2" style={{outline:'none'}}>
                       <div className="flex items-center gap-1 pb-2 border-b border-[#1E293B] text-zinc-600">
@@ -819,9 +831,9 @@ const Discussions = ({ currentUser }) => {
                       </div>
                       <textarea autoFocus value={editValue} onChange={e=>setEditValue(e.target.value)} className="w-full min-h-[80px] text-[14px] leading-[1.65] outline-none resize-y" style={{backgroundColor:'transparent',color:'#E2E8F0',border:'none',padding:0}} placeholder="Add task details here..."/>
                       {/* #5 — Save = primary, Cancel = low-emphasis ghost */}
-                      <div className="flex justify-end items-center gap-3 pt-2.5 border-t border-[#1E293B]">
+                      <div className="flex justify-end items-center gap-3 pt-3.5 mt-2 border-t border-[#1E293B]" style={{backgroundColor:'#0A0E14',margin:'0 -14px -12px -14px',padding:'12px 14px',borderRadius:'0 0 8px 8px'}}>
                         <button className="text-[12px] font-medium text-[#475569] hover:text-zinc-300 transition-colors" onClick={()=>setEditingField(null)}>Cancel</button>
-                        <button className="px-3.5 py-1.5 text-[12px] font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-500 active:scale-95 transition-all" onClick={()=>{if(editValue!==selectedIssue.description)updateTaskField('description',editValue);setEditingField(null);}}>Save changes</button>
+                        <button className="px-4 py-1.5 text-[12px] font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-500 active:scale-95 transition-all shadow-sm" onClick={()=>{if(editValue!==selectedIssue.description)updateTaskField('description',editValue);setEditingField(null);}}>Save changes</button>
                       </div>
                     </div>
                   ) : (
@@ -849,7 +861,7 @@ const Discussions = ({ currentUser }) => {
                 </div>
                 <div className="flex flex-col rounded-lg overflow-hidden" style={{backgroundColor:'#0D111A',border:'1px solid #263040'}}>
                   {selectedIssue.subtasks && selectedIssue.subtasks.map(st => (
-                    <div key={st.id} className="flex items-center justify-between px-3 py-2.5 hover:bg-[#131929]/60 group transition-colors border-b border-[#1A2236] last:border-b-0">
+                    <div key={st.id} className="flex items-center justify-between px-3 py-1.5 hover:bg-[#1A2236]/80 group transition-colors border-b border-[#1A2236] last:border-b-0" style={{minHeight:'36px'}}>
                       <div className="flex items-center gap-3 flex-1">
                         <button
                           onClick={()=>toggleSubtask(st.id)}
@@ -869,10 +881,12 @@ const Discussions = ({ currentUser }) => {
                       </button>
                     </div>
                   ))}
-                  <div className="flex items-center px-3 py-2.5 hover:bg-[#131929]/40 transition-colors">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2D3F52" strokeWidth="2.5" className="mr-2.5 shrink-0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <div className="flex items-center px-3 py-1.5 hover:bg-[#1A2236]/50 transition-colors focus-within:bg-[#1A2236]/80" style={{minHeight:'36px'}}>
+                    <div className="w-[18px] flex justify-center shrink-0 mr-2.5">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
                     <form onSubmit={addSubtask} className="flex-1 flex items-center gap-2">
-                      <input type="text" value={newSubtaskText} onChange={e=>setNewSubtaskText(e.target.value)} placeholder="Add a subtask..." className="flex-1 text-[13px] outline-none font-medium" style={{backgroundColor:'transparent',color:'#CBD5E1',border:'none','--placeholder-color':'#2D3F52'}} />
+                      <input type="text" value={newSubtaskText} onChange={e=>setNewSubtaskText(e.target.value)} placeholder="Add a subtask..." className="flex-1 text-[13px] outline-none font-medium placeholder-[#64748B]" style={{backgroundColor:'transparent',color:'#CBD5E1',border:'none'}} />
                       {newSubtaskText.trim() && <span className="text-[11px] text-[#3D4F63] shrink-0 font-medium">↵ add</span>}
                     </form>
                   </div>
@@ -925,14 +939,18 @@ const Discussions = ({ currentUser }) => {
               ) : (
                 <div className="flex flex-col flex-1 overflow-hidden">
                   {/* Feed — #7 increased padding */}
-                  <div className="flex-1 overflow-y-auto flex flex-col gap-4 p-4" style={{scrollbarColor:'#1A2436 transparent'}}>
+                  <div className="px-4 py-3 border-b border-[#1A2436] flex items-center justify-between bg-[#060910] shrink-0">
+                    <h3 className="text-[12px] font-[600] text-[#E2E8F0] tracking-wide">Activity feed</h3>
+                  </div>
+                  {/* Feed — #7 increased padding */}
+                  <div className="flex-1 overflow-y-auto flex flex-col gap-4 p-4 bg-[#0A0D14]" style={{scrollbarColor:'#1A2436 transparent', boxShadow:'inset 0px 4px 6px -6px rgba(0,0,0,0.5)'}}>
 
                     {/* Creation */}
                     <div className="flex gap-2.5 items-start">
                       <div className="w-7 h-7 rounded-full bg-[#1E293B] flex items-center justify-center text-[11px] text-white shrink-0 font-bold">{selectedIssue.author.charAt(0)}</div>
                       <div>
-                        <div className="text-[12px] text-zinc-300"><span className="font-semibold text-white">{selectedIssue.author}</span> created this task</div>
-                        <div className="text-[11px] text-[#334155] mt-0.5">{new Date(selectedIssue.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                        <div className="text-[13px] text-zinc-200"><span className="font-semibold text-white">{selectedIssue.author}</span> created this task</div>
+                        <div className="text-[12px] text-[#475569] mt-0.5">{new Date(selectedIssue.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
                       </div>
                     </div>
 
@@ -940,9 +958,9 @@ const Discussions = ({ currentUser }) => {
                       <div key={c.id} className="flex gap-2.5 items-start">
                         <div className="w-7 h-7 rounded-full bg-[#1E293B] flex items-center justify-center text-[11px] text-white shrink-0 font-bold">{c.author.charAt(0)}</div>
                         <div className="flex-1">
-                          <div className="text-[12px] text-zinc-300"><span className="font-semibold text-white">{c.author}</span></div>
-                          <div className="text-[11px] text-[#334155] mt-0.5 mb-1">{new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-                          <div className="text-[12px] text-zinc-200 px-2.5 py-2 rounded-lg border border-[#1E293B] bg-[#0D1117] whitespace-pre-wrap leading-[1.55]">{c.text}</div>
+                          <div className="text-[13px] text-zinc-200"><span className="font-semibold text-white">{c.author}</span></div>
+                          <div className="text-[12px] text-[#475569] mt-0.5 mb-1.5">{new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                          <div className="text-[13px] text-zinc-200 px-3 py-2.5 rounded-lg border border-[#1E293B] bg-[#0D1117] whitespace-pre-wrap leading-[1.6] shadow-sm">{c.text}</div>
                         </div>
                       </div>
                     ))}
