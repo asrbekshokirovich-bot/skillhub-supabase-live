@@ -817,37 +817,19 @@ const Discussions = ({ currentUser }) => {
               </div>
 
               {/* Description — #4 border contrast + focus ring, #5 button hierarchy */}
+              {/* Description — Seamless text area */}
               <div className="flex flex-col shrink-0" style={{ gap: '8px' }}>
                 <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#888888]">Description</h3>
-                <div className="w-full relative group transition-all duration-200" style={{minHeight:'90px',backgroundColor:'#0D111A',borderRadius:'8px',padding:'12px 14px',border:`1px solid ${editingField==='description'?'#FFFFFF':'#263040'}`,boxShadow:editingField==='description'?'0 0 0 3px rgba(255, 255, 255, 0.15)':''}} onMouseEnter={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#3A465B'}} onMouseLeave={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#263040'}}>
-                  {editingField==='description' ? (
-                    <div className="flex flex-col gap-2" style={{outline:'none'}}>
-                      <div className="flex items-center gap-1 pb-2 border-b border-[#333333] text-[#666666]">
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg></button>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
-                        <div className="w-[1px] h-3.5 bg-[#333333] mx-0.5"/>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
-                      </div>
-                      <textarea autoFocus value={editValue} onChange={e=>setEditValue(e.target.value)} className="w-full min-h-[80px] text-[14px] leading-[1.65] outline-none resize-y" style={{backgroundColor:'transparent',color:'#E2E8F0',border:'none',padding:0}} placeholder="Add task details here..."/>
-                      {/* #5 — Save = primary, Cancel = low-emphasis ghost */}
-                      <div className="flex justify-end items-center gap-3 pt-3.5 mt-2 border-t border-[#333333]" style={{backgroundColor:'#0A0A0A',margin:'0 -14px -12px -14px',padding:'12px 14px',borderRadius:'0 0 8px 8px'}}>
-                        <button className="text-[12px] font-medium text-[#888888] hover:text-white transition-colors" onClick={()=>setEditingField(null)}>Cancel</button>
-                        <button className="px-4 py-1.5 text-[12px] font-semibold bg-white text-black text-black rounded-md hover:bg-gray-200 active:scale-95 transition-all shadow-sm" onClick={()=>{if(editValue!==selectedIssue.description)updateTaskField('description',editValue);setEditingField(null);}}>Save changes</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="cursor-pointer min-h-[68px]" onClick={()=>{setEditingField('description');setEditValue(selectedIssue.description||'');}}>
-                      {selectedIssue.description ? (
-                        <p className="text-[14px] leading-[1.65] text-[#94A3B8] whitespace-pre-wrap">{selectedIssue.description}</p>
-                      ) : (
-                        <p className="text-[14px] text-[#2D3748] italic">No description — click to add details.</p>
-                      )}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#333333] rounded p-1 text-[#888888]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </div>
-                    </div>
-                  )}
+                <div className="w-full relative flex flex-col group transition-all duration-200" style={{minHeight:'90px',backgroundColor:'#0A0A0A',borderRadius:'8px',padding:'12px 14px',border:`1px solid ${editingField==='description'?'#FFFFFF':'#333333'}`,boxShadow:editingField==='description'?'0 0 0 3px rgba(255, 255, 255, 0.15)':''}} onMouseEnter={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#666666'}} onMouseLeave={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#333333'}}>
+                  <textarea 
+                    value={editValue !== undefined && editingField === 'description' ? editValue : (selectedIssue.description || '')} 
+                    onFocus={() => { setEditingField('description'); setEditValue(selectedIssue.description || ''); }}
+                    onChange={e => setEditValue(e.target.value)} 
+                    onBlur={() => { if(editValue !== undefined && editValue !== selectedIssue.description) updateTaskField('description', editValue); setEditingField(null); }}
+                    className="w-full h-full min-h-[68px] text-[14px] leading-[1.65] outline-none resize-none" 
+                    style={{backgroundColor:'transparent',color:'#FFFFFF',border:'none',padding:0}} 
+                    placeholder="Click to start writing details..."
+                  />
                 </div>
               </div>
 
@@ -946,20 +928,20 @@ const Discussions = ({ currentUser }) => {
                   <div className="flex-1 overflow-y-auto flex flex-col gap-4 p-4 bg-black" style={{scrollbarColor:'#1A2436 transparent', boxShadow:'inset 0px 4px 6px -6px rgba(0,0,0,0.5)'}}>
 
                     {/* Creation */}
-                    <div className="flex gap-2.5 items-start">
-                      <div className="w-8 h-8 rounded-full border border-[#555555] bg-black flex items-center justify-center text-[12px] text-white shrink-0 font-bold">{selectedIssue.author.charAt(0)}</div>
-                      <div>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-7 h-7 rounded-full bg-[#222222] flex items-center justify-center text-[11px] text-white shrink-0 font-semibold">{selectedIssue.author.charAt(0)}</div>
+                      <div className="flex-1 mt-0.5">
                         <div className="text-[13px] text-white"><span className="font-semibold text-white">{selectedIssue.author}</span> created this task</div>
-                        <div className="text-[12px] text-[#888888] mt-0.5">{new Date(selectedIssue.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                        <div className="text-[12px] text-[#888888] mt-1">{new Date(selectedIssue.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
                       </div>
                     </div>
 
                     {(selectedIssue.comments||[]).map(c=>(
-                      <div key={c.id} className="flex gap-2.5 items-start">
-                        <div className="w-8 h-8 rounded-full border border-[#555555] bg-black flex items-center justify-center text-[12px] text-white shrink-0 font-bold">{c.author.charAt(0)}</div>
-                        <div className="flex-1">
+                      <div key={c.id} className="flex gap-3 items-start">
+                        <div className="w-7 h-7 rounded-full bg-[#222222] flex items-center justify-center text-[11px] text-white shrink-0 font-semibold">{c.author.charAt(0)}</div>
+                        <div className="flex-1 mt-0.5">
                           <div className="text-[13px] text-white"><span className="font-semibold text-white">{c.author}</span></div>
-                          <div className="text-[12px] text-[#888888] mt-0.5 mb-1.5">{new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                          <div className="text-[12px] text-[#888888] mt-1 mb-2">{new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
                           <div className="text-[13px] text-white px-3 py-2.5 rounded-lg border border-[#333333] bg-[#0A0A0A] whitespace-pre-wrap leading-[1.6] shadow-sm">{c.text}</div>
                         </div>
                       </div>
@@ -967,18 +949,18 @@ const Discussions = ({ currentUser }) => {
                   </div>
 
                   {/* Comment box */}
-                  <div className="p-4 border-t border-[#333333]">
-                    <form onSubmit={addComment} className="flex flex-col rounded-lg border border-[#333333] bg-[#0A0A0A] overflow-hidden focus-within:border-zinc-600 transition-colors">
+                  <div className="p-4 border-t border-[#333333] shrink-0 bg-black">
+                    <form onSubmit={addComment} className="flex flex-col rounded-lg border border-[#333333] bg-[#0A0A0A] overflow-hidden focus-within:border-[#555555] transition-colors">
                       <textarea
                         value={newCommentText}
                         onChange={e=>setNewCommentText(e.target.value)}
-                        className="w-full px-3 pt-2.5 pb-1 text-[13px] outline-none resize-none font-sans"
-                        style={{backgroundColor:'transparent',color:'#fff',border:'none',minHeight:'60px'}}
+                        className="w-full px-3 py-3 text-[13px] outline-none font-sans"
+                        style={{backgroundColor:'transparent',color:'#fff',border:'none',minHeight:'64px',resize:'none',boxShadow:'none'}}
                         placeholder="Write a comment..."
                         onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(newCommentText.trim()&&!isCommenting)addComment(e);}}}
                       />
-                      <div className="flex items-center justify-between px-2 pb-2 pt-1">
-                        <span className="text-[10px] text-[#444444]">Shift+↵ new line</span>
+                      <div className="flex items-center justify-between px-3 py-2 bg-[#111111] border-t border-[#222222]">
+                        <span className="text-[10px] text-[#666666]">Shift+↵ new line</span>
                         <button type="submit" disabled={isCommenting||!newCommentText.trim()} className={`p-1.5 rounded transition-colors ${newCommentText.trim()?'bg-white text-black hover:bg-gray-200':'text-[#444444] cursor-not-allowed'}`}>
                           {isCommenting?<Loader2 size="14" className="animate-spin"/>:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
                         </button>
