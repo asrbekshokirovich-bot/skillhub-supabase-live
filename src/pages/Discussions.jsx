@@ -820,14 +820,14 @@ const Discussions = ({ currentUser }) => {
               {/* Description — Seamless text area */}
               <div className="flex flex-col shrink-0" style={{ gap: '8px' }}>
                 <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#888888]">Description</h3>
-                <div className="w-full relative flex flex-col group transition-all duration-200" style={{minHeight:'90px',backgroundColor:'#0A0A0A',borderRadius:'8px',padding:'12px 14px',border:`1px solid ${editingField==='description'?'#FFFFFF':'#333333'}`,boxShadow:editingField==='description'?'0 0 0 3px rgba(255, 255, 255, 0.15)':''}} onMouseEnter={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#666666'}} onMouseLeave={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#333333'}}>
+                <div className="w-full relative flex flex-col group transition-all duration-200 focus-within:ring-0" style={{minHeight:'90px',backgroundColor:'#0A0A0A',borderRadius:'8px',padding:'12px 14px',border:`1px solid ${editingField==='description'?'#FFFFFF':'#333333'}`,boxShadow:editingField==='description'?'0 0 0 3px rgba(255, 255, 255, 0.15)':''}} onMouseEnter={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#666666'}} onMouseLeave={e=>{if(editingField!=='description')e.currentTarget.style.borderColor='#333333'}}>
                   <textarea 
                     value={editValue !== undefined && editingField === 'description' ? editValue : (selectedIssue.description || '')} 
                     onFocus={() => { setEditingField('description'); setEditValue(selectedIssue.description || ''); }}
                     onChange={e => setEditValue(e.target.value)} 
                     onBlur={() => { if(editValue !== undefined && editValue !== selectedIssue.description) updateTaskField('description', editValue); setEditingField(null); }}
-                    className="w-full h-full min-h-[68px] text-[14px] leading-[1.65] outline-none resize-none" 
-                    style={{backgroundColor:'transparent',color:'#FFFFFF',border:'none',padding:0}} 
+                    className="w-full h-full min-h-[68px] text-[14px] leading-[1.65] outline-none resize-none focus:ring-0 focus:outline-none border-0" 
+                    style={{backgroundColor:'transparent',color:'#FFFFFF',border:'none',outline:'none',boxShadow:'none',padding:0,resize:'none'}} 
                     placeholder="Click to start writing details..."
                   />
                 </div>
@@ -959,8 +959,7 @@ const Discussions = ({ currentUser }) => {
                         placeholder="Write a comment..."
                         onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(newCommentText.trim()&&!isCommenting)addComment(e);}}}
                       />
-                      <div className="flex items-center justify-between px-3 py-2 bg-[#111111] border-t border-[#222222]">
-                        <span className="text-[10px] text-[#666666]">Shift+↵ new line</span>
+                      <div className="flex items-center justify-end px-3 py-2 bg-[#111111] border-t border-[#222222]">
                         <button type="submit" disabled={isCommenting||!newCommentText.trim()} className={`p-1.5 rounded transition-colors ${newCommentText.trim()?'bg-white text-black hover:bg-gray-200':'text-[#444444] cursor-not-allowed'}`}>
                           {isCommenting?<Loader2 size="14" className="animate-spin"/>:<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
                         </button>
