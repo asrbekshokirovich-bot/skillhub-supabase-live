@@ -14,7 +14,7 @@ import logoLight from './assets/logo-light.png';
 import logoDark from './assets/logo-dark.png';
 import './App.css'; 
 
-const Sidebar = ({ currentUser, onLogout, isDark, isOpen, onClose }) => {
+const Sidebar = ({ currentUser, onLogout, isDark }) => {
   const location = useLocation();
   
   const navItems = [
@@ -25,18 +25,13 @@ const Sidebar = ({ currentUser, onLogout, isDark, isOpen, onClose }) => {
   ];
 
   return (
-    <>
-      <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
-      <div className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="flex items-center justify-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-          <div className="flex items-center gap-2">
-            <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
-            <span className="font-bold text-xl tracking-tight">Skillhub</span>
-          </div>
-          <button className="mobile-close-btn p-1 text-secondary hover:text-primary transition-colors" onClick={onClose}>
-            <X size={20} />
-          </button>
+    <div className="sidebar">
+      <div className="flex items-center justify-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+        <div className="flex items-center gap-2">
+          <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          <span className="font-bold text-xl tracking-tight">Skillhub</span>
         </div>
+      </div>
       
       <div className="flex-col flex-1" style={{ padding: '1.5rem 0', overflowY: 'auto' }}>
         {navItems.map((item) => (
@@ -67,18 +62,14 @@ const Sidebar = ({ currentUser, onLogout, isDark, isOpen, onClose }) => {
           <LogOut size={20} /> Logout
         </button>
       </div>
-      </div>
-    </>
+    </div>
   );
 };
 
-const Header = ({ currentUser, title, onMenuClick }) => {
+const Header = ({ currentUser, title }) => {
   return (
     <div className="header">
       <div className="flex items-center gap-3">
-        <button className="mobile-menu-btn" onClick={onMenuClick}>
-          <Menu size={20} />
-        </button>
         <h1 className="text-xl font-bold">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
@@ -174,14 +165,34 @@ const Dashboard = ({ currentUser }) => {
   );
 };
 
-const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const MobileTabBar = ({ currentUser }) => {
   const location = useLocation();
-  
-  // Close sidebar on route change automatically
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
+  const navItems = [
+    { name: 'Home', path: '/', icon: <LayoutDashboard size={20} /> },
+    { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
+    ...(currentUser.role !== 'developer' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
+    ...(currentUser.role === 'admin' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
+    { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }
+  ];
+
+  return (
+    <div className="mobile-tab-bar">
+      {navItems.map(item => (
+        <Link 
+          key={item.path} 
+          to={item.path} 
+          className={`mobile-tab-item ${location.pathname === item.path ? 'active' : ''}`}
+        >
+          {item.icon}
+          <span>{item.name}</span>
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
+  const location = useLocation();
 
   const getRouteTitle = () => {
     if (location.pathname.startsWith('/projects/')) return 'Project Workspace';
@@ -197,9 +208,9 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
 
   return (
     <div className="app-layout">
-      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} />
       <div className="main-content">
-        <Header currentUser={currentUser} title={getRouteTitle()} onMenuClick={() => setIsSidebarOpen(true)} />
+        <Header currentUser={currentUser} title={getRouteTitle()} />
         <div className="page-content" style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
           <div className="h-full container">
             <Routes>
@@ -213,6 +224,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
           </div>
         </div>
       </div>
+      <MobileTabBar currentUser={currentUser} />
     </div>
   );
 };
