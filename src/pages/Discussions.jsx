@@ -629,7 +629,7 @@ const Discussions = ({ currentUser }) => {
                 <span className="text-[#94A3B8] font-semibold truncate max-w-[280px]">{selectedIssue.title}</span>
               </div>
 
-              {/* Title row */}
+              {/* Title row — #1 stronger weight + size */}
               <div className="flex items-start justify-between w-full shrink-0" style={{ gap: '12px' }}>
                 {editingField === 'title' ? (
                   <input
@@ -639,50 +639,50 @@ const Discussions = ({ currentUser }) => {
                     onChange={e => setEditValue(e.target.value)}
                     onBlur={() => { if (editValue.trim() !== selectedIssue.title) updateTaskField('title', editValue.trim()); setEditingField(null); }}
                     onKeyDown={e => { if (e.key === 'Enter') { if (editValue.trim() !== selectedIssue.title) updateTaskField('title', editValue.trim()); setEditingField(null); } }}
-                    className="font-[600] tracking-[-0.02em] outline-none flex-1"
-                    style={{ fontSize: '24px', lineHeight: '32px', backgroundColor: 'transparent', color: '#E5E7EB', border: 'none', borderBottom: '1px solid #6366f1', paddingBottom: '2px' }}
+                    className="font-[700] tracking-[-0.025em] outline-none flex-1"
+                    style={{ fontSize: '28px', lineHeight: '36px', backgroundColor: 'transparent', color: '#F1F5F9', border: 'none', borderBottom: '2px solid #6366f1', paddingBottom: '2px' }}
                   />
                 ) : (
                   <h1
-                    className="font-[600] tracking-[-0.02em] text-[#E2E8F0] hover:bg-[#0F172A] px-1 -ml-1 rounded cursor-pointer transition-colors flex-1"
-                    style={{ fontSize: '24px', lineHeight: '32px' }}
+                    className="font-[700] tracking-[-0.025em] text-[#F1F5F9] hover:bg-[#0F172A] px-1 -ml-1 rounded cursor-pointer transition-colors flex-1"
+                    style={{ fontSize: '28px', lineHeight: '36px' }}
                     onClick={() => { setEditingField('title'); setEditValue(selectedIssue.title || ''); }}
                   >
                     {selectedIssue.title}
                   </h1>
                 )}
-                <button className="shrink-0 mt-1 p-1.5 hover:bg-[#1E293B] rounded transition-colors text-[#475569] hover:text-[#CBD5E1]" onClick={e => { e.stopPropagation(); setSelectedIssue(null); }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <button className="shrink-0 mt-1.5 p-1.5 hover:bg-[#1E293B] rounded transition-colors text-[#3D4F63] hover:text-[#94A3B8]" onClick={e => { e.stopPropagation(); setSelectedIssue(null); }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
 
-              {/* ── FIX #5 / #6 — Metadata: proper 2-col label → value layout ── */}
-              <div className="flex flex-col shrink-0 border-b border-[#1E293B] pb-5" style={{ gap: '2px' }}>
+              {/* Metadata — #2 label opacity + #3 consistent 8px row spacing */}
+              <div className="flex flex-col shrink-0 border-b border-[#1E293B] pb-5" style={{ gap: '0px' }}>
 
-                {/* Status */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
-                    <span className="text-[12px] font-[500]">Status</span>
+                {/* Status — #8 reduced badge visual weight, #9 normalized icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Status</span>
                   </div>
                   <div className="relative">
                     <div
                       onClick={() => setActivePopover(activePopover === 'status' ? null : 'status')}
-                      className="flex items-center cursor-pointer font-[600] tracking-wide select-none hover:opacity-75 transition-opacity"
+                      className="flex items-center cursor-pointer font-[600] tracking-wider select-none hover:opacity-80 transition-opacity"
                       style={{
-                        padding: '2px 9px', borderRadius: '4px', fontSize: '11px',
-                        backgroundColor: selectedIssue.status === 'Done' ? '#14532D' : selectedIssue.status === 'In Progress' ? '#1E3A5F' : '#1C1C1E',
-                        color: selectedIssue.status === 'Done' ? '#4ADE80' : selectedIssue.status === 'In Progress' ? '#60A5FA' : '#71717A',
-                        border: `1px solid ${selectedIssue.status === 'Done' ? '#166534' : selectedIssue.status === 'In Progress' ? '#1D4ED8' : '#3F3F46'}`
+                        padding: '2px 8px', borderRadius: '4px', fontSize: '10px', letterSpacing: '0.06em',
+                        backgroundColor: selectedIssue.status === 'Done' ? '#0D2818' : selectedIssue.status === 'In Progress' ? '#0D1F3C' : '#161618',
+                        color: selectedIssue.status === 'Done' ? '#34D399' : selectedIssue.status === 'In Progress' ? '#60A5FA' : '#52525B',
+                        border: `1px solid ${selectedIssue.status === 'Done' ? '#134E2A' : selectedIssue.status === 'In Progress' ? '#1E3A5F' : '#2D2D30'}`
                       }}
                     >
                       {selectedIssue.status.toUpperCase()}
                     </div>
                     {activePopover === 'status' && (
                       <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-44 rounded-lg shadow-xl py-1 overflow-hidden" style={{ backgroundColor: '#0D1117', border: '1px solid #1E293B' }}>
-                        {[['To Do','#71717A'],['In Progress','#60A5FA'],['Done','#4ADE80']].map(([s,c]) => (
-                          <div key={s} onClick={() => { updateTaskField('status', s); setActivePopover(null); }} className="px-3 py-2 text-[13px] text-[#D1D5DB] hover:bg-[#1E293B] cursor-pointer flex items-center gap-2">
-                            <span style={{ width: 7, height: 7, borderRadius: '50%', display: 'inline-block', backgroundColor: c }}/>
+                        {[['To Do','#52525B'],['In Progress','#60A5FA'],['Done','#34D399']].map(([s,c]) => (
+                          <div key={s} onClick={() => { updateTaskField('status', s); setActivePopover(null); }} className="px-3 py-2 text-[13px] text-[#CBD5E1] hover:bg-[#1E293B] cursor-pointer flex items-center gap-2.5">
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', display: 'inline-block', backgroundColor: c }}/>
                             {s}
                           </div>
                         ))}
@@ -691,11 +691,11 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* Assignee */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span className="text-[12px] font-[500]">Assignee</span>
+                {/* Assignee — #9 icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Assignee</span>
                   </div>
                   <div className="relative">
                     <div onClick={() => setActivePopover(activePopover === 'assignee' ? null : 'assignee')} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
@@ -713,11 +713,11 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* Priority */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg>
-                    <span className="text-[12px] font-[500]">Priority</span>
+                {/* Priority — #9 icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Priority</span>
                   </div>
                   <div className="relative">
                     <div onClick={() => setActivePopover(activePopover === 'priority' ? null : 'priority')} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
@@ -736,11 +736,11 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* Dates */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span className="text-[12px] font-[500]">Dates</span>
+                {/* Dates — #9 icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Dates</span>
                   </div>
                   <div className="relative">
                     <div onClick={() => setActivePopover(activePopover === 'dates' ? null : 'dates')} className="flex items-center gap-1 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors -ml-2">
@@ -757,11 +757,11 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* Time estimate */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span className="text-[12px] font-[500]">Time estimate</span>
+                {/* Time estimate — #9 icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Time estimate</span>
                   </div>
                   <div>
                     {editingField === 'time' ? (
@@ -774,11 +774,11 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* Tags */}
-                <div className="flex items-center" style={{ minHeight: '30px' }}>
-                  <div className="flex items-center gap-1.5 shrink-0 text-[#475569]" style={{ width: '116px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                    <span className="text-[12px] font-[500]">Tags</span>
+                {/* Tags — #9 icon 14px */}
+                <div className="flex items-center" style={{ minHeight: '32px' }}>
+                  <div className="flex items-center gap-2 shrink-0" style={{ width: '116px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4F63" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    <span className="text-[12px] font-[500] text-[#3D4F63]">Tags</span>
                   </div>
                   <div className="relative">
                     <div onClick={()=>setActivePopover(activePopover==='tags'?null:'tags')} className="flex items-center gap-1 cursor-pointer hover:bg-[#1E293B]/60 px-2 py-1 rounded transition-colors flex-wrap -ml-2">
@@ -796,41 +796,42 @@ const Discussions = ({ currentUser }) => {
                   </div>
                 </div>
 
-                {/* FIX #11 — AI banner below metadata */}
-                <div className="w-fit flex items-center gap-2 cursor-pointer mt-4" style={{backgroundColor:'#6366F10D',padding:'5px 10px',borderRadius:'6px',border:'1px solid #6366F120'}}>
-                  <span className="text-[13px]">✨</span>
-                  <span className="text-[12px] font-medium text-[#818CF8]">Ask Brain to summarize, generate subtasks or find similar milestones</span>
+                {/* #6 AI banner — tertiary / lower emphasis */}
+                <div className="w-fit flex items-center gap-1.5 cursor-pointer mt-4 opacity-60 hover:opacity-90 transition-opacity" style={{padding:'4px 9px',borderRadius:'5px',border:'1px solid #2D3748'}}>
+                  <span className="text-[12px]">✨</span>
+                  <span className="text-[11px] font-medium text-[#64748B]">Ask Brain to summarize, generate subtasks or find similar milestones</span>
                 </div>
 
               </div>
 
-              {/* FIX #12 — Description */}
-              <div className="flex flex-col shrink-0" style={{ gap: '6px' }}>
-                <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#475569]">Description</h3>
-                <div className="w-full relative group" style={{minHeight:'90px',backgroundColor:'#0B0F17',borderRadius:'8px',padding:'10px 12px',border:'1px solid #1E293B'}}>
+              {/* Description — #4 border contrast + focus ring, #5 button hierarchy */}
+              <div className="flex flex-col shrink-0" style={{ gap: '8px' }}>
+                <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#3D4F63]">Description</h3>
+                <div className="w-full relative group" style={{minHeight:'90px',backgroundColor:'#0D111A',borderRadius:'8px',padding:'10px 12px',border:'1px solid #263040',transition:'border-color 0.15s'}}>
                   {editingField==='description' ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-1 pb-2 border-b border-zinc-800 text-zinc-500">
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg></button>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
-                        <div className="w-[1px] h-3.5 bg-zinc-800 mx-0.5"/>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
-                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-white transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+                    <div className="flex flex-col gap-2" style={{outline:'none'}}>
+                      <div className="flex items-center gap-1 pb-2 border-b border-[#1E293B] text-zinc-600">
+                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-zinc-200 transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg></button>
+                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-zinc-200 transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
+                        <div className="w-[1px] h-3.5 bg-[#1E293B] mx-0.5"/>
+                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-zinc-200 transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                        <button className="p-1 hover:bg-zinc-800 rounded hover:text-zinc-200 transition-colors"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
                       </div>
-                      <textarea autoFocus value={editValue} onChange={e=>setEditValue(e.target.value)} className="w-full min-h-[72px] text-[14px] leading-[1.65] outline-none resize-y" style={{backgroundColor:'transparent',color:'#e4e4e7',border:'none',padding:0}} placeholder="Add task details here..."/>
-                      <div className="flex justify-end gap-2 pt-2 border-t border-zinc-800">
-                        <button className="px-3 py-1 text-[12px] font-medium text-zinc-400 hover:text-white transition-colors" onClick={()=>setEditingField(null)}>Cancel</button>
-                        <button className="px-3 py-1 text-[12px] font-medium bg-indigo-600 text-white rounded hover:bg-indigo-500 transition-colors" onClick={()=>{if(editValue!==selectedIssue.description)updateTaskField('description',editValue);setEditingField(null);}}>Save</button>
+                      <textarea autoFocus value={editValue} onChange={e=>setEditValue(e.target.value)} className="w-full min-h-[80px] text-[14px] leading-[1.65] outline-none resize-y" style={{backgroundColor:'transparent',color:'#E2E8F0',border:'none',padding:0}} placeholder="Add task details here..."/>
+                      {/* #5 — Save = primary, Cancel = low-emphasis ghost */}
+                      <div className="flex justify-end items-center gap-3 pt-2.5 border-t border-[#1E293B]">
+                        <button className="text-[12px] font-medium text-[#475569] hover:text-zinc-300 transition-colors" onClick={()=>setEditingField(null)}>Cancel</button>
+                        <button className="px-3.5 py-1.5 text-[12px] font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-500 active:scale-95 transition-all" onClick={()=>{if(editValue!==selectedIssue.description)updateTaskField('description',editValue);setEditingField(null);}}>Save changes</button>
                       </div>
                     </div>
                   ) : (
                     <div className="cursor-pointer min-h-[68px]" onClick={()=>{setEditingField('description');setEditValue(selectedIssue.description||'');}}>
                       {selectedIssue.description ? (
-                        <p className="text-[14px] leading-[1.65] text-zinc-300 whitespace-pre-wrap">{selectedIssue.description}</p>
+                        <p className="text-[14px] leading-[1.65] text-[#94A3B8] whitespace-pre-wrap">{selectedIssue.description}</p>
                       ) : (
-                        <p className="text-[14px] text-zinc-600 italic">No description — click to add details.</p>
+                        <p className="text-[14px] text-[#2D3748] italic">No description — click to add details.</p>
                       )}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800/80 rounded p-1 text-zinc-400">
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#1E293B] rounded p-1 text-zinc-400">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </div>
                     </div>
@@ -838,53 +839,49 @@ const Discussions = ({ currentUser }) => {
                 </div>
               </div>
 
-              {/* FIX #2/#3 — Merged Subtasks (removed fake "Subtasks 0" + duplicate Checklist) */}
-              <div className="flex flex-col shrink-0" style={{ gap: '6px' }}>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#475569] flex items-center gap-2">
-                    Subtasks
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{backgroundColor:'#1E293B',color:'#64748B'}}>
-                      {selectedIssue.subtasks?.filter(st=>st.completed).length||0}/{selectedIssue.subtasks?.length||0}
-                    </span>
-                  </h3>
+              {/* Subtasks — #7 header gap 8px, brighter placeholder, aligned checkbox */}
+              <div className="flex flex-col shrink-0" style={{ gap: '8px' }}>
+                <div className="flex items-center" style={{ gap: '8px' }}>
+                  <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#3D4F63]">Subtasks</h3>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{backgroundColor:'#161B25',color:'#3D4F63',border:'1px solid #1E293B'}}>
+                    {selectedIssue.subtasks?.filter(st=>st.completed).length||0}/{selectedIssue.subtasks?.length||0}
+                  </span>
                 </div>
-                <div className="flex flex-col rounded-lg overflow-hidden" style={{backgroundColor:'#0B0F17',border:'1px solid #1E293B'}}>
+                <div className="flex flex-col rounded-lg overflow-hidden" style={{backgroundColor:'#0D111A',border:'1px solid #263040'}}>
                   {selectedIssue.subtasks && selectedIssue.subtasks.map(st => (
-                    <div key={st.id} className="flex items-center justify-between px-3 py-2 hover:bg-zinc-800/30 group transition-colors border-b border-[#1E293B] last:border-b-0">
-                      <div className="flex items-center gap-2.5 flex-1">
-                        {/* FIX #9 — compact 20px checkbox toggle (no wide pill) */}
+                    <div key={st.id} className="flex items-center justify-between px-3 py-2.5 hover:bg-[#131929]/60 group transition-colors border-b border-[#1A2236] last:border-b-0">
+                      <div className="flex items-center gap-3 flex-1">
                         <button
                           onClick={()=>toggleSubtask(st.id)}
                           className="shrink-0 flex items-center justify-center rounded transition-all duration-150"
-                          style={{width:18,height:18,borderRadius:'4px',backgroundColor:st.completed?'#10B981':'transparent',border:`1.5px solid ${st.completed?'#10B981':'#374151'}`}}
+                          style={{width:16,height:16,borderRadius:'3px',backgroundColor:st.completed?'#10B981':'transparent',border:`1.5px solid ${st.completed?'#10B981':'#2D3F52'}`}}
                         >
-                          {st.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                          {st.completed && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                         </button>
                         {editingField===`subtask-${st.id}` ? (
-                          <input autoFocus type="text" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{if(editValue.trim()!==st.text)updateSubtaskText(st.id,editValue);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="outline-none flex-1 text-[13px]" style={{backgroundColor:'transparent',color:'#fff',border:'none',borderBottom:'1px solid #6366f1'}}/>
+                          <input autoFocus type="text" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{if(editValue.trim()!==st.text)updateSubtaskText(st.id,editValue);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="outline-none flex-1 text-[13px]" style={{backgroundColor:'transparent',color:'#F1F5F9',border:'none',borderBottom:'1px solid #6366f1'}}/>
                         ) : (
-                          <span onClick={()=>{setEditingField(`subtask-${st.id}`);setEditValue(st.text);}} className={`flex-1 text-[13px] cursor-text select-none ${st.completed?'line-through text-zinc-600':'text-zinc-200 hover:text-white'}`}>{st.text}</span>
+                          <span onClick={()=>{setEditingField(`subtask-${st.id}`);setEditValue(st.text);}} className={`flex-1 text-[13px] leading-snug cursor-text select-none ${st.completed?'line-through text-[#334155]':'text-[#CBD5E1] hover:text-white'}`}>{st.text}</span>
                         )}
                       </div>
-                      <button onClick={e=>{e.stopPropagation();deleteSubtask(st.id);}} className="w-6 h-6 opacity-0 group-hover:opacity-100 rounded hover:bg-red-500/20 text-zinc-500 hover:text-red-400 flex items-center justify-center transition-all ml-2">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                      <button onClick={e=>{e.stopPropagation();deleteSubtask(st.id);}} className="w-5 h-5 opacity-0 group-hover:opacity-100 rounded hover:bg-red-500/15 text-[#3D4F63] hover:text-red-400 flex items-center justify-center transition-all ml-2">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
                       </button>
                     </div>
                   ))}
-                  {/* FIX #10 — Enter hint visible when typing */}
-                  <div className="flex items-center px-3 py-2.5 hover:bg-zinc-800/20 transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" className="mr-2.5 shrink-0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <div className="flex items-center px-3 py-2.5 hover:bg-[#131929]/40 transition-colors">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2D3F52" strokeWidth="2.5" className="mr-2.5 shrink-0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     <form onSubmit={addSubtask} className="flex-1 flex items-center gap-2">
-                      <input type="text" value={newSubtaskText} onChange={e=>setNewSubtaskText(e.target.value)} placeholder="Add a subtask..." className="flex-1 text-[13px] outline-none placeholder-zinc-700 font-medium" style={{backgroundColor:'transparent',color:'#D4D4D8',border:'none'}}/>
-                      {newSubtaskText.trim() && <span className="text-[11px] text-zinc-600 shrink-0">↵ add</span>}
+                      <input type="text" value={newSubtaskText} onChange={e=>setNewSubtaskText(e.target.value)} placeholder="Add a subtask..." className="flex-1 text-[13px] outline-none font-medium" style={{backgroundColor:'transparent',color:'#CBD5E1',border:'none','--placeholder-color':'#2D3F52'}} />
+                      {newSubtaskText.trim() && <span className="text-[11px] text-[#3D4F63] shrink-0 font-medium">↵ add</span>}
                     </form>
                   </div>
                 </div>
               </div>
 
               {/* Attachments */}
-              <div className="flex flex-col shrink-0 pb-6" style={{ gap: '6px' }}>
-                <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#475569]">Attachments</h3>
+              <div className="flex flex-col shrink-0 pb-6" style={{ gap: '8px' }}>
+                <h3 className="text-[11px] font-[700] uppercase tracking-widest text-[#3D4F63]">Attachments</h3>
                 {selectedIssue.screenshotUrl ? (
                   <div className="relative group rounded-lg overflow-hidden border border-zinc-800 bg-[#0B0F17]">
                     <img src={selectedIssue.screenshotUrl} alt="Task Proof" className="w-full h-auto max-h-[320px] object-contain"/>
@@ -908,27 +905,27 @@ const Discussions = ({ currentUser }) => {
 
             </div> {/* end left */}
 
-            {/* ─── FIX #8 — RIGHT SIDEBAR: unified border/bg ── */}
-            <div className="flex flex-col shrink-0" style={{width:'290px',backgroundColor:'#080C12',borderLeft:'1px solid #1E293B',overflow:'hidden'}}>
+            {/* RIGHT SIDEBAR — #7 background contrast + increased internal padding */}
+            <div className="flex flex-col shrink-0" style={{width:'290px',backgroundColor:'#060910',borderLeft:'1px solid #1A2436',overflow:'hidden'}}>
 
-              {/* Tabs */}
-              <div className="p-3 border-b border-[#1E293B]">
-                <div className="flex items-center gap-0.5 p-1 bg-[#0D1117] rounded-lg border border-[#1E293B]">
+              {/* Tabs — #7 more padding */}
+              <div className="px-4 py-3.5 border-b border-[#1A2436]">
+                <div className="flex items-center gap-0.5 p-1 rounded-lg border border-[#1A2436]" style={{backgroundColor:'#0B0F18'}}>
                   {['Activity','Comments','Notes'].map(tab=>(
-                    <button key={tab} onClick={()=>setActiveTab(tab)} className={`flex-1 text-[11px] font-semibold py-1.5 rounded-md transition-colors ${activeTab===tab?'bg-[#1E293B] text-white shadow-sm':'text-zinc-600 hover:text-zinc-300'}`}>{tab}</button>
+                    <button key={tab} onClick={()=>setActiveTab(tab)} className={`flex-1 text-[11px] font-semibold py-1.5 rounded-md transition-colors ${activeTab===tab?'bg-[#1E293B] text-[#E2E8F0] shadow-sm':'text-[#2D3F52] hover:text-zinc-400'}`}>{tab}</button>
                   ))}
                 </div>
               </div>
 
               {activeTab==='Notes' ? (
-                <div className="flex flex-col flex-1 gap-2 p-3 overflow-hidden">
-                  <p className="text-[11px] text-[#475569]">Internal notes — not visible to the client.</p>
-                  <textarea value={selectedIssue.notes||''} onChange={e=>updateTaskField('notes',e.target.value)} placeholder="Type internal notes... (auto-saves)" className="flex-1 w-full border border-[#1E293B] rounded-lg p-2.5 text-[13px] outline-none resize-none placeholder-zinc-700 focus:border-indigo-500/40 transition-colors" style={{backgroundColor:'#0D1117',color:'#E4E4E7'}}/>
+                <div className="flex flex-col flex-1 gap-2.5 p-4 overflow-hidden">
+                  <p className="text-[11px] text-[#2D3F52]">Internal notes — not visible to the client.</p>
+                  <textarea value={selectedIssue.notes||''} onChange={e=>updateTaskField('notes',e.target.value)} placeholder="Type internal notes... (auto-saves)" className="flex-1 w-full border border-[#1A2436] rounded-lg p-3 text-[13px] outline-none resize-none focus:border-indigo-500/30 transition-colors" style={{backgroundColor:'#0B0F18',color:'#CBD5E1',caretColor:'#6366f1'}} />
                 </div>
               ) : (
                 <div className="flex flex-col flex-1 overflow-hidden">
-                  {/* Feed */}
-                  <div className="flex-1 overflow-y-auto flex flex-col gap-3.5 p-3" style={{scrollbarColor:'#1E293B transparent'}}>
+                  {/* Feed — #7 increased padding */}
+                  <div className="flex-1 overflow-y-auto flex flex-col gap-4 p-4" style={{scrollbarColor:'#1A2436 transparent'}}>
 
                     {/* Creation */}
                     <div className="flex gap-2.5 items-start">
@@ -951,8 +948,8 @@ const Discussions = ({ currentUser }) => {
                     ))}
                   </div>
 
-                  {/* FIX #7 — Comment box: taller, auto-grow, send hint */}
-                  <div className="p-3 border-t border-[#1E293B]">
+                  {/* Comment box */}
+                  <div className="p-4 border-t border-[#1A2436]">
                     <form onSubmit={addComment} className="flex flex-col rounded-lg border border-[#1E293B] bg-[#0D1117] overflow-hidden focus-within:border-zinc-600 transition-colors">
                       <textarea
                         value={newCommentText}
