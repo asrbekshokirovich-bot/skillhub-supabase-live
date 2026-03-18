@@ -1,0 +1,29 @@
+
+> skillhub@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mтЬУ[39m 1759 modules transformed.
+тЬЧ Build failed in 2.48s
+error during build:
+src/App.jsx (3:40): "Banknotes" is not exported by "node_modules/lucide-react/dist/esm/lucide-react.js", imported by "src/App.jsx".
+file: C:/Users/user/Desktop/Anti gravity/Skillhub/src/App.jsx:3:40
+
+1: import React, { useState } from 'react';
+2: import { Routes, Route, Link, useLocation } from 'react-router-dom';
+3: import { LayoutDashboard, FolderKanban, Banknotes, MessageSquare, Settings, LogOut, Hexagon } from 'lucide-react';
+                                           ^
+4: import Login from './pages/Login';
+5: import Discussions from './pages/Discussions';
+
+    at getRollupError (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at Module.error (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:17040:16)
+    at Module.traceVariable (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:17452:29)
+    at ModuleScope.findVariable (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:15070:39)
+    at ReturnValueScope.findVariable (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at Identifier.bind (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:5447:40)
+    at CallExpression.bind (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:2825:28)
+    at CallExpression.bind (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:12179:15)
