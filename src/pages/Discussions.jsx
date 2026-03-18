@@ -690,9 +690,9 @@ const Discussions = ({ currentUser }) => {
                       {selectedIssue.status.toUpperCase()}
                     </div>
                     {activePopover === 'status' && (
-                      <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-44 rounded-lg shadow-xl py-1 overflow-hidden" style={{ backgroundColor: '#000000', border: '1px solid #333333' }}>
+                      <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 50, minWidth: '160px', backgroundColor: '#111111', border: '1px solid #333333', borderRadius: '8px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', padding: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {[['To Do','#52525B'],['In Progress','#60A5FA'],['Done','#34D399']].map(([s,c]) => (
-                          <div key={s} onClick={() => { updateTaskField('status', s); setActivePopover(null); }} className="px-3 py-2 text-[13px] text-[#CCCCCC] hover:bg-[#222222] cursor-pointer flex items-center gap-2.5">
+                          <div key={s} onClick={() => { updateTaskField('status', s); setActivePopover(null); }} style={{ padding: '8px 12px', fontSize: '13px', color: '#E5E7EB', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.15s' }} onMouseOver={e=>e.currentTarget.style.backgroundColor='#222222'} onMouseOut={e=>e.currentTarget.style.backgroundColor='transparent'}>
                             <span style={{ width: 6, height: 6, borderRadius: '50%', display: 'inline-block', backgroundColor: c }}/>
                             {s}
                           </div>
@@ -718,9 +718,9 @@ const Discussions = ({ currentUser }) => {
                       <span className="text-[13px] text-[#CCCCCC] font-[500]">{selectedIssue.assignee}</span>
                     </div>
                     {activePopover === 'assignee' && (
-                      <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-56 rounded-lg shadow-xl py-1 max-h-48 overflow-y-auto" style={{ backgroundColor: '#000000', border: '1px solid #333333' }}>
-                        <div onClick={() => { updateTaskField('assignee', 'Unassigned'); setActivePopover(null); }} className="px-3 py-2 text-[13px] text-[#94A3B8] hover:bg-[#222222] cursor-pointer">Unassigned</div>
-                        {users.map(u => (<div key={u.id} onClick={() => { updateTaskField('assignee', u.name); setActivePopover(null); }} className="px-3 py-2 text-[13px] text-[#E5E7EB] hover:bg-[#222222] cursor-pointer">{u.name}</div>))}
+                      <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 50, minWidth: '180px', maxHeight: '200px', overflowY: 'auto', backgroundColor: '#111111', border: '1px solid #333333', borderRadius: '8px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', padding: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div onClick={() => { updateTaskField('assignee', 'Unassigned'); setActivePopover(null); }} style={{ padding: '8px 12px', fontSize: '13px', color: '#94A3B8', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }} onMouseOver={e=>e.currentTarget.style.backgroundColor='#222222'} onMouseOut={e=>e.currentTarget.style.backgroundColor='transparent'}>Unassigned</div>
+                        {users.map(u => (<div key={u.id} onClick={() => { updateTaskField('assignee', u.name); setActivePopover(null); }} style={{ padding: '8px 12px', fontSize: '13px', color: '#E5E7EB', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }} onMouseOver={e=>e.currentTarget.style.backgroundColor='#222222'} onMouseOut={e=>e.currentTarget.style.backgroundColor='transparent'}>{u.name}</div>))}
                       </div>
                     )}
                   </div>
@@ -740,9 +740,9 @@ const Discussions = ({ currentUser }) => {
                       <span className="text-[13px] text-[#CCCCCC] font-[500]">{selectedIssue.priority || 'Medium'}</span>
                     </div>
                     {activePopover === 'priority' && (
-                      <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-36 rounded-lg shadow-xl py-1" style={{ backgroundColor: '#000000', border: '1px solid #333333' }}>
+                      <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 50, minWidth: '160px', backgroundColor: '#111111', border: '1px solid #333333', borderRadius: '8px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', padding: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {[['Urgent','#EF4444'],['High','#F97316'],['Medium','#EAB308'],['Low','#71717A']].map(([p,c])=>(
-                          <div key={p} onClick={()=>{updateTaskField('priority',p);setActivePopover(null);}} className="px-3 py-2 text-[13px] text-[#E5E7EB] hover:bg-[#222222] cursor-pointer flex items-center gap-2">
+                          <div key={p} onClick={()=>{updateTaskField('priority',p);setActivePopover(null);}} style={{ padding: '8px 12px', fontSize: '13px', color: '#E5E7EB', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.15s' }} onMouseOver={e=>e.currentTarget.style.backgroundColor='#222222'} onMouseOut={e=>e.currentTarget.style.backgroundColor='transparent'}>
                             <span style={{width:7,height:7,borderRadius:'50%',display:'inline-block',backgroundColor:c}}/>{p}
                           </div>
                         ))}
@@ -766,9 +766,15 @@ const Discussions = ({ currentUser }) => {
                       </span>
                     </div>
                     {activePopover === 'dates' && (
-                      <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-60 rounded-lg shadow-xl p-3 flex flex-col gap-3" style={{ backgroundColor: '#000000', border: '1px solid #333333' }}>
-                        <div><label className="text-[11px] text-[#64748B] uppercase tracking-wider mb-1 block">Start Date</label><input type="date" value={selectedIssue.startDate||''} onChange={e=>updateTaskField('startDate',e.target.value)} className="w-full border rounded px-2 py-1.5 text-[13px] outline-none" style={{backgroundColor:'#1E293B',borderColor:'#334155',color:'#E5E7EB',colorScheme:'dark'}}/></div>
-                        <div><label className="text-[11px] text-[#64748B] uppercase tracking-wider mb-1 block">Due Date</label><input type="date" value={selectedIssue.dueDate||''} onChange={e=>updateTaskField('dueDate',e.target.value)} className="w-full border rounded px-2 py-1.5 text-[13px] outline-none" style={{backgroundColor:'#1E293B',borderColor:'#334155',color:'#E5E7EB',colorScheme:'dark'}}/></div>
+                      <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 50, minWidth: '220px', backgroundColor: '#111111', border: '1px solid #333333', borderRadius: '8px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', display: 'block', fontWeight: 600 }}>Start Date</label>
+                          <input type="date" value={selectedIssue.startDate||''} onChange={e=>updateTaskField('startDate',e.target.value)} style={{ width: '100%', padding: '8px 10px', backgroundColor: '#1A1D24', border: '1px solid #2B303B', borderRadius: '6px', color: '#E5E7EB', fontSize: '13px', outline: 'none', colorScheme: 'dark', transition: 'border-color 0.2s' }} onFocus={e=>e.target.style.borderColor='#4B5563'} onBlur={e=>e.target.style.borderColor='#2B303B'}/>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', display: 'block', fontWeight: 600 }}>Due Date</label>
+                          <input type="date" value={selectedIssue.dueDate||''} onChange={e=>updateTaskField('dueDate',e.target.value)} style={{ width: '100%', padding: '8px 10px', backgroundColor: '#1A1D24', border: '1px solid #2B303B', borderRadius: '6px', color: '#E5E7EB', fontSize: '13px', outline: 'none', colorScheme: 'dark', transition: 'border-color 0.2s' }} onFocus={e=>e.target.style.borderColor='#4B5563'} onBlur={e=>e.target.style.borderColor='#2B303B'}/>
+                        </div>
                       </div>
                     )}
                   </div>
