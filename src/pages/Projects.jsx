@@ -140,8 +140,8 @@ const Projects = ({ currentUser }) => {
         <div className="card animate-fade-in mb-6" style={{ padding: '1.5rem' }}>
           <h3 className="text-lg font-bold mb-4">Create New Project</h3>
           <form onSubmit={handleCreateProject} className="flex-col gap-4">
-            <div className="flex gap-4 w-full">
-              <div className="flex-col gap-1.5 flex-1">
+            <div className="flex gap-4 w-full flex-wrap">
+              <div className="flex-col gap-1.5 flex-1" style={{ minWidth: '200px' }}>
                 <label className="text-sm font-bold">Project Name</label>
                 <input 
                   type="text" 
@@ -152,7 +152,7 @@ const Projects = ({ currentUser }) => {
                   required
                 />
               </div>
-              <div className="flex-col gap-1.5 flex-1">
+              <div className="flex-col gap-1.5 flex-1" style={{ minWidth: '200px' }}>
                 <label className="text-sm font-bold">Client Name</label>
                 <input 
                   type="text" 

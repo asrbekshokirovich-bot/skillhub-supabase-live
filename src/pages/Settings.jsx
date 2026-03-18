@@ -52,7 +52,8 @@ const DeleteAccountModal = ({ onClose, onDeleted }) => {
     >
       <div
         style={{
-          width: '440px',
+          width: '95vw',
+          maxWidth: '440px',
           backgroundColor: 'var(--bg-primary)',
           border: '1.5px solid #ef4444',
           borderRadius: 'var(--radius-lg)',

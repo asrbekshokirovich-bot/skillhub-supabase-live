@@ -140,20 +140,20 @@ const Dashboard = ({ currentUser }) => {
   return (
     <div className="flex-col gap-6 w-full">
       <div className="flex gap-6 w-full flex-wrap">
-        <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-100">
+        <div className="card flex-1 hover-elevate animate-slide-up delay-100" style={{ minWidth: 'min(100%, 300px)' }}>
           <div className="card-body flex justify-between items-center">
             <span className="text-secondary font-medium">Active Projects</span>
             {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.activeProjects}</span>}
           </div>
         </div>
-        <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-200">
+        <div className="card flex-1 hover-elevate animate-slide-up delay-200" style={{ minWidth: 'min(100%, 300px)' }}>
           <div className="card-body flex justify-between items-center">
             <span className="text-secondary font-medium">Open Tasks</span>
             {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.openTasks}</span>}
           </div>
         </div>
         {currentUser.role !== 'developer' && (
-          <div className="card flex-1 min-w-[300px] hover-elevate animate-slide-up delay-300">
+          <div className="card flex-1 hover-elevate animate-slide-up delay-300" style={{ minWidth: 'min(100%, 300px)' }}>
             <div className="card-body flex justify-between items-center">
               <span className="text-secondary font-medium">Pending Invoices</span>
               {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.pendingInvoices}</span>}

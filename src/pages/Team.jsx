@@ -42,7 +42,8 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
     >
       <div style={{
-        width: '460px',
+        width: '95vw',
+        maxWidth: '460px',
         backgroundColor: 'var(--bg-primary)',
         border: '1.5px solid #ef4444',
         borderRadius: 'var(--radius-lg)',
@@ -328,8 +329,8 @@ const Team = ({ currentUser }) => {
             </div>
           )}
 
-          <div className="flex gap-4 w-full">
-            <div className="flex-col gap-1.5 flex-1">
+          <div className="flex gap-4 w-full flex-wrap">
+            <div className="flex-col gap-1.5 flex-1" style={{ minWidth: '200px' }}>
               <label className="text-sm font-bold">Username</label>
               <input
                 type="text"
@@ -340,7 +341,7 @@ const Team = ({ currentUser }) => {
                 required
               />
             </div>
-            <div className="flex-col gap-1.5 flex-1">
+            <div className="flex-col gap-1.5 flex-1" style={{ minWidth: '200px' }}>
               <label className="text-sm font-bold">Account Role</label>
               <select
                 className="input w-full"
