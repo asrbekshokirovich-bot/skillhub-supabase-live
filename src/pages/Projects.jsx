@@ -114,6 +114,7 @@ const Projects = ({ currentUser }) => {
   };
 
   return (
+    <>
     <div className="flex-col gap-6 h-full w-full max-w-5xl">
       <div className="flex justify-between items-center">
         <div>
@@ -309,6 +310,7 @@ const Projects = ({ currentUser }) => {
           </div>
         </div>
       )}
+    </>
   );
 };
 
