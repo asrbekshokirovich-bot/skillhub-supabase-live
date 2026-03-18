@@ -96,6 +96,15 @@ const Discussions = ({ currentUser }) => {
           checklists: docData.checklists || []
         });
       });
+
+      // Sort by urgency first (High > Medium > Low), then preserve the createdAt desc order
+      const urgencyWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
+      data.sort((a, b) => {
+        const wA = urgencyWeight[a.urgency] || 0;
+        const wB = urgencyWeight[b.urgency] || 0;
+        return wB - wA; // stable sort will keep the secondary createdAt ordering
+      });
+
       setIssues(data);
     } catch (err) {
       console.error("Error fetching tasks:", err);
