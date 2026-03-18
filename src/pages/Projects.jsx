@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FolderKanban, MoreVertical, Plus, Loader2, Users } from 'lucide-react';
+import { FolderKanban, MoreVertical, Plus, Loader2, Users, Key } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, query, getDocs, addDoc, where, updateDoc, doc } from 'firebase/firestore';
+import ProjectVault from './ProjectVault';
 
 const Projects = ({ currentUser }) => {
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ const Projects = ({ currentUser }) => {
   // Reassign state
   const [reassignProjectId, setReassignProjectId] = useState(null);
   const [newAssignee, setNewAssignee] = useState('');
+
+  // Vault state
+  const [vaultProjectId, setVaultProjectId] = useState(null);
+  const [vaultProjectName, setVaultProjectName] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -259,15 +264,26 @@ const Projects = ({ currentUser }) => {
                      Open Workspace
                    </button>
                    {currentUser?.role === 'admin' && (
-                     <button
-                       className="btn btn-secondary w-full"
-                       onClick={() => {
-                         setReassignProjectId(project.id);
-                         setNewAssignee(project.assignee === 'Unassigned' ? '' : project.assignee);
-                       }}
-                     >
-                       Reassign Developer
-                     </button>
+                     <div className="flex gap-2 w-full">
+                       <button
+                         className="btn btn-secondary flex-1"
+                         onClick={() => {
+                           setReassignProjectId(project.id);
+                           setNewAssignee(project.assignee === 'Unassigned' ? '' : project.assignee);
+                         }}
+                       >
+                         Reassign
+                       </button>
+                       <button
+                         className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
+                         onClick={() => {
+                           setVaultProjectName(project.name);
+                           setVaultProjectId(project.id);
+                         }}
+                       >
+                         <Key size={14} /> Vault
+                       </button>
+                     </div>
                    )}
                 </div>
               </div>
@@ -309,6 +325,15 @@ const Projects = ({ currentUser }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Vault Modal */}
+      {vaultProjectId && currentUser?.role === 'admin' && (
+        <ProjectVault 
+          projectId={vaultProjectId} 
+          projectName={vaultProjectName} 
+          onClose={() => setVaultProjectId(null)} 
+        />
       )}
     </>
   );
