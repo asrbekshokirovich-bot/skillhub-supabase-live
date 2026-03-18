@@ -263,8 +263,8 @@ const Projects = ({ currentUser }) => {
                    >
                      Open Workspace
                    </button>
-                   {currentUser?.role === 'admin' && (
-                     <div className="flex gap-2 w-full">
+                   <div className="flex gap-2 w-full">
+                     {currentUser?.role === 'admin' && (
                        <button
                          className="btn btn-secondary flex-1"
                          onClick={() => {
@@ -274,6 +274,8 @@ const Projects = ({ currentUser }) => {
                        >
                          Reassign
                        </button>
+                     )}
+                     {(currentUser?.role === 'admin' || currentUser?.role === 'developer') && (
                        <button
                          className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
                          onClick={() => {
@@ -283,8 +285,8 @@ const Projects = ({ currentUser }) => {
                        >
                          <Key size={14} /> Vault
                        </button>
-                     </div>
-                   )}
+                     )}
+                   </div>
                 </div>
               </div>
             ))}
@@ -328,7 +330,7 @@ const Projects = ({ currentUser }) => {
       )}
 
       {/* Vault Modal */}
-      {vaultProjectId && currentUser?.role === 'admin' && (
+      {vaultProjectId && (currentUser?.role === 'admin' || currentUser?.role === 'developer') && (
         <ProjectVault 
           projectId={vaultProjectId} 
           projectName={vaultProjectName} 
