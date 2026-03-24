@@ -57,6 +57,9 @@ const Login = ({ isDark }) => {
               placeholder="Enter your username" 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
               required
             />
           </div>

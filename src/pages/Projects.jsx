@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FolderKanban, MoreVertical, Plus, Loader2, Users, Key } from 'lucide-react';
-import { db } from '../lib/firebase';
-import { collection, query, getDocs, addDoc, where, updateDoc, doc } from 'firebase/firestore';
+import { projectService } from '../lib/services/projectService';
+import { userService } from '../lib/services/userService';
 import ProjectVault from './ProjectVault';
 
-const Projects = ({ currentUser }) => {
+export default function Projects({ currentUser }) {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +33,7 @@ const Projects = ({ currentUser }) => {
 
   const fetchUsers = async () => {
     try {
-      const q = query(collection(db, 'profiles'), where('role', '==', 'developer'));
-      const snap = await getDocs(q);
-      const devs = [];
-      snap.forEach(d => devs.push({ id: d.id, ...d.data() }));
+      const devs = await userService.getDevelopers();
       setUsers(devs);
     } catch (err) {
       console.error("Error fetching devs:", err);
@@ -45,26 +42,22 @@ const Projects = ({ currentUser }) => {
 
   const fetchProjects = async () => {
     try {
-      let q;
-      if (currentUser?.role === 'admin') {
-        q = query(collection(db, 'projects'));
-      } else if (currentUser?.role === 'developer') {
-        q = query(collection(db, 'projects'), where('assignee', '==', currentUser?.name || ''));
-      } else if (currentUser?.role === 'client') {
-        q = query(collection(db, 'projects'), where('client', '==', currentUser?.name || ''));
-      } else {
-        q = query(collection(db, 'projects'));
-      }
+      let data = [];
+      const role = currentUser?.role;
+      const name = currentUser?.name || '';
 
-      const querySnapshot = await getDocs(q);
-      const data = [];
-      querySnapshot.forEach((docSnap) => {
-        data.push({ id: docSnap.id, ...docSnap.data() });
-      });
+      if (role === 'admin') {
+        data = await projectService.getAllProjects();
+      } else if (role === 'developer') {
+        data = await projectService.getProjectsByAssignee(name);
+      } else if (role === 'client') {
+        data = await projectService.getProjectsByClient(name);
+      } else {
+        data = await projectService.getAllProjects();
+      }
       
       // Sort in JavaScript to avoid Firestore composite index requirements
       data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      
       setProjects(data);
     } catch (err) {
       console.error("Error fetching projects:", err);
@@ -79,14 +72,13 @@ const Projects = ({ currentUser }) => {
     
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'projects'), {
+      await projectService.createProject({
         name: projectName.trim(),
         client: clientName.trim(),
         status: 'In Progress',
         progress: 0,
         tasks: 0,
         assignee: assignee || 'Unassigned',
-        createdAt: new Date().toISOString(),
         createdBy: currentUser?.name || 'Unknown'
       });
       
@@ -106,9 +98,10 @@ const Projects = ({ currentUser }) => {
   const handleReassign = async () => {
     if (!reassignProjectId) return;
     try {
-      await updateDoc(doc(db, 'projects', reassignProjectId), {
+      await projectService.updateProject(reassignProjectId, {
         assignee: newAssignee || 'Unassigned'
       });
+      
       setReassignProjectId(null);
       setNewAssignee('');
       fetchProjects();
@@ -341,6 +334,4 @@ const Projects = ({ currentUser }) => {
       )}
     </>
   );
-};
-
-export default Projects;
+}

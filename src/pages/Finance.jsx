@@ -3,10 +3,66 @@ import { Download, FileText } from 'lucide-react';
 
 const mockInvoices = [];
 
-const Finance = ({ currentUser }) => {
-  // Filter for client mode
+// Constants to remove magic strings
+const FILTER_CLIENT = 'Acme Corp';
+const STATUS_COLORS = {
+  Paid: 'var(--bg-tertiary)',
+  Overdue: '#fecaca',
+  Pending: 'var(--bg-secondary)' // Default fallback
+};
+
+/**
+ * Returns the appropriate background color for an invoice status badge.
+ */
+function getStatusBgColor(status) {
+  return STATUS_COLORS[status] || STATUS_COLORS.Pending;
+}
+
+/**
+ * Renders a single invoice row in the table.
+ */
+const InvoiceRow = ({ invoice, index }) => {
+  return (
+    <tr 
+      className={`invoice-row animate-slide-up delay-${(index + 1) * 100}`}
+    >
+      <td data-label="Invoice ID" className="table-cell" style={{ fontWeight: 500 }}>
+        <div className="flex items-center gap-2">
+          <FileText size={16} className="text-secondary" />
+          <span>{invoice.id}</span>
+        </div>
+      </td>
+      <td data-label="Client" className="table-cell">{invoice.client}</td>
+      <td data-label="Date" className="table-cell" style={{ color: 'var(--text-secondary)' }}>
+        {invoice.date}
+      </td>
+      <td data-label="Amount" className="table-cell" style={{ fontWeight: 500 }}>
+        {invoice.amount}
+      </td>
+      <td data-label="Status" className="table-cell">
+        <span 
+          className="badge" 
+          style={{ backgroundColor: getStatusBgColor(invoice.status), color: 'var(--text-primary)' }}
+        >
+          {invoice.status}
+        </span>
+      </td>
+      <td data-label="Action" className="table-cell">
+        <button className="btn btn-secondary p-2">
+          <Download size={16} />
+        </button>
+      </td>
+    </tr>
+  );
+};
+
+export default function Finance({ currentUser }) {
+  // Use early exit pattern if no user
+  if (!currentUser) return null;
+
+  // Filter based on role (Functional logic kept simple)
   const displayInvoices = currentUser.role === 'client' 
-    ? mockInvoices.filter(i => i.client === 'Acme Corp') 
+    ? mockInvoices.filter(invoice => invoice.client === FILTER_CLIENT) 
     : mockInvoices;
 
   return (
@@ -23,15 +79,15 @@ const Finance = ({ currentUser }) => {
 
       <div className="card">
         <div style={{ width: '100%', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="responsive-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Invoice ID</th>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Client</th>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Date</th>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Amount</th>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Status</th>
-                <th style={{ padding: '1rem', fontWeight: 600, fontSize: '0.875rem' }}>Action</th>
+                <th className="table-header-cell">Invoice ID</th>
+                <th className="table-header-cell">Client</th>
+                <th className="table-header-cell">Date</th>
+                <th className="table-header-cell">Amount</th>
+                <th className="table-header-cell">Status</th>
+                <th className="table-header-cell">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -43,30 +99,7 @@ const Finance = ({ currentUser }) => {
                 </tr>
               ) : (
                 displayInvoices.map((invoice, index) => (
-                  <tr key={invoice.id} className={`animate-slide-up delay-${(index + 1) * 100}`} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    <td style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 500 }}>
-                      <div className="flex items-center gap-2">
-                         <FileText size={16} className="text-secondary" />
-                         {invoice.id}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem', fontSize: '0.875rem' }}>{invoice.client}</td>
-                    <td style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{invoice.date}</td>
-                    <td style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 500 }}>{invoice.amount}</td>
-                    <td style={{ padding: '1rem' }}>
-                      <span className="badge" style={{ 
-                        backgroundColor: invoice.status === 'Paid' ? 'var(--bg-tertiary)' : invoice.status === 'Overdue' ? '#fecaca' : 'var(--bg-secondary)',
-                        color: 'var(--text-primary)'
-                      }}>
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <button className="btn btn-secondary flex items-center justify-center p-2">
-                         <Download size={16} />
-                      </button>
-                    </td>
-                  </tr>
+                  <InvoiceRow key={invoice.id} invoice={invoice} index={index} />
                 ))
               )}
             </tbody>
@@ -75,6 +108,4 @@ const Finance = ({ currentUser }) => {
       </div>
     </div>
   );
-};
-
-export default Finance;
+}

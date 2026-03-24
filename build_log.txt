@@ -4,17 +4,12 @@
 
 [36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
 transforming...
-[32mтЬУ[39m 1783 modules transformed.
-rendering chunks...
-computing gzip size...
-[2mdist/[22m[32mindex.html                      [39m[1m[2m  0.45 kB[22m[1m[22m[2m тФВ gzip:   0.29 kB[22m
-[2mdist/[22m[32massets/logo-dark-MxhwYGYF.png   [39m[1m[2m 88.41 kB[22m[1m[22m
-[2mdist/[22m[32massets/logo-light-B5W__DDL.png  [39m[1m[2m 90.05 kB[22m[1m[22m
-[2mdist/[22m[35massets/index-BV-ad6d4.css       [39m[1m[2m  9.49 kB[22m[1m[22m[2m тФВ gzip:   2.60 kB[22m
-[2mdist/[22m[36massets/index-B5--kEQv.js        [39m[1m[33m703.08 kB[39m[22m[2m тФВ gzip: 211.02 kB[22m
-
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-[32mтЬУ built in 5.03s[39m
+[32mтЬУ[39m 1754 modules transformed.
+тЬЧ Build failed in 1.70s
+error during build:
+Could not resolve "../components/TaskDetailModal" from "src/pages/Discussions.jsx"
+file: C:/Users/user/Desktop/Anti gravity/Skillhub/src/pages/Discussions.jsx
+    at getRollupError (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:21710:24)
+    at file:///C:/Users/user/Desktop/Anti%20gravity/Skillhub/node_modules/rollup/dist/es/shared/node-entry.js:21670:26

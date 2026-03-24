@@ -241,11 +241,13 @@ input:focus, textarea:focus, select:focus {
 .h-full { height: 100%; }
 
 /* Typography utils */
-.text-sm { font-size: 0.875rem; }
-.text-base { font-size: 1rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
+.text-xs { font-size: clamp(0.7rem, 0.7vw + 0.5rem, 0.75rem); }
+.text-sm { font-size: clamp(0.825rem, 0.8vw + 0.5rem, 0.875rem); }
+.text-base { font-size: clamp(0.95rem, 1vw + 0.6rem, 1rem); }
+.text-lg { font-size: clamp(1.05rem, 1.2vw + 0.6rem, 1.125rem); }
+.text-xl { font-size: clamp(1.15rem, 1.5vw + 0.8rem, 1.25rem); }
+.text-2xl { font-size: clamp(1.35rem, 2vw + 1rem, 1.5rem); }
+.text-3xl { font-size: clamp(1.65rem, 2.5vw + 1.2rem, 1.875rem); }
 .font-medium { font-weight: 500; }
 .font-bold { font-weight: 700; }
 .text-secondary { color: var(--text-secondary); }
@@ -432,6 +434,10 @@ input:focus, textarea:focus, select:focus {
   transform: scale(0.95);
 }
 
+.mobile-tab-bar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .app-layout {
     flex-direction: column;
@@ -551,6 +557,72 @@ input:focus, textarea:focus, select:focus {
     white-space: nowrap !important;
     padding-bottom: 0.25rem !important;
   }
+
+  /* Structural Bottom Sheets */
+  .bottom-sheet {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    margin: 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    border-bottom: none !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    animation: slideUpBottomSheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  }
+
+  @keyframes slideUpBottomSheet {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Responsive Table to Cards */
+  .responsive-cards {
+    border: none !important;
+  }
+  .responsive-cards thead {
+    display: none !important;
+  }
+  .responsive-cards, .responsive-cards tbody, .responsive-cards tr, .responsive-cards td {
+    display: block !important;
+    width: 100% !important;
+  }
+  .responsive-cards tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-primary);
+    overflow: hidden;
+  }
+  .responsive-cards td {
+    position: relative;
+    padding-left: 45% !important;
+    text-align: right !important;
+    border: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    min-height: 50px;
+  }
+  .responsive-cards td:last-child {
+    border-bottom: none !important;
+  }
+  .responsive-cards td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: left;
+    width: 40%;
+    white-space: nowrap;
+  }
 }
 
 @media (min-width: 769px) {
@@ -581,5 +653,100 @@ input:focus, textarea:focus, select:focus {
   min-height: 500px;
   width: 400px;
   flex-shrink: 0;
-  scroll-snap-align: center;
+}
+
+/* --- Finance Component Styles --- */
+.invoice-row {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.invoice-row:hover {
+  background-color: var(--bg-secondary);
+}
+
+.table-header-cell {
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+
+.table-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+}
+
+/* --- Phase 1: Standardization for ProjectVault & ProjectFiles --- */
+.vault-input {
+  border-color: #333333;
+  transition: border-color 0.2s;
+}
+.vault-input:focus {
+  border-color: #FFFFFF !important;
+}
+
+.btn-icon-hover {
+  transition: all 0.2s;
+  color: #888888;
+  background-color: transparent;
+}
+.btn-icon-hover:hover {
+  color: #FFFFFF !important;
+  background-color: #222222 !important;
+}
+
+.btn-danger-hover {
+  transition: all 0.2s;
+  color: #ef4444;
+  background-color: transparent;
+}
+.btn-danger-hover:hover {
+  color: #fecaca !important;
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.btn-white-hover {
+  transition: all 0.2s;
+  background-color: #FFFFFF;
+  color: #000000;
+}
+.btn-white-hover:hover {
+  background-color: #E5E5E5 !important;
+}
+
+.tab-btn-unselected {
+  transition: all 0.2s;
+}
+.tab-btn-unselected:hover {
+  color: #CCCCCC !important;
+  background-color: #111111 !important;
+}
+
+.vault-entry-card {
+  transition: border-color 0.2s;
+  border-color: #222222;
+}
+.vault-entry-card:hover {
+  border-color: #444444 !important;
+}
+.vault-entry-card .vault-actions {
+  opacity: 0;
+  transition: opacity 0.2s;
+  background-color: #111111;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid #222222;
+}
+.vault-entry-card:hover .vault-actions {
+  opacity: 1;
+}
+
+.upload-zone {
+  border: 2px dashed #333333;
+  transition: border-color 0.2s;
+}
+.upload-zone-hoverable:hover {
+  border-color: #666666 !important;
 }

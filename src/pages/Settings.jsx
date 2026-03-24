@@ -3,6 +3,7 @@ import { auth, db } from '../lib/firebase';
 import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { Trash2, AlertTriangle, X, Loader2, ShieldAlert } from 'lucide-react';
+import { triggerHaptic } from '../lib/haptics';
 
 /* ─────────────────────────────────────────────────────────────────────────
    Delete Account Modal — 2-step confirmation
@@ -26,6 +27,7 @@ const DeleteAccountModal = ({ onClose, onDeleted }) => {
       // Delete Firestore profile first, then the auth account
       await deleteDoc(doc(db, 'profiles', user.uid));
       await deleteUser(user);
+      triggerHaptic('heavy');
       onDeleted();
     } catch (err) {
       if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -51,6 +53,7 @@ const DeleteAccountModal = ({ onClose, onDeleted }) => {
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
     >
       <div
+        className="bottom-sheet"
         style={{
           width: '95vw',
           maxWidth: '440px',
