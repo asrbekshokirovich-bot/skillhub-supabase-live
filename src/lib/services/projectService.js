@@ -1,72 +1,62 @@
-import { projectRepository } from '../repositories/projectRepository';
+import { supabase } from '../supabase';
 import { triggerHaptic } from '../haptics';
-import { query, where } from 'firebase/firestore';
 
 class ProjectService {
-  /**
-   * Fetch all projects
-   */
   async getAllProjects() {
-    return await projectRepository.findAll();
+    const { data, error } = await supabase.from('projects').select('*').order('createdAt', { ascending: false });
+    if (error) throw error;
+    return data;
   }
 
-  /**
-   * Fetch projects by developer assignee
-   */
   async getProjectsByAssignee(assigneeName) {
-    const q = query(projectRepository.getCollectionRef(), where('assignee', '==', assigneeName));
-    return await projectRepository.findAll(q);
+    const { data, error } = await supabase.from('projects').select('*').eq('assignee', assigneeName).order('createdAt', { ascending: false });
+    if (error) throw error;
+    return data;
   }
 
-  /**
-   * Fetch projects by client name
-   */
   async getProjectsByClient(clientName) {
-    const q = query(projectRepository.getCollectionRef(), where('client', '==', clientName));
-    return await projectRepository.findAll(q);
+    const { data, error } = await supabase.from('projects').select('*').eq('client', clientName).order('createdAt', { ascending: false });
+    if (error) throw error;
+    return data;
   }
 
-  /**
-   * Create a new project, appending audit timestamps and success haptics
-   */
-  async createProject(data) {
+  async createProject(projectData) {
     try {
-      const project = await projectRepository.create({
-        ...data,
+      const { data, error } = await supabase.from('projects').insert({
+        ...projectData,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      });
+      }).select().single();
+      
+      if (error) throw error;
       triggerHaptic('success');
-      return project;
+      return data;
     } catch (error) {
       triggerHaptic('error');
       throw error;
     }
   }
 
-  /**
-   * Update an existing project
-   */
-  async updateProject(id, data) {
+  async updateProject(id, projectData) {
     try {
-      const updated = await projectRepository.update(id, {
-        ...data,
+      const { data, error } = await supabase.from('projects').update({
+        ...projectData,
         updatedAt: new Date().toISOString()
-      });
+      }).eq('id', id).select().single();
+      
+      if (error) throw error;
       triggerHaptic('light');
-      return updated;
+      return data;
     } catch (error) {
       triggerHaptic('error');
       throw error;
     }
   }
 
-  /**
-   * Delete a project
-   */
   async deleteProject(id) {
     try {
-      await projectRepository.delete(id);
+      const { error } = await supabase.from('projects').delete().eq('id', id);
+      if (error) throw error;
       triggerHaptic('heavy');
       return true;
     } catch (error) {

@@ -1,21 +1,25 @@
-import { userRepository } from '../repositories/userRepository';
-import { query, where } from 'firebase/firestore';
+import { supabase } from '../supabase';
 
 class UserService {
   /**
    * Fetch all users who have the role of developer
    */
   async getDevelopers() {
-    const customQuery = query(userRepository.getCollectionRef(), where('role', '==', 'developer'));
-    return await userRepository.findAll(customQuery);
+    const { data, error } = await supabase.from('users').select('*').eq('role', 'developer');
+    if (error) throw error;
+    return data;
   }
 
   async getAllProfiles() {
-    return await userRepository.findAll();
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) throw error;
+    return data;
   }
 
   async deleteProfile(userId) {
-    return await userRepository.delete(userId);
+    const { error } = await supabase.from('users').delete().eq('id', userId);
+    if (error) throw error;
+    return true;
   }
 }
 

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users, Loader2, Menu, X } from 'lucide-react';
-import { auth, db } from './lib/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Discussions from './pages/Discussions';
 import Projects from './pages/Projects';
@@ -97,11 +95,10 @@ const Dashboard = ({ currentUser }) => {
       setLoading(true);
       try {
         // 1. Fetch Active Projects
-        const projectsSnap = await getDocs(collection(db, 'projects'));
-        const allProjects = projectsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const { data: allProjects } = await supabase.from('projects').select('*');
         
         // Filter based on role (similar to Projects.jsx)
-        let relevantProjects = allProjects;
+        let relevantProjects = allProjects || [];
         if (currentUser.role === 'developer') {
           relevantProjects = allProjects.filter(p => p.assignee === currentUser.name);
         } else if (currentUser.role === 'client') {
@@ -114,8 +111,8 @@ const Dashboard = ({ currentUser }) => {
         let openTasksCount = 0;
         await Promise.all(activeProjects.map(async (proj) => {
           try {
-            const tasksSnap = await getDocs(collection(db, 'projects', proj.id, 'tasks'));
-            const openTasks = tasksSnap.docs.filter(t => t.data().status !== 'Done' && t.data().status !== 'Completed');
+            const { data: tasksSnap } = await supabase.from('tasks').select('*').eq('projectId', proj.id);
+            const openTasks = (tasksSnap || []).filter(t => t.status !== 'Done' && t.status !== 'Completed');
             openTasksCount += openTasks.length;
           } catch (e) {
             console.error(e);
@@ -236,34 +233,39 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+    const handleSession = async (session) => {
+      if (session?.user) {
         try {
-          const docRef = doc(db, 'profiles', user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
+          const { data: userData, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+          if (userData) {
             setCurrentUser({
-              id: user.uid,
-              email: user.email,
+              id: session.user.id,
+              email: session.user.email,
               name: userData.name || 'User',
               role: userData.role || 'client'
             });
           } else {
-            // Fallback
-            setCurrentUser({ id: user.uid, email: user.email, name: 'User', role: 'client' });
+            setCurrentUser({ id: session.user.id, email: session.user.email, name: 'User', role: 'client' });
           }
         } catch (err) {
           console.error("Error fetching profile:", err);
-          setCurrentUser({ id: user.uid, email: user.email, name: 'User', role: 'client' });
+          setCurrentUser({ id: session.user.id, email: session.user.email, name: 'User', role: 'client' });
         }
       } else {
         setCurrentUser(null);
       }
       setIsLoading(false);
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
     });
 
-    return () => unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -279,7 +281,7 @@ function App() {
   }, [theme]);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
   };
 
   if (isLoading) {

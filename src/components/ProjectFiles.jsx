@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { storage } from '../lib/firebase';
-import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
+import { supabase } from '../lib/supabase';
+import { storageService } from '../lib/services/storageService';
 import { Loader2, UploadCloud, FileText, Trash2, Download } from 'lucide-react';
 import { triggerHaptic } from '../lib/haptics';
 
@@ -17,17 +17,21 @@ export default function ProjectFiles({ projectId }) {
   const fetchFiles = async () => {
     setLoading(true);
     try {
-      const folderRef = ref(storage, `projects/${projectId}/files`);
-      const res = await listAll(folderRef);
-      const filePromises = res.items.map(async (itemRef) => {
-        const url = await getDownloadURL(itemRef);
-        return {
-          name: itemRef.name,
-          url,
-          ref: itemRef
-        };
+      const { data, error } = await supabase.storage.from('skillhub-bucket').list(`projects/${projectId}/files`);
+      if (error) throw error;
+      
+      if (!data) return;
+      
+      const fileList = data
+        .filter(item => item.name !== '.emptyFolderPlaceholder')
+        .map(item => {
+          const { data: { publicUrl } } = supabase.storage.from('skillhub-bucket').getPublicUrl(`projects/${projectId}/files/${item.name}`);
+          return {
+            name: item.name,
+            url: publicUrl,
+            fullPath: `projects/${projectId}/files/${item.name}`
+          };
       });
-      const fileList = await Promise.all(filePromises);
       setFiles(fileList);
     } catch (err) {
       console.error("Error fetching files:", err);
@@ -43,10 +47,9 @@ export default function ProjectFiles({ projectId }) {
     setUploading(true);
     triggerHaptic('light');
     try {
-       // use timestamp to prevent overwrites of same-named files
       const timestamp = Date.now();
-      const fileRef = ref(storage, `projects/${projectId}/files/${timestamp}_${selectedFile.name}`);
-      await uploadBytes(fileRef, selectedFile);
+      const path = `projects/${projectId}/files/${timestamp}_${selectedFile.name}`;
+      await storageService.uploadFile(path, selectedFile);
       triggerHaptic('success');
       fetchFiles(); // Refresh list
     } catch (err) {
@@ -59,13 +62,15 @@ export default function ProjectFiles({ projectId }) {
     }
   };
 
-  const handleDelete = async (fileRef) => {
+  const handleDelete = async (file) => {
     if (!window.confirm(`Are you sure you want to delete this file?`)) return;
     try {
       setLoading(true);
-      await deleteObject(fileRef);
+      const { error } = await supabase.storage.from('skillhub-bucket').remove([file.fullPath]);
+      if (error) throw error;
+      
       triggerHaptic('heavy');
-      setFiles(files.filter(f => f.ref.fullPath !== fileRef.fullPath));
+      setFiles(files.filter(f => f.fullPath !== file.fullPath));
     } catch (err) {
       console.error("Error deleting file:", err);
       triggerHaptic('error');
@@ -165,7 +170,7 @@ export default function ProjectFiles({ projectId }) {
                     </a>
                     <button 
                       title="Delete File"
-                      onClick={() => handleDelete(file.ref)}
+                      onClick={() => handleDelete(file)}
                       className="btn-danger-hover"
                       style={{ padding: '0.5rem', borderRadius: '6px' }}
                     >

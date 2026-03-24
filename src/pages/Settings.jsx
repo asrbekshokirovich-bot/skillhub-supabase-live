@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { auth, db } from '../lib/firebase';
-import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { Trash2, AlertTriangle, X, Loader2, ShieldAlert } from 'lucide-react';
 import { triggerHaptic } from '../lib/haptics';
 
@@ -10,7 +8,7 @@ import { triggerHaptic } from '../lib/haptics';
    Step 1: Warning + "Are you sure?" prompt
    Step 2: Password entry to complete deletion
 ───────────────────────────────────────────────────────────────────────── */
-const DeleteAccountModal = ({ onClose, onDeleted }) => {
+const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
   const [step, setStep] = useState(1);      // 1 = confirm warning, 2 = enter password
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,19 +19,25 @@ const DeleteAccountModal = ({ onClose, onDeleted }) => {
     setError(null);
     setLoading(true);
     try {
-      const user = auth.currentUser;
-      const credential = EmailAuthProvider.credential(user.email, password);
-      await reauthenticateWithCredential(user, credential);
-      // Delete Firestore profile first, then the auth account
-      await deleteDoc(doc(db, 'profiles', user.uid));
-      await deleteUser(user);
+      // 1. Re-authenticate to verify password
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: currentUser.email,
+        password: password
+      });
+      if (authError) throw authError;
+
+      // 2. Delete the user data from public.users table
+      const { error: dbError } = await supabase.from('users').delete().eq('id', currentUser.id);
+      if (dbError) throw dbError;
+
+      // 3. Sign out
+      await supabase.auth.signOut();
+      
       triggerHaptic('heavy');
       onDeleted();
     } catch (err) {
-      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      if (err.message === 'Invalid login credentials') {
         setError('Incorrect password. Please try again.');
-      } else if (err.code === 'auth/requires-recent-login') {
-        setError('Session expired. Please log out, log back in, and try again.');
       } else {
         setError(err.message);
       }
@@ -350,6 +354,7 @@ const Settings = ({ currentUser, theme, setTheme }) => {
       {/* Modal */}
       {showDeleteModal && (
         <DeleteAccountModal
+          currentUser={currentUser}
           onClose={() => setShowDeleteModal(false)}
           onDeleted={() => setShowDeleteModal(false)}
         />

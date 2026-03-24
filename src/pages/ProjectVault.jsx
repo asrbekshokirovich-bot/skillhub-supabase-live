@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { X, Copy, Eye, EyeOff, Plus, Trash2, Edit2, Key, Server, Globe, Database, FileText, Loader2, Check } from 'lucide-react';
 import ProjectFiles from '../components/ProjectFiles';
 
@@ -37,13 +36,9 @@ export default function ProjectVault({ projectId, projectName, onClose }) {
     setRevealed({});
     setEntries([]);
     try {
-      const docRef = doc(db, 'projects', projectId, 'credentials', categoryId);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        setEntries(snap.data().entries || []);
-      } else {
-        setEntries([]);
-      }
+      const { data, error } = await supabase.from('credentials').select('entries').eq('projectId', projectId).eq('category', categoryId).single();
+      if (error && error.code !== 'PGRST116') throw error; // Handle PGRST116 (No Result) gracefully
+      setEntries(data?.entries || []);
     } catch (err) {
       console.error("Error fetching credentials:", err);
     } finally {
@@ -53,9 +48,14 @@ export default function ProjectVault({ projectId, projectName, onClose }) {
 
   const saveCredentials = async (newEntries) => {
     try {
-      const docRef = doc(db, 'projects', projectId, 'credentials', activeTab);
-      // use setDoc with merge to create if not exists
-      await setDoc(docRef, { entries: newEntries }, { merge: true });
+      // Check if row exists for category
+      const { data } = await supabase.from('credentials').select('id').eq('projectId', projectId).eq('category', activeTab).single();
+      
+      if (data) {
+        await supabase.from('credentials').update({ entries: newEntries }).eq('id', data.id);
+      } else {
+        await supabase.from('credentials').insert({ projectId, category: activeTab, entries: newEntries });
+      }
       setEntries(newEntries);
     } catch (err) {
       console.error("Error saving credentials:", err);

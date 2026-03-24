@@ -1,55 +1,51 @@
-import { taskRepository } from '../repositories/taskRepository';
+import { supabase } from '../supabase';
 import { triggerHaptic } from '../haptics';
 
 class TaskService {
-  /**
-   * Fetch all tasks under a specific project
-   */
   async getTasksByProject(projectId) {
-    return await taskRepository.findByProject(projectId);
+    const { data, error } = await supabase.from('tasks').select('*').eq('projectId', projectId).order('createdAt', { ascending: true });
+    if (error) throw error;
+    return data;
   }
 
-  /**
-   * Create a new task within a project
-   */
-  async createTask(projectId, data) {
+  async createTask(projectId, taskData) {
     try {
-      const task = await taskRepository.create(projectId, {
-        ...data,
+      const { data, error } = await supabase.from('tasks').insert({
+        ...taskData,
+        projectId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      });
+      }).select().single();
+      
+      if (error) throw error;
       triggerHaptic('success');
-      return task;
+      return data;
     } catch (error) {
       triggerHaptic('error');
       throw error;
     }
   }
 
-  /**
-   * Update an existing task
-   */
-  async updateTask(projectId, taskId, data) {
+  async updateTask(projectId, taskId, taskData) {
     try {
-      const updated = await taskRepository.update(projectId, taskId, {
-        ...data,
+      const { data, error } = await supabase.from('tasks').update({
+        ...taskData,
         updatedAt: new Date().toISOString()
-      });
+      }).eq('id', taskId).select().single();
+      
+      if (error) throw error;
       triggerHaptic('light');
-      return updated;
+      return data;
     } catch (error) {
       triggerHaptic('error');
       throw error;
     }
   }
 
-  /**
-   * Delete a task
-   */
   async deleteTask(projectId, taskId) {
     try {
-      await taskRepository.delete(projectId, taskId);
+      const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+      if (error) throw error;
       triggerHaptic('heavy');
       return true;
     } catch (error) {

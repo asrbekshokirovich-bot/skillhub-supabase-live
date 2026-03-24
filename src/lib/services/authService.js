@@ -1,41 +1,47 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
-import { userRepository } from '../repositories/userRepository';
+import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../supabase';
 import { handleApiError } from '../utils/errors';
 
 class AuthService {
   /**
-   * Uses a secondary app instance to provision new users without signing out the current Admin
+   * Uses a secondary, non-persisted client to provision new users
+   * without signing out the current Admin's token session.
    */
   async createSecondaryUser(username, role, password) {
     try {
-      const secondaryAppName = 'SecondaryApp';
-      const secondaryApp = getApps().find(a => a.name === secondaryAppName)
-        || initializeApp({
-            apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-            authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-            projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-          }, secondaryAppName);
+      const secondarySupabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY,
+        { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+      );
       
-      const secondaryAuth = getAuth(secondaryApp);
       const email = `${username.trim().toLowerCase()}@skillhubapp.com`;
-      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-
-      // Link profile data
-      await userRepository.set(userCredential.user.uid, {
-        username: username.trim().toLowerCase(),
-        name: username.trim().toLowerCase(),
-        role,
-        created_at: new Date().toISOString(),
+      const { data, error } = await secondarySupabase.auth.signUp({
+        email,
+        password,
       });
 
-      await firebaseSignOut(secondaryAuth);
-      return userCredential.user;
+      if (error) throw error;
+      
+      const userId = data.user.id;
+      
+      // Link profile data natively via Postgres
+      const { error: profileError } = await supabase.from('users').insert({
+        id: userId,
+        email,
+        name: username.trim().toLowerCase(),
+        role: role
+      });
+
+      if (profileError) throw profileError;
+
+      return data.user;
     } catch (err) {
-      if (err.message && err.message.includes('already-in-use')) {
+      if (err.message && err.message.includes('User already registered')) {
          handleApiError(new Error('That username is already taken. Please choose another.'), 'Auth Provisioning');
+      } else {
+         handleApiError(err, 'Auth Provisioning');
       }
-      handleApiError(err, 'Auth Provisioning');
     }
   }
 }

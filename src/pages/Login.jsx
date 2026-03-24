@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { auth } from '../lib/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { supabase } from '../lib/supabase';
 import logoLight from '../assets/logo-light.png';
 import logoDark from '../assets/logo-dark.png';
 import { Loader2 } from 'lucide-react';
@@ -19,13 +18,10 @@ const Login = ({ isDark }) => {
     try {
       // Append domain behind the scenes for Auth
       const email = `${username.trim().toLowerCase()}@skillhubapp.com`;
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (err) {
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('Invalid username or password.');
-      } else {
-        setError(err.message);
-      }
+      setError(err.message === 'Invalid login credentials' ? 'Invalid username or password.' : err.message);
     } finally {
       setLoading(false);
     }
