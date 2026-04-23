@@ -146,114 +146,102 @@ const TaskDetailModal = ({
           </div>
 
           {/* Metadata Grid */}
-          <div className="flex flex-col shrink-0 gap-4 pb-6 border-b border-[#222]">
+          <div className="grid shrink-0 gap-y-3 gap-x-2 pb-6 border-b border-[#222]" style={{ gridTemplateColumns: '140px 1fr', alignItems: 'center' }}>
 
             {/* Status */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Status</div>
-              <div className="flex-1">
-                <select
-                  value={selectedIssue.status}
-                  onChange={(e) => updateTaskField('status', e.target.value)}
-                  className="bg-[#1A1A1A] text-white text-[13px] font-semibold px-3 py-1.5 rounded-md border border-[#333] outline-none cursor-pointer hover:border-[#555] transition-colors appearance-none min-w-[120px]"
-                >
-                  <option value="To Do">TO DO</option>
-                  <option value="In Progress">IN PROGRESS</option>
-                  <option value="Done">DONE</option>
-                </select>
-              </div>
+            <div className="text-[13px] font-medium text-[#888]">Status</div>
+            <div className="flex items-center">
+              <select
+                value={selectedIssue.status}
+                onChange={(e) => updateTaskField('status', e.target.value)}
+                className="bg-transparent text-white text-[13px] font-bold px-2 py-1 -ml-2 rounded hover:bg-[#1A1A1A] outline-none cursor-pointer transition-colors appearance-none min-w-[120px]"
+              >
+                <option value="To Do" className="bg-[#111]">TO DO</option>
+                <option value="In Progress" className="bg-[#111]">IN PROGRESS</option>
+                <option value="Done" className="bg-[#111]">DONE</option>
+              </select>
             </div>
 
             {/* Assignee */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Assignee</div>
-              <div className="flex-1 flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-indigo-600">
-                  {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
-                </div>
-                <select
-                  value={selectedIssue.assignee}
-                  onChange={(e) => updateTaskField('assignee', e.target.value)}
-                  className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white transition-colors appearance-none py-1"
-                >
-                  <option value="Unassigned" className="bg-[#111]">Unassigned</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.name} className="bg-[#111]">{u.name}</option>
-                  ))}
-                </select>
+            <div className="text-[13px] font-medium text-[#888]">Assignee</div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-indigo-600">
+                {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
               </div>
+              <select
+                value={selectedIssue.assignee}
+                onChange={(e) => updateTaskField('assignee', e.target.value)}
+                className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors appearance-none"
+              >
+                <option value="Unassigned" className="bg-[#111]">Unassigned</option>
+                {users.map(u => (
+                  <option key={u.id} value={u.name} className="bg-[#111]">{u.name}</option>
+                ))}
+              </select>
             </div>
 
             {/* Priority */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Priority</div>
-              <div className="flex-1 flex items-center gap-2">
-                <span style={{ 
-                  width: 8, height: 8, borderRadius: '50%', display: 'inline-block', 
-                  backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
-                }}/>
-                <select
-                  value={selectedIssue.urgency || 'Medium'}
-                  onChange={(e) => updateTaskField('urgency', e.target.value)}
-                  className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white transition-colors appearance-none py-1"
-                >
-                  <option value="Low" className="bg-[#111]">Low</option>
-                  <option value="Medium" className="bg-[#111]">Medium</option>
-                  <option value="High" className="bg-[#111]">High</option>
-                </select>
-              </div>
+            <div className="text-[13px] font-medium text-[#888]">Priority</div>
+            <div className="flex items-center gap-2.5">
+              <span style={{ 
+                width: 8, height: 8, borderRadius: '50%', display: 'inline-block', 
+                backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
+              }}/>
+              <select
+                value={selectedIssue.urgency || 'Medium'}
+                onChange={(e) => updateTaskField('urgency', e.target.value)}
+                className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors appearance-none"
+              >
+                <option value="Low" className="bg-[#111]">Low</option>
+                <option value="Medium" className="bg-[#111]">Medium</option>
+                <option value="High" className="bg-[#111]">High</option>
+              </select>
             </div>
 
             {/* Dates */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Dates</div>
-              <div className="flex-1 flex items-center gap-2 text-[14px]">
-                <input 
-                  type="date" 
-                  value={selectedIssue.startDate || ''} 
-                  onChange={e => updateTaskField('startDate', e.target.value)} 
-                  className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white font-medium" 
-                  style={{ colorScheme: 'dark' }} 
-                />
-                <span className="text-[#555] mx-1">→</span>
-                <input 
-                  type="date" 
-                  value={selectedIssue.dueDate || ''} 
-                  onChange={e => updateTaskField('dueDate', e.target.value)} 
-                  className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white font-medium" 
-                  style={{ colorScheme: 'dark' }} 
-                />
-              </div>
+            <div className="text-[13px] font-medium text-[#888]">Dates</div>
+            <div className="flex items-center gap-2 text-[14px]">
+              <input 
+                type="date" 
+                value={selectedIssue.startDate || ''} 
+                onChange={e => updateTaskField('startDate', e.target.value)} 
+                className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded font-medium transition-colors" 
+                style={{ colorScheme: 'dark' }} 
+              />
+              <span className="text-[#555] mx-1">→</span>
+              <input 
+                type="date" 
+                value={selectedIssue.dueDate || ''} 
+                onChange={e => updateTaskField('dueDate', e.target.value)} 
+                className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded font-medium transition-colors" 
+                style={{ colorScheme: 'dark' }} 
+              />
             </div>
 
             {/* Time Estimate */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Time estimate</div>
-              <div className="flex-1 flex items-center">
-                {editingField === 'time' ? (
-                  <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 text-[14px] font-medium text-white outline-none w-24 border-b border-indigo-500 bg-[#1A1A1A] h-[28px]"/>
-                ) : (
-                  <div onClick={()=>{setEditingField('time');setEditValue(selectedIssue.timeEstimated||'');}} className="flex items-center cursor-pointer hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors text-[14px] font-medium text-[#CCC]">
-                    {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span className="text-[#555] italic">Not set</span>}
-                  </div>
-                )}
-              </div>
+            <div className="text-[13px] font-medium text-[#888]">Time estimate</div>
+            <div className="flex items-center">
+              {editingField === 'time' ? (
+                <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 py-1 text-[14px] font-medium text-white outline-none w-24 border-b border-indigo-500 bg-[#1A1A1A] h-[30px]"/>
+              ) : (
+                <div onClick={()=>{setEditingField('time');setEditValue(selectedIssue.timeEstimated||'');}} className="flex items-center cursor-pointer hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors text-[14px] font-medium text-[#CCC]">
+                  {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span className="text-[#555] italic">Not set</span>}
+                </div>
+              )}
             </div>
 
             {/* Tags */}
-            <div className="flex items-center min-h-[36px]">
-              <div className="w-[140px] shrink-0 text-[13px] font-medium text-[#888]">Tags</div>
-              <div className="flex-1 flex items-center flex-wrap gap-2">
-                {editingField === 'tags' ? (
-                  <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 text-[13px] font-medium text-white outline-none w-48 border-b border-indigo-500 bg-[#1A1A1A] h-[28px]" placeholder="Comma separated..."/>
-                ) : (
-                  <div onClick={()=>{setEditingField('tags');}} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1A1A1A] p-1 -ml-1 rounded transition-colors flex-wrap min-h-[28px] w-full max-w-[400px]">
-                    {(selectedIssue.tags||[]).length > 0 ? selectedIssue.tags.map(t=>(
-                      <span key={t} className="text-[12px] font-medium px-2.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#A5B4FC] border border-[#312E81]">{t}</span>
-                    )) : <span className="text-[13px] text-[#555] italic px-1">Add tags...</span>}
-                  </div>
-                )}
-              </div>
+            <div className="text-[13px] font-medium text-[#888]">Tags</div>
+            <div className="flex items-center flex-wrap gap-2">
+              {editingField === 'tags' ? (
+                <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 py-1 text-[13px] font-medium text-white outline-none w-48 border-b border-indigo-500 bg-[#1A1A1A] h-[30px]" placeholder="Comma separated..."/>
+              ) : (
+                <div onClick={()=>{setEditingField('tags');}} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1A1A1A] p-1 -ml-1 rounded transition-colors flex-wrap min-h-[28px] w-full max-w-[400px]">
+                  {(selectedIssue.tags||[]).length > 0 ? selectedIssue.tags.map(t=>(
+                    <span key={t} className="text-[12px] font-medium px-2.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#A5B4FC] border border-[#312E81]">{t}</span>
+                  )) : <span className="text-[13px] text-[#555] italic px-1">Add tags...</span>}
+                </div>
+              )}
             </div>
 
           </div>
