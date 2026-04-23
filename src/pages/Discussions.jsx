@@ -25,12 +25,6 @@ const Discussions = ({ currentUser }) => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [completingIssueId, setCompletingIssueId] = useState(null);
 
-  useEffect(() => {
-    fetchUsers();
-    fetchProjectDetails();
-    fetchIssues();
-  }, [fetchUsers, fetchProjectDetails, fetchIssues]);
-
   const fetchProjectDetails = useCallback(async () => {
     try {
       const details = await projectService.getProject(projectId);
@@ -68,6 +62,12 @@ const Discussions = ({ currentUser }) => {
       setLoading(false);
     }
   }, [projectId]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchProjectDetails();
+    fetchIssues();
+  }, [fetchUsers, fetchProjectDetails, fetchIssues]);
 
   const moveIssue = async (id, newStatus) => {
     if (newStatus === 'Done') {
