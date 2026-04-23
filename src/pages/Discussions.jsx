@@ -52,6 +52,7 @@ const Discussions = ({ currentUser }) => {
   const fetchIssues = useCallback(async () => {
     try {
       let data = await taskService.getTasksByProject(projectId);
+      if (!data) data = [];
       
       const urgencyWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
       data.sort((a, b) => {

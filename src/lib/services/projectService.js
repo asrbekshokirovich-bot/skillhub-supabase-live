@@ -19,6 +19,12 @@ class ProjectService {
     };
   }
 
+  async getProject(id) {
+    const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, createdBy, isArchived, createdAt, updatedAt').eq('id', id).single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return this._mapToUI(data);
+  }
+
   async getAllProjects() {
     const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, createdBy, isArchived, createdAt, updatedAt').neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
