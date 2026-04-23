@@ -48,7 +48,12 @@ const Login = ({ isDark }) => {
     <div className="flex items-center justify-center w-full h-full animate-fade-in" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)' }}>
       <div className="card animate-slide-up hover-elevate" style={{ width: '95vw', maxWidth: '400px', padding: '1rem' }}>
         <div className="flex-col items-center justify-center gap-4 text-center mb-6">
-          <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
+          <img 
+            src={isDark ? logoDark : logoLight} 
+            alt="Skillhub Logo" 
+            style={{ height: '64px', width: 'auto', objectFit: 'contain' }} 
+            onError={(e) => { e.target.style.display = 'none'; }} 
+          />
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Skillhub Portal</h1>
             <p className="text-secondary mt-1">{isSignUp ? 'Create your account' : 'Sign in to your account'}</p>
