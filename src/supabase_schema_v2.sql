@@ -35,3 +35,16 @@ DROP POLICY IF EXISTS "Allow authenticated users to delete tasks" ON public.task
 -- Add strict DENY policies so the client cannot accidentally wipe data
 CREATE POLICY "Deny delete for projects" ON public.projects FOR DELETE USING (false);
 CREATE POLICY "Deny delete for tasks" ON public.tasks FOR DELETE USING (false);
+
+-- 4. Add Missing Columns to Tasks Table
+-- These columns are required by the NewTaskModal and TaskDetailModal
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "type" TEXT DEFAULT 'Task';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "author" TEXT DEFAULT 'Unknown User';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "subtasks" JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "timeTracked" NUMERIC DEFAULT 0;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "watchers" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "dependencies" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "checklists" JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "coverUrl" TEXT;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "notes" TEXT;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS "comments" JSONB DEFAULT '[]'::jsonb;

@@ -28,6 +28,7 @@ const TaskDetailModal = ({
       onIssueUpdated({ ...issue, [field]: value });
     } catch (err) {
       console.error(err);
+      alert("Failed to update task: " + err.message);
     }
   };
 
@@ -48,6 +49,7 @@ const TaskDetailModal = ({
       setNewCommentText('');
     } catch (err) {
       console.error(err);
+      alert("Failed to update task: " + err.message);
     } finally {
       setIsCommenting(false);
     }
@@ -64,6 +66,7 @@ const TaskDetailModal = ({
       setNewSubtaskText('');
     } catch (err) {
       console.error(err);
+      alert("Failed to update task: " + err.message);
     }
   };
 
@@ -76,6 +79,7 @@ const TaskDetailModal = ({
       onIssueUpdated({ ...issue, subtasks: updatedSubtasks });
     } catch (err) {
       console.error(err);
+      alert("Failed to update task: " + err.message);
     }
   };
 
@@ -86,6 +90,7 @@ const TaskDetailModal = ({
       onIssueUpdated({ ...issue, subtasks: updatedSubtasks });
     } catch (err) {
       console.error(err);
+      alert("Failed to update task: " + err.message);
     }
   };
 

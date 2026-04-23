@@ -28,21 +28,14 @@ const NewTaskModal = ({ projectId, users, currentUser, onClose, onTaskCreated })
       const newTask = {
         title: newTitle,
         description: newDescription,
-        type: newType,
         status: 'To Do',
-        author: currentUser?.name || 'Unknown User',
         urgency: newUrgency,
         assignee: newAssignee || 'Unassigned',
         screenshotUrl: url,
-        subtasks: [],
-        timeTracked: 0,
         timeEstimated: 0,
         startDate: null,
         dueDate: null,
-        tags: [],
-        watchers: [currentUser?.name || 'Unknown User'],
-        dependencies: [],
-        checklists: []
+        tags: []
       };
       
       const createdTask = await taskService.createTask(projectId, newTask);
@@ -90,19 +83,6 @@ const NewTaskModal = ({ projectId, users, currentUser, onClose, onTaskCreated })
           </div>
           
           <div className="flex gap-4 flex-wrap">
-            <div className="flex-col gap-2 flex-1" style={{ minWidth: '150px' }}>
-              <label className="text-sm font-bold">Type</label>
-              <select 
-                value={newType} 
-                onChange={(e) => setNewType(e.target.value)} 
-                className="w-full" 
-                style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}
-              >
-                <option>Feature</option>
-                <option>Bug</option>
-                <option>Task</option>
-              </select>
-            </div>
             <div className="flex-col gap-2 flex-1" style={{ minWidth: '150px' }}>
               <label className="text-sm font-bold">Urgency</label>
               <select 
