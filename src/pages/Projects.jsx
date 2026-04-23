@@ -79,7 +79,7 @@ export default function Projects({ currentUser }) {
         progress: 0,
         tasks: 0,
         assignee: assignee || 'Unassigned',
-        createdBy: currentUser?.name || 'Unknown'
+        createdBy: currentUser?.id
       });
       
       setProjectName('');
