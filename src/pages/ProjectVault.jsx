@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Copy, Eye, EyeOff, Plus, Trash2, Edit2, Key, Server, Globe, Database, FileText, Loader2, Check } from 'lucide-react';
 import ProjectFiles from '../components/ProjectFiles';
@@ -27,11 +27,7 @@ export default function ProjectVault({ projectId, projectName, onClose }) {
   const [revealed, setRevealed] = useState({});
   const [copied, setCopied] = useState(null);
 
-  useEffect(() => {
-    if (activeTab !== 'files') fetchCredentials(activeTab);
-  }, [projectId, activeTab]);
-
-  const fetchCredentials = async (categoryId) => {
+  const fetchCredentials = useCallback(async (categoryId) => {
     setLoading(true);
     setRevealed({});
     setEntries([]);
@@ -44,7 +40,11 @@ export default function ProjectVault({ projectId, projectName, onClose }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (activeTab !== 'files') fetchCredentials(activeTab);
+  }, [activeTab, fetchCredentials]);
 
   const saveCredentials = async (newEntries) => {
     try {

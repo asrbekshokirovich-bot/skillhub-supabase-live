@@ -3,19 +3,19 @@ import { triggerHaptic } from '../haptics';
 
 class ProjectService {
   async getAllProjects() {
-    const { data, error } = await supabase.from('projects').select('*').order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('*').neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }
 
   async getProjectsByAssignee(assigneeName) {
-    const { data, error } = await supabase.from('projects').select('*').eq('assignee', assigneeName).order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('*').eq('assignee', assigneeName).neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }
 
   async getProjectsByClient(clientName) {
-    const { data, error } = await supabase.from('projects').select('*').eq('client', clientName).order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('*').eq('client', clientName).neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }
@@ -55,7 +55,7 @@ class ProjectService {
 
   async deleteProject(id) {
     try {
-      const { error } = await supabase.from('projects').delete().eq('id', id);
+      const { error } = await supabase.from('projects').update({ isArchived: true }).eq('id', id);
       if (error) throw error;
       triggerHaptic('heavy');
       return true;

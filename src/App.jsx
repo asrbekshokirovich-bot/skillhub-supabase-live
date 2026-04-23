@@ -18,8 +18,8 @@ const Sidebar = ({ currentUser, onLogout, isDark }) => {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
-    ...(currentUser.role !== 'developer' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
-    ...(currentUser.role === 'admin' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
+    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
+    ...(currentUser.role === 'ceo' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
   ];
 
   return (
@@ -99,7 +99,7 @@ const Dashboard = ({ currentUser }) => {
         
         // Filter based on role (similar to Projects.jsx)
         let relevantProjects = allProjects || [];
-        if (currentUser.role === 'developer') {
+        if (currentUser.role === 'worker') {
           relevantProjects = allProjects.filter(p => p.assignee === currentUser.name);
         } else if (currentUser.role === 'client') {
           relevantProjects = allProjects.filter(p => p.client === currentUser.name);
@@ -149,7 +149,7 @@ const Dashboard = ({ currentUser }) => {
             {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.openTasks}</span>}
           </div>
         </div>
-        {currentUser.role !== 'developer' && (
+        {currentUser.role !== 'worker' && (
           <div className="card flex-1 hover-elevate animate-slide-up delay-300" style={{ minWidth: 'min(100%, 300px)' }}>
             <div className="card-body flex justify-between items-center">
               <span className="text-secondary font-medium">Pending Invoices</span>
@@ -167,8 +167,8 @@ const MobileTabBar = ({ currentUser }) => {
   const navItems = [
     { name: 'Home', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
-    ...(currentUser.role !== 'developer' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
-    ...(currentUser.role === 'admin' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
+    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
+    ...(currentUser.role === 'ceo' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }
   ];
 
@@ -237,6 +237,7 @@ function App() {
       if (session?.user) {
         try {
           const { data: userData, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+          if (error) console.warn("Error fetching user data:", error);
           if (userData) {
             setCurrentUser({
               id: session.user.id,

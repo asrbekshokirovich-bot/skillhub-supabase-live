@@ -72,7 +72,7 @@ export default function Finance({ currentUser }) {
           <h2 className="text-xl font-bold">Financial Control</h2>
           <p className="text-secondary">View and manage invoices and billing.</p>
         </div>
-        {currentUser.role === 'admin' && (
+        {currentUser.role === 'ceo' && (
           <button className="btn btn-primary">Create Invoice</button>
         )}
       </div>

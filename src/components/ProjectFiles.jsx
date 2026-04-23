@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { storageService } from '../lib/services/storageService';
 import { Loader2, UploadCloud, FileText, Trash2, Download } from 'lucide-react';
@@ -10,11 +10,7 @@ export default function ProjectFiles({ projectId }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    fetchFiles();
-  }, [projectId]);
-
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.storage.from('skillhub-bucket').list(`projects/${projectId}/files`);
@@ -38,7 +34,11 @@ export default function ProjectFiles({ projectId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles]);
 
   const handleUpload = async (e) => {
     const selectedFile = e.target.files[0];

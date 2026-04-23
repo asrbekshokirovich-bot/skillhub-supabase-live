@@ -2,10 +2,10 @@ import { supabase } from '../supabase';
 
 class UserService {
   /**
-   * Fetch all users who have the role of developer
+   * Fetch all users who have the role of worker
    */
-  async getDevelopers() {
-    const { data, error } = await supabase.from('users').select('*').eq('role', 'developer');
+  async getWorkers() {
+    const { data, error } = await supabase.from('users').select('*').eq('role', 'worker');
     if (error) throw error;
     return data;
   }

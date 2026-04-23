@@ -7,7 +7,7 @@ import DeleteUserModal from '../components/DeleteUserModal';
 const Team = ({ currentUser }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client');
+  const [role, setRole] = useState('worker');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -17,7 +17,7 @@ const Team = ({ currentUser }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
-    if (currentUser?.role === 'admin') fetchProfiles();
+    if (currentUser?.role === 'ceo') fetchProfiles();
   }, [currentUser]);
 
   const fetchProfiles = async () => {
@@ -31,12 +31,12 @@ const Team = ({ currentUser }) => {
     }
   };
 
-  if (currentUser?.role !== 'admin') {
+  if (currentUser?.role !== 'ceo') {
     return (
       <div className="flex-col items-center justify-center w-full h-full gap-4 text-center mt-12">
         <ShieldAlert size={48} className="text-secondary" />
         <h2 className="text-xl font-bold">Access Denied</h2>
-        <p className="text-secondary">Only administrators can manage team accounts.</p>
+        <p className="text-secondary">Only Project Managers / CEOs can manage team accounts.</p>
       </div>
     );
   }
@@ -51,7 +51,7 @@ const Team = ({ currentUser }) => {
       setSuccess(`Account for '${username}' created successfully!`);
       setUsername('');
       setPassword('');
-      setRole('client');
+      setRole('worker');
       fetchProfiles();
     } catch (err) {
       setError(err.message || 'Failed to create user account.');
@@ -107,9 +107,8 @@ const Team = ({ currentUser }) => {
                 onChange={(e) => setRole(e.target.value)}
                 style={{ appearance: 'auto', outline: 'none' }}
               >
-                <option value="client">Client (Restricted View)</option>
-                <option value="developer">Developer (Full Access)</option>
-                <option value="admin">Administrator (Global Access)</option>
+                <option value="worker">Worker</option>
+                <option value="ceo">Project Manager / CEO</option>
               </select>
             </div>
           </div>
@@ -201,8 +200,8 @@ const Team = ({ currentUser }) => {
                           <span className="badge" style={{
                             textTransform: 'capitalize',
                             backgroundColor:
-                              profile.role === 'admin' ? '#fca5a5' :
-                              profile.role === 'developer' ? '#bae6fd' :
+                              profile.role === 'ceo' ? '#fca5a5' :
+                              profile.role === 'worker' ? '#bae6fd' :
                               'var(--bg-secondary)',
                             color: 'var(--text-primary)',
                           }}>

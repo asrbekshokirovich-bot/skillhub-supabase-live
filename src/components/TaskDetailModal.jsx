@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { taskService } from '../lib/services/taskService';
-import { storageService } from '../lib/services/storageService';
 
 const TaskDetailModal = ({ 
   issue, 
@@ -19,7 +18,6 @@ const TaskDetailModal = ({
   const [newSubtaskText, setNewSubtaskText] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
-  const [isUploadingMidTask, setIsUploadingMidTask] = useState(false);
 
   const selectedIssue = issue;
 
@@ -55,23 +53,6 @@ const TaskDetailModal = ({
     }
   };
 
-  const uploadMidTaskScreenshot = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setIsUploadingMidTask(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const path = `projects/${projectId}/tasks/${issue.id}/screenshot_mid_${Date.now()}.${fileExt}`;
-      const url = await storageService.uploadFile(path, file);
-      await taskService.updateTask(projectId, issue.id, { screenshotUrl: url });
-      onIssueUpdated({ ...issue, screenshotUrl: url });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsUploadingMidTask(false);
-    }
-  };
-
   const addSubtask = async (e) => {
     e.preventDefault();
     if (!newSubtaskText.trim()) return;
@@ -90,19 +71,6 @@ const TaskDetailModal = ({
     try {
       const updatedSubtasks = (issue.subtasks || []).map(st => 
         st.id === subtaskId ? { ...st, completed: !st.completed } : st
-      );
-      await taskService.updateTask(projectId, issue.id, { subtasks: updatedSubtasks });
-      onIssueUpdated({ ...issue, subtasks: updatedSubtasks });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const updateSubtaskText = async (subtaskId, newText) => {
-    if (!newText.trim()) return;
-    try {
-      const updatedSubtasks = (issue.subtasks || []).map(st => 
-        st.id === subtaskId ? { ...st, text: newText.trim() } : st
       );
       await taskService.updateTask(projectId, issue.id, { subtasks: updatedSubtasks });
       onIssueUpdated({ ...issue, subtasks: updatedSubtasks });

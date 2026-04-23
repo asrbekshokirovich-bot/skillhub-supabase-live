@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, MessageSquare, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { projectService } from '../lib/services/projectService';
@@ -29,27 +29,27 @@ const Discussions = ({ currentUser }) => {
     fetchUsers();
     fetchProjectDetails();
     fetchIssues();
-  }, [projectId]);
+  }, [fetchUsers, fetchProjectDetails, fetchIssues]);
 
-  const fetchProjectDetails = async () => {
+  const fetchProjectDetails = useCallback(async () => {
     try {
       const details = await projectService.getProject(projectId);
       setProjectDetails(details);
     } catch (err) {
       console.error("Error fetching project details:", err);
     }
-  };
+  }, [projectId]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const devs = await userService.getDevelopers();
+      const devs = await userService.getWorkers();
       setUsers(devs);
     } catch (err) {
       console.error("Error fetching devs:", err);
     }
-  };
+  }, []);
 
-  const fetchIssues = async () => {
+  const fetchIssues = useCallback(async () => {
     try {
       let data = await taskService.getTasksByProject(projectId);
       
@@ -66,7 +66,7 @@ const Discussions = ({ currentUser }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   const moveIssue = async (id, newStatus) => {
     if (newStatus === 'Done') {
@@ -111,7 +111,7 @@ const Discussions = ({ currentUser }) => {
             <p className="text-secondary text-sm">Kanban board for tasks, bugs, and features</p>
           </div>
         </div>
-        {['admin', 'developer'].includes(currentUser?.role) && (
+        {['ceo', 'worker'].includes(currentUser?.role) && (
           <button 
             className="btn btn-primary shadow-sm" 
             onClick={() => setShowNew(true)}

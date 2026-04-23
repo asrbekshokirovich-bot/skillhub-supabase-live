@@ -32,7 +32,7 @@ export const triggerHaptic = (type = 'light') => {
       default:
         navigator.vibrate([10]);
     }
-  } catch (error) {
+  } catch {
     // Ignore permissions or unsupported browsers
   }
 };

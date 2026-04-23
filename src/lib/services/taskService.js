@@ -3,7 +3,7 @@ import { triggerHaptic } from '../haptics';
 
 class TaskService {
   async getTasksByProject(projectId) {
-    const { data, error } = await supabase.from('tasks').select('*').eq('projectId', projectId).order('createdAt', { ascending: true });
+    const { data, error } = await supabase.from('tasks').select('*').eq('projectId', projectId).neq('isArchived', true).order('createdAt', { ascending: true });
     if (error) throw error;
     return data;
   }
@@ -44,7 +44,7 @@ class TaskService {
 
   async deleteTask(projectId, taskId) {
     try {
-      const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+      const { error } = await supabase.from('tasks').update({ isArchived: true }).eq('id', taskId);
       if (error) throw error;
       triggerHaptic('heavy');
       return true;

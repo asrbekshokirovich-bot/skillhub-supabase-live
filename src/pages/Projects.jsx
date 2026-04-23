@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FolderKanban, MoreVertical, Plus, Loader2, Users, Key } from 'lucide-react';
 import { projectService } from '../lib/services/projectService';
@@ -26,29 +26,24 @@ export default function Projects({ currentUser }) {
   const [vaultProjectId, setVaultProjectId] = useState(null);
   const [vaultProjectName, setVaultProjectName] = useState('');
 
-  useEffect(() => {
-    fetchUsers();
-    fetchProjects();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const devs = await userService.getDevelopers();
+      const devs = await userService.getWorkers();
       setUsers(devs);
     } catch (err) {
       console.error("Error fetching devs:", err);
     }
-  };
+  }, []);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       let data = [];
       const role = currentUser?.role;
       const name = currentUser?.name || '';
 
-      if (role === 'admin') {
+      if (role === 'ceo') {
         data = await projectService.getAllProjects();
-      } else if (role === 'developer') {
+      } else if (role === 'worker') {
         data = await projectService.getProjectsByAssignee(name);
       } else if (role === 'client') {
         data = await projectService.getProjectsByClient(name);
@@ -64,7 +59,12 @@ export default function Projects({ currentUser }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchProjects();
+  }, [fetchUsers, fetchProjects]);
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
@@ -119,7 +119,7 @@ export default function Projects({ currentUser }) {
           <h2 className="text-xl font-bold">Active Projects</h2>
           <p className="text-secondary">Overview of all ongoing and completed projects.</p>
         </div>
-        {currentUser?.role === 'admin' && (
+        {currentUser?.role === 'ceo' && (
           <button 
             className="btn btn-primary flex items-center gap-2"
             onClick={() => setShowForm(!showForm)}
@@ -160,7 +160,7 @@ export default function Projects({ currentUser }) {
             
             <div className="flex gap-4 w-full mt-2">
               <div className="flex-col gap-1.5 w-full">
-                <label className="text-sm font-bold">Assigned Developer</label>
+                <label className="text-sm font-bold">Assigned Worker</label>
                 <select 
                   value={assignee} 
                   onChange={(e) => setAssignee(e.target.value)} 
@@ -234,7 +234,7 @@ export default function Projects({ currentUser }) {
                 {project.assignee && project.assignee !== 'Unassigned' && (
                   <div className="flex items-center gap-2 mb-2 pb-2" style={{ borderBottom: '1px dashed var(--border-color)' }}>
                     <Users size={14} className="text-secondary" />
-                    <span className="text-xs text-secondary">Lead Developer: <span className="font-medium text-[var(--text-primary)]">{project.assignee}</span></span>
+                    <span className="text-xs text-secondary">Lead Worker: <span className="font-medium text-[var(--text-primary)]">{project.assignee}</span></span>
                   </div>
                 )}
 
@@ -257,7 +257,7 @@ export default function Projects({ currentUser }) {
                      Open Workspace
                    </button>
                    <div className="flex gap-2 w-full flex-wrap">
-                     {currentUser?.role === 'admin' && (
+                     {currentUser?.role === 'ceo' && (
                        <button
                          className="btn btn-secondary flex-1"
                          style={{ minWidth: '120px' }}
@@ -269,7 +269,7 @@ export default function Projects({ currentUser }) {
                          Reassign
                        </button>
                      )}
-                     {(currentUser?.role === 'admin' || currentUser?.role === 'developer') && (
+                     {(currentUser?.role === 'ceo' || currentUser?.role === 'worker') && (
                        <button
                          className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
                          style={{ minWidth: '120px' }}
@@ -303,8 +303,8 @@ export default function Projects({ currentUser }) {
             style={{ padding: '1.5rem', minWidth: '320px', maxWidth: '420px', width: '100%' }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold mb-1">Reassign Developer</h3>
-            <p className="text-sm text-secondary mb-4">Select a new lead developer for this project.</p>
+            <h3 className="text-lg font-bold mb-1">Reassign Worker</h3>
+            <p className="text-sm text-secondary mb-4">Select a new lead worker for this project.</p>
             <select
               value={newAssignee}
               onChange={e => setNewAssignee(e.target.value)}
@@ -325,7 +325,7 @@ export default function Projects({ currentUser }) {
       )}
 
       {/* Vault Modal */}
-      {vaultProjectId && (currentUser?.role === 'admin' || currentUser?.role === 'developer') && (
+      {vaultProjectId && (currentUser?.role === 'ceo' || currentUser?.role === 'worker') && (
         <ProjectVault 
           projectId={vaultProjectId} 
           projectName={vaultProjectName} 
