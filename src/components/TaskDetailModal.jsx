@@ -329,40 +329,45 @@ const TaskDetailModal = ({
               <textarea value={selectedIssue.notes || ''} onChange={e => updateTaskField('notes', e.target.value)} className="flex-1 w-full border border-[#333] rounded-xl p-4 text-[14px] leading-relaxed outline-none resize-none bg-[#0A0A0A] text-[#CCC] focus:border-[#555] transition-colors" placeholder="Type internal notes here..." />
             </div>
           ) : (
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <div className="flex-1 overflow-y-auto flex flex-col gap-4 p-5 custom-scrollbar">
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+              <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
                 {(selectedIssue.comments || []).map(c => (
-                  <div key={c.id} className="flex gap-3 items-start group">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md flex items-center justify-center text-[13px] text-white shrink-0 font-bold">
+                  <div key={c.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #9333ea)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: 'white', fontWeight: 'bold', flexShrink: 0 }}>
                       {c.author.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span className="text-[14px] text-white font-bold truncate">{c.author}</span>
-                        <span className="text-[11px] text-[#888] font-medium shrink-0">{formatChatTime(c.createdAt)}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '14px', color: 'white', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.author}</span>
+                        <span style={{ fontSize: '11px', color: '#888', fontWeight: 500, flexShrink: 0 }}>{formatChatTime(c.createdAt)}</span>
                       </div>
-                      <div className="text-[14px] text-[#DDD] leading-relaxed break-words bg-[#1A1A1A] px-4 py-2.5 rounded-2xl rounded-tl-sm border border-[#222]">
+                      <div style={{ fontSize: '14px', color: '#DDD', lineHeight: 1.5, wordBreak: 'break-word', backgroundColor: '#1A1A1A', padding: '10px 16px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #222' }}>
                         {c.text}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="p-4 bg-[#0A0A0A] border-t border-[#222]">
-                <form onSubmit={addComment} className="flex items-end gap-2 relative">
+              <div style={{ padding: '16px', backgroundColor: '#0A0A0A', borderTop: '1px solid #222' }}>
+                <form onSubmit={addComment} style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', position: 'relative' }}>
                   <textarea 
                     value={newCommentText} 
                     onChange={e => setNewCommentText(e.target.value)}
                     onKeyDown={e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addComment(e); } }}
-                    className="w-full pl-4 pr-12 py-3 text-[14px] bg-[#1A1A1A] text-[#EEE] border border-[#333] rounded-2xl resize-none min-h-[44px] max-h-[120px] outline-none focus:border-indigo-500 transition-colors custom-scrollbar" 
+                    className="custom-scrollbar"
+                    style={{ width: '100%', padding: '12px 48px 12px 16px', fontSize: '14px', backgroundColor: '#1A1A1A', color: '#EEE', border: '1px solid #333', borderRadius: '16px', resize: 'none', minHeight: '44px', maxHeight: '120px', outline: 'none', transition: 'border-color 0.2s' }}
                     placeholder="Write a comment..." 
                     rows={1}
+                    onFocus={e => e.target.style.borderColor = '#6366f1'}
+                    onBlur={e => e.target.style.borderColor = '#333'}
                   />
                   <button 
                     type="submit" 
                     disabled={isCommenting || !newCommentText.trim()} 
-                    className="absolute right-2 bottom-2 w-8 h-8 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl disabled:opacity-30 disabled:bg-[#333] transition-colors"
+                    style={{ position: 'absolute', right: '8px', bottom: '8px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: (!newCommentText.trim() || isCommenting) ? '#333' : '#4f46e5', color: (!newCommentText.trim() || isCommenting) ? '#888' : 'white', borderRadius: '12px', border: 'none', cursor: (!newCommentText.trim() || isCommenting) ? 'default' : 'pointer', transition: 'background-color 0.2s' }}
                     title="Send comment"
+                    onMouseOver={e => { if(newCommentText.trim() && !isCommenting) e.currentTarget.style.backgroundColor = '#4338ca'; }}
+                    onMouseOut={e => { if(newCommentText.trim() && !isCommenting) e.currentTarget.style.backgroundColor = '#4f46e5'; }}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                   </button>
