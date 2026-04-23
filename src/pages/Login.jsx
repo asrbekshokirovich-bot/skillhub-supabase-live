@@ -104,22 +104,37 @@ const Login = ({ isDark }) => {
             />
           </div>
           
-          <button 
-            type="submit"
-            className="btn btn-primary w-full text-base font-bold mt-2" 
-            style={{ padding: '0.875rem' }}
-            disabled={loading}
-          >
-            {loading ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : (isSignUp ? 'Sign Up' : 'Sign In')}
-          </button>
-
-          <div className="text-center mt-2">
+          <div className="flex gap-4 mt-2">
             <button 
-              type="button" 
-              onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
-              className="text-sm text-secondary hover:text-primary transition-colors bg-transparent border-none cursor-pointer"
+              type={!isSignUp ? "submit" : "button"}
+              onClick={(e) => {
+                if (isSignUp) {
+                  e.preventDefault();
+                  setIsSignUp(false);
+                  setError(null);
+                }
+              }}
+              className={`btn flex-1 text-base font-bold ${!isSignUp ? 'btn-primary' : 'btn-secondary'}`} 
+              style={{ padding: '0.875rem' }}
+              disabled={loading && !isSignUp}
             >
-              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+              {loading && !isSignUp ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign In'}
+            </button>
+
+            <button 
+              type={isSignUp ? "submit" : "button"}
+              onClick={(e) => {
+                if (!isSignUp) {
+                  e.preventDefault();
+                  setIsSignUp(true);
+                  setError(null);
+                }
+              }}
+              className={`btn flex-1 text-base font-bold ${isSignUp ? 'btn-primary' : 'btn-secondary'}`} 
+              style={{ padding: '0.875rem' }}
+              disabled={loading && isSignUp}
+            >
+              {loading && isSignUp ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign Up'}
             </button>
           </div>
         </form>

@@ -5,13 +5,13 @@ class UserService {
    * Fetch all users who have the role of worker
    */
   async getWorkers() {
-    const { data, error } = await supabase.from('users').select('*').eq('role', 'worker');
+    const { data, error } = await supabase.from('users').select('id, email, name, role, avatarUrl, createdAt').eq('role', 'worker');
     if (error) throw error;
     return data;
   }
 
   async getAllProfiles() {
-    const { data, error } = await supabase.from('users').select('*');
+    const { data, error } = await supabase.from('users').select('id, email, name, role, avatarUrl, createdAt');
     if (error) throw error;
     return data;
   }

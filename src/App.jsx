@@ -4,6 +4,8 @@ import { LayoutDashboard, FolderKanban, CreditCard, MessageSquare, Settings, Log
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Discussions from './pages/Discussions';
+import { Dashboard } from './components/Dashboard';
+import { MobileTabBar } from './components/MobileTabBar';
 import Projects from './pages/Projects';
 import Finance from './pages/Finance';
 import SettingsView from './pages/Settings';
@@ -85,108 +87,7 @@ const Header = ({ currentUser, title }) => {
   );
 };
 
-// --- Page Components (Placeholders) ---
-const Dashboard = ({ currentUser }) => {
-  const [stats, setStats] = useState({ activeProjects: 0, openTasks: 0, pendingInvoices: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        // 1. Fetch Active Projects
-        const { data: allProjects } = await supabase.from('projects').select('*');
-        
-        // Filter based on role (similar to Projects.jsx)
-        let relevantProjects = allProjects || [];
-        if (currentUser.role === 'worker') {
-          relevantProjects = allProjects.filter(p => p.assignee === currentUser.name);
-        } else if (currentUser.role === 'client') {
-          relevantProjects = allProjects.filter(p => p.client === currentUser.name);
-        }
-        
-        const activeProjects = relevantProjects.filter(p => p.status !== 'Done' && p.status !== 'Completed');
-        
-        // 2. Fetch Open Tasks for relevant projects
-        let openTasksCount = 0;
-        await Promise.all(activeProjects.map(async (proj) => {
-          try {
-            const { data: tasksSnap } = await supabase.from('tasks').select('*').eq('projectId', proj.id);
-            const openTasks = (tasksSnap || []).filter(t => t.status !== 'Done' && t.status !== 'Completed');
-            openTasksCount += openTasks.length;
-          } catch (e) {
-            console.error(e);
-          }
-        }));
-
-        setStats({
-          activeProjects: activeProjects.length,
-          openTasks: openTasksCount,
-          pendingInvoices: 0 // Mocked for now until Finance is connected
-        });
-      } catch (err) {
-        console.error("Error fetching dashboard stats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, [currentUser]);
-
-  return (
-    <div className="flex-col gap-6 w-full">
-      <div className="flex gap-6 w-full flex-wrap">
-        <div className="card flex-1 hover-elevate animate-slide-up delay-100" style={{ minWidth: 'min(100%, 300px)' }}>
-          <div className="card-body flex justify-between items-center">
-            <span className="text-secondary font-medium">Active Projects</span>
-            {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.activeProjects}</span>}
-          </div>
-        </div>
-        <div className="card flex-1 hover-elevate animate-slide-up delay-200" style={{ minWidth: 'min(100%, 300px)' }}>
-          <div className="card-body flex justify-between items-center">
-            <span className="text-secondary font-medium">Open Tasks</span>
-            {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.openTasks}</span>}
-          </div>
-        </div>
-        {currentUser.role !== 'worker' && (
-          <div className="card flex-1 hover-elevate animate-slide-up delay-300" style={{ minWidth: 'min(100%, 300px)' }}>
-            <div className="card-body flex justify-between items-center">
-              <span className="text-secondary font-medium">Pending Invoices</span>
-              {loading ? <Loader2 size={24} className="animate-spin text-secondary" /> : <span className="text-3xl font-bold">{stats.pendingInvoices}</span>}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const MobileTabBar = ({ currentUser }) => {
-  const location = useLocation();
-  const navItems = [
-    { name: 'Home', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
-    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
-    ...(currentUser.role === 'ceo' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
-    { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }
-  ];
-
-  return (
-    <div className="mobile-tab-bar">
-      {navItems.map(item => (
-        <Link 
-          key={item.path} 
-          to={item.path} 
-          className={`mobile-tab-item ${location.pathname === item.path ? 'active' : ''}`}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </Link>
-      ))}
-    </div>
-  );
-};
+// --- Page Components (Imported) ---
 
 const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const location = useLocation();
@@ -236,7 +137,7 @@ function App() {
     const handleSession = async (session) => {
       if (session?.user) {
         try {
-          const { data: userData, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+          const { data: userData, error } = await supabase.from('users').select('id, name, role').eq('id', session.user.id).single();
           if (error) console.warn("Error fetching user data:", error);
           let role = userData?.role || 'client';
           let name = userData?.name || 'User';

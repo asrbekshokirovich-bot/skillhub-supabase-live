@@ -3,19 +3,19 @@ import { triggerHaptic } from '../haptics';
 
 class ProjectService {
   async getAllProjects() {
-    const { data, error } = await supabase.from('projects').select('*').neq('isArchived', true).order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('id, name, client, status, progress, tasks, assignee, createdBy, isArchived, createdAt, updatedAt').neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }
 
   async getProjectsByAssignee(assigneeName) {
-    const { data, error } = await supabase.from('projects').select('*').eq('assignee', assigneeName).neq('isArchived', true).order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('id, name, client, status, progress, tasks, assignee, createdBy, isArchived, createdAt, updatedAt').eq('assignee', assigneeName).neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }
 
   async getProjectsByClient(clientName) {
-    const { data, error } = await supabase.from('projects').select('*').eq('client', clientName).neq('isArchived', true).order('createdAt', { ascending: false });
+    const { data, error } = await supabase.from('projects').select('id, name, client, status, progress, tasks, assignee, createdBy, isArchived, createdAt, updatedAt').eq('client', clientName).neq('isArchived', true).order('createdAt', { ascending: false });
     if (error) throw error;
     return data;
   }

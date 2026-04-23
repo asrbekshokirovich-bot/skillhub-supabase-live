@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   "timeEstimated" TEXT,
   tags TEXT[] DEFAULT '{}',
   "screenshotUrl" TEXT,
+  "isArchived" BOOLEAN DEFAULT false,
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
