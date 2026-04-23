@@ -208,83 +208,103 @@ export default function Projects({ currentUser }) {
             </div>
           </div>
         ) : (
-          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-            {projects.map((project, index) => (
-              <div key={project.id} className={`card hover-elevate animate-slide-up delay-${(index + 1) * 100}`} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                <div className="flex justify-between items-start mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <div className="flex gap-4 items-center">
-                    <div className="flex items-center justify-center" style={{ padding: '0.75rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                      <FolderKanban size={20} className="text-primary" />
-                    </div>
-                    <div className="flex-col gap-1">
-                      <h3 className="text-lg font-bold leading-tight">{project.name}</h3>
-                      <span className="text-sm text-secondary">Client: {project.client}</span>
-                    </div>
-                  </div>
-                  <div className="flex-col items-end gap-2">
-                    <span className="badge" style={{ 
-                      backgroundColor: project.status === 'Done' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
-                      color: 'var(--text-primary)',
-                      border: '1px solid var(--border-color)',
-                      whiteSpace: 'nowrap'
-                    }}>{project.status}</span>
+          <div className="flex-col gap-10">
+            {['Undone', 'In Progress', 'Done'].map(statusGroup => {
+              const groupedProjects = projects.filter(p => {
+                if (statusGroup === 'Undone') {
+                  return p.status !== 'In Progress' && p.status !== 'Done';
+                }
+                return p.status === statusGroup;
+              });
+
+              if (groupedProjects.length === 0) return null;
+
+              return (
+                <div key={statusGroup} className="flex-col gap-4 animate-fade-in">
+                  <h3 className="text-lg font-bold pb-2 text-secondary" style={{ borderBottom: '2px solid var(--border-color)' }}>
+                    {statusGroup} <span className="text-sm font-normal ml-2 badge" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{groupedProjects.length}</span>
+                  </h3>
+                  <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+                    {groupedProjects.map((project, index) => (
+                      <div key={project.id} className={`card hover-elevate animate-slide-up delay-${((index % 5) + 1) * 100}`} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                        <div className="flex justify-between items-start mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <div className="flex gap-4 items-center">
+                            <div className="flex items-center justify-center" style={{ padding: '0.75rem', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
+                              <FolderKanban size={20} className="text-primary" />
+                            </div>
+                            <div className="flex-col gap-1">
+                              <h3 className="text-lg font-bold leading-tight">{project.name}</h3>
+                              <span className="text-sm text-secondary">Client: {project.client}</span>
+                            </div>
+                          </div>
+                          <div className="flex-col items-end gap-2">
+                            <span className="badge" style={{ 
+                              backgroundColor: project.status === 'Done' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                              color: 'var(--text-primary)',
+                              border: '1px solid var(--border-color)',
+                              whiteSpace: 'nowrap'
+                            }}>{project.status}</span>
+                          </div>
+                        </div>
+
+                        {project.assignee && project.assignee !== 'Unassigned' && (
+                          <div className="flex items-center gap-2 mb-2 pb-2" style={{ borderBottom: '1px dashed var(--border-color)' }}>
+                            <Users size={14} className="text-secondary" />
+                            <span className="text-xs text-secondary">Lead Worker: <span className="font-medium text-[var(--text-primary)]">{project.assignee}</span></span>
+                          </div>
+                        )}
+
+                        <div className="flex-col gap-3 mt-2 flex-1">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-medium text-secondary">Progress</span>
+                            <span className="font-bold">{project.progress}%</span>
+                          </div>
+                          <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-secondary)', borderRadius: '999px', overflow: 'hidden' }}>
+                            <div style={{ width: `${project.progress}%`, height: '100%', backgroundColor: 'var(--text-primary)', transition: 'width 1s ease-in-out' }}></div>
+                          </div>
+                          <p className="text-xs text-secondary mt-1">{project.tasks || 0} total tasks tracked</p>
+                        </div>
+
+                        <div className="flex-col mt-6 w-full gap-2">
+                          <button 
+                            className="btn btn-primary w-full shadow-sm"
+                            onClick={() => navigate(`/projects/${project.id}`)}
+                          >
+                            Open Workspace
+                          </button>
+                          <div className="flex gap-2 w-full flex-wrap">
+                            {currentUser?.role === 'ceo' && (
+                              <button
+                                className="btn btn-secondary flex-1"
+                                style={{ minWidth: '120px' }}
+                                onClick={() => {
+                                  setReassignProjectId(project.id);
+                                  setNewAssignee(project.assignee === 'Unassigned' ? '' : project.assignee);
+                                }}
+                              >
+                                Reassign
+                              </button>
+                            )}
+                            {(currentUser?.role === 'ceo' || currentUser?.role === 'worker') && (
+                              <button
+                                className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
+                                style={{ minWidth: '120px' }}
+                                onClick={() => {
+                                  setVaultProjectName(project.name);
+                                  setVaultProjectId(project.id);
+                                }}
+                              >
+                                <Key size={14} /> Vault
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                {project.assignee && project.assignee !== 'Unassigned' && (
-                  <div className="flex items-center gap-2 mb-2 pb-2" style={{ borderBottom: '1px dashed var(--border-color)' }}>
-                    <Users size={14} className="text-secondary" />
-                    <span className="text-xs text-secondary">Lead Worker: <span className="font-medium text-[var(--text-primary)]">{project.assignee}</span></span>
-                  </div>
-                )}
-
-                <div className="flex-col gap-3 mt-2 flex-1">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium text-secondary">Progress</span>
-                    <span className="font-bold">{project.progress}%</span>
-                  </div>
-                  <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-secondary)', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: `${project.progress}%`, height: '100%', backgroundColor: 'var(--text-primary)', transition: 'width 1s ease-in-out' }}></div>
-                  </div>
-                  <p className="text-xs text-secondary mt-1">{project.tasks || 0} total tasks tracked</p>
-                </div>
-
-                <div className="flex-col mt-6 w-full animate-fade-in delay-300 gap-2">
-                   <button 
-                     className="btn btn-primary w-full shadow-sm"
-                     onClick={() => navigate(`/projects/${project.id}`)}
-                   >
-                     Open Workspace
-                   </button>
-                   <div className="flex gap-2 w-full flex-wrap">
-                     {currentUser?.role === 'ceo' && (
-                       <button
-                         className="btn btn-secondary flex-1"
-                         style={{ minWidth: '120px' }}
-                         onClick={() => {
-                           setReassignProjectId(project.id);
-                           setNewAssignee(project.assignee === 'Unassigned' ? '' : project.assignee);
-                         }}
-                       >
-                         Reassign
-                       </button>
-                     )}
-                     {(currentUser?.role === 'ceo' || currentUser?.role === 'worker') && (
-                       <button
-                         className="btn btn-secondary flex-1 flex items-center justify-center gap-2 text-white border-white/20 hover:bg-white hover:text-black transition-colors"
-                         style={{ minWidth: '120px' }}
-                         onClick={() => {
-                           setVaultProjectName(project.name);
-                           setVaultProjectId(project.id);
-                         }}
-                       >
-                         <Key size={14} /> Vault
-                       </button>
-                     )}
-                   </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

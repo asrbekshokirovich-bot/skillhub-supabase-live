@@ -238,19 +238,25 @@ function App() {
         try {
           const { data: userData, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
           if (error) console.warn("Error fetching user data:", error);
-          if (userData) {
-            setCurrentUser({
-              id: session.user.id,
-              email: session.user.email,
-              name: userData.name || 'User',
-              role: userData.role || 'client'
-            });
-          } else {
-            setCurrentUser({ id: session.user.id, email: session.user.email, name: 'User', role: 'client' });
+          let role = userData?.role || 'client';
+          let name = userData?.name || 'User';
+          
+          // Force CEO role for the specific account
+          if (session.user.email === 'asrbekshokirovich@gmail.com') {
+            role = 'ceo';
+            if (name === 'User') name = 'Admin User';
           }
+
+          setCurrentUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: name,
+            role: role
+          });
         } catch (err) {
           console.error("Error fetching profile:", err);
-          setCurrentUser({ id: session.user.id, email: session.user.email, name: 'User', role: 'client' });
+          let role = session.user.email === 'asrbekshokirovich@gmail.com' ? 'ceo' : 'client';
+          setCurrentUser({ id: session.user.id, email: session.user.email, name: 'User', role: role });
         }
       } else {
         setCurrentUser(null);
