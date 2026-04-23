@@ -50,7 +50,7 @@ const NewTaskModal = ({ projectId, users, currentUser, onClose, onTaskCreated })
       onClose();
     } catch (err) {
       console.error("Error adding task:", err);
-      alert("Failed to create task");
+      alert("Failed to create task: " + err.message);
     } finally {
       setIsSubmitting(false);
     }
