@@ -10,7 +10,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    if (confirmText !== target.username) return;
+    if (confirmText !== target.name) return;
     setError(null);
     setLoading(true);
     try {
@@ -85,10 +85,10 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontWeight: 700, fontSize: '1rem', color: '#7f1d1d', flexShrink: 0,
               }}>
-                {target.username.charAt(0).toUpperCase()}
+                {target.name ? target.name.charAt(0).toUpperCase() : '?'}
               </div>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{target.username}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{target.name}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>
                   {target.role}
                 </div>
@@ -113,7 +113,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
             </div>
 
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Are you sure you want to delete <strong style={{ color: 'var(--text-primary)' }}>{target.username}</strong>'s account?
+              Are you sure you want to delete <strong style={{ color: 'var(--text-primary)' }}>{target.name}</strong>'s account?
             </p>
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -136,7 +136,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
           <form onSubmit={handleDelete} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
               To confirm, type the username{' '}
-              <strong style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{target.username}</strong>{' '}
+              <strong style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{target.name}</strong>{' '}
               in the field below.
             </p>
 
@@ -155,13 +155,13 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
               </label>
               <input
                 type="text"
-                placeholder={target.username}
+                placeholder={target.name}
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 autoFocus
                 style={{ width: '100%' }}
               />
-              {confirmText && confirmText !== target.username && (
+              {confirmText && confirmText !== target.name && (
                 <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>
                   Doesn't match. Keep typing…
                 </span>
@@ -181,14 +181,14 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
               <button
                 type="submit"
                 className="btn"
-                disabled={loading || confirmText !== target.username}
+                disabled={loading || confirmText !== target.name}
                 style={{
                   flex: 1,
                   backgroundColor: '#ef4444',
                   color: '#fff',
                   fontWeight: 600,
-                  opacity: (loading || confirmText !== target.username) ? 0.5 : 1,
-                  cursor: (loading || confirmText !== target.username) ? 'not-allowed' : 'pointer',
+                  opacity: (loading || confirmText !== target.name) ? 0.5 : 1,
+                  cursor: (loading || confirmText !== target.name) ? 'not-allowed' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
                 }}
               >

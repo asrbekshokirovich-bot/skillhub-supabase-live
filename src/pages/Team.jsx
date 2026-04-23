@@ -180,9 +180,9 @@ const Team = ({ currentUser }) => {
                               backgroundColor: 'var(--bg-tertiary)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700,
                             }}>
-                              {profile.username.charAt(0).toUpperCase()}
+                              {profile.name ? profile.name.charAt(0).toUpperCase() : '?'}
                             </div>
-                            {profile.username}
+                            {profile.name}
                             {isSelf && (
                               <span style={{
                                 fontSize: '0.65rem', fontWeight: 600,
@@ -210,7 +210,7 @@ const Team = ({ currentUser }) => {
                         </td>
 
                         <td data-label="Joined Date" style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                          {new Date(profile.created_at).toLocaleDateString()}
+                          {new Date(profile.created_at || profile.createdAt).toLocaleDateString()}
                         </td>
 
                         <td data-label="Actions" style={{ padding: '1rem', textAlign: 'right' }}>
@@ -218,7 +218,7 @@ const Team = ({ currentUser }) => {
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>—</span>
                           ) : (
                             <button
-                              title={`Delete ${profile.username}`}
+                              title={`Delete ${profile.name}`}
                               onClick={() => setDeleteTarget(profile)}
                               className="btn-danger-hover inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.8rem] font-medium text-red-500 rounded-md border border-red-500/40 transition-all cursor-pointer bg-transparent"
                             >
