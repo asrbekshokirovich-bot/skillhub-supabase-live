@@ -5,10 +5,8 @@ import logoDark from '../assets/logo-dark.png';
 import { Loader2 } from 'lucide-react';
 
 const Login = ({ isDark }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('worker');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -21,32 +19,8 @@ const Login = ({ isDark }) => {
       // Append domain behind the scenes for Auth
       const email = `${username.trim().toLowerCase()}@skillhubapp.com`;
       
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({ 
-          email, 
-          password,
-          options: {
-            data: {
-              name: username.trim(),
-              role: role
-            }
-          }
-        });
-        if (error) throw error;
-        
-        // Supabase returns a fake success object (with identities: []) if the user already exists to prevent email enumeration.
-        if (data?.user && data.user.identities && data.user.identities.length === 0) {
-          throw new Error('This username is already taken. Please sign in instead.');
-        }
-
-        // If email confirmations are enabled in Supabase, session will be null because the fake email cannot be verified.
-        if (data?.user && !data.session) {
-          throw new Error('Please disable "Confirm email" in your Supabase Dashboard (Authentication -> Providers -> Email) to allow immediate signups with usernames.');
-        }
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (err) {
       setError(err.message === 'Invalid login credentials' ? 'Invalid username or password.' : err.message);
     } finally {
@@ -66,7 +40,7 @@ const Login = ({ isDark }) => {
           />
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Skillhub Portal</h1>
-            <p className="text-secondary mt-1">{isSignUp ? 'Create your account' : 'Sign in to your account'}</p>
+            <p className="text-secondary mt-1">Sign in to your account</p>
           </div>
         </div>
         
@@ -91,21 +65,6 @@ const Login = ({ isDark }) => {
               required
             />
           </div>
-
-          {isSignUp && (
-            <div className="flex-col gap-1.5">
-              <label className="text-sm font-bold">Account Role</label>
-              <select 
-                className="input w-full"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                style={{ appearance: 'auto' }}
-              >
-                <option value="ceo">Project Manager / CEO</option>
-                <option value="worker">Worker</option>
-              </select>
-            </div>
-          )}
           
           <div className="flex-col gap-1.5">
             <label className="text-sm font-bold">Password</label>
@@ -119,39 +78,14 @@ const Login = ({ isDark }) => {
             />
           </div>
           
-          <div className="flex gap-4 mt-2">
-            <button 
-              type={!isSignUp ? "submit" : "button"}
-              onClick={(e) => {
-                if (isSignUp) {
-                  e.preventDefault();
-                  setIsSignUp(false);
-                  setError(null);
-                }
-              }}
-              className={`btn flex-1 text-base font-bold ${!isSignUp ? 'btn-primary' : 'btn-secondary'}`} 
-              style={{ padding: '0.875rem' }}
-              disabled={loading && !isSignUp}
-            >
-              {loading && !isSignUp ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign In'}
-            </button>
-
-            <button 
-              type={isSignUp ? "submit" : "button"}
-              onClick={(e) => {
-                if (!isSignUp) {
-                  e.preventDefault();
-                  setIsSignUp(true);
-                  setError(null);
-                }
-              }}
-              className={`btn flex-1 text-base font-bold ${isSignUp ? 'btn-primary' : 'btn-secondary'}`} 
-              style={{ padding: '0.875rem' }}
-              disabled={loading && isSignUp}
-            >
-              {loading && isSignUp ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign Up'}
-            </button>
-          </div>
+          <button 
+            type="submit"
+            className="btn btn-primary w-full text-base font-bold mt-2" 
+            style={{ padding: '0.875rem' }}
+            disabled={loading}
+          >
+            {loading ? <Loader2 size={20} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign In'}
+          </button>
         </form>
       </div>
     </div>

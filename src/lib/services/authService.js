@@ -23,17 +23,8 @@ class AuthService {
 
       if (error) throw error;
       
-      const userId = data.user.id;
-      
-      // Link profile data natively via Postgres
-      const { error: profileError } = await supabase.from('users').insert({
-        id: userId,
-        email,
-        name: username.trim().toLowerCase(),
-        role: role
-      });
-
-      if (profileError) throw profileError;
+      // The Supabase trigger handle_new_user automatically populates public.users
+      // so we don't need to manually insert here (which would fail due to RLS).
 
       return data.user;
     } catch (err) {
