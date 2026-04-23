@@ -157,11 +157,11 @@ const Discussions = ({ currentUser }) => {
                   >
                     <div className="flex justify-between items-start mb-3">
                       <span className="badge" style={{ 
-                        backgroundColor: issue.type === 'Bug' ? '#fee2e2' : 'var(--bg-tertiary)',
-                        color: issue.type === 'Bug' ? '#dc2626' : 'var(--text-primary)',
-                        border: issue.type === 'Bug' ? '1px solid #f87171' : '1px solid var(--border-color)'
+                        backgroundColor: (issue.type || 'Task') === 'Bug' ? '#fee2e2' : 'var(--bg-tertiary)',
+                        color: (issue.type || 'Task') === 'Bug' ? '#dc2626' : 'var(--text-primary)',
+                        border: (issue.type || 'Task') === 'Bug' ? '1px solid #f87171' : '1px solid var(--border-color)'
                       }}>
-                        {issue.type}
+                        {issue.type || 'Task'}
                       </span>
                     </div>
                     
@@ -196,10 +196,10 @@ const Discussions = ({ currentUser }) => {
                     
                     <div className="flex justify-between items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
                       <div className="flex items-center gap-2">
-                         <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 'bold' }}>
-                           {issue.author.charAt(0)}
+                         <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                           {(issue.assignee && issue.assignee !== 'Unassigned' ? issue.assignee : 'U').charAt(0)}
                          </div>
-                         <span className="text-xs text-secondary">{issue.author}</span>
+                         <span className="text-xs text-secondary">{issue.assignee && issue.assignee !== 'Unassigned' ? issue.assignee : 'Unassigned'}</span>
                       </div>
                       
                       <div className="flex items-center gap-3">
