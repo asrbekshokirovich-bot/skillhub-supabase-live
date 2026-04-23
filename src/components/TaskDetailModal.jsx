@@ -146,100 +146,108 @@ const TaskDetailModal = ({
           </div>
 
           {/* Metadata Grid */}
-          <div className="grid shrink-0 gap-y-3 gap-x-2 pb-6 border-b border-[#222]" style={{ gridTemplateColumns: '140px 1fr', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', rowGap: '16px', columnGap: '8px', paddingBottom: '24px', borderBottom: '1px solid #222', alignItems: 'center' }}>
 
             {/* Status */}
-            <div className="text-[13px] font-medium text-[#888]">Status</div>
-            <div className="flex items-center">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Status</div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <select
                 value={selectedIssue.status}
                 onChange={(e) => updateTaskField('status', e.target.value)}
-                className="bg-transparent text-white text-[13px] font-bold px-2 py-1 -ml-2 rounded hover:bg-[#1A1A1A] outline-none cursor-pointer transition-colors appearance-none min-w-[120px]"
+                style={{ backgroundColor: 'transparent', color: 'white', fontSize: '13px', fontWeight: 'bold', border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
+                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
               >
-                <option value="To Do" className="bg-[#111]">TO DO</option>
-                <option value="In Progress" className="bg-[#111]">IN PROGRESS</option>
-                <option value="Done" className="bg-[#111]">DONE</option>
+                <option value="To Do" style={{ backgroundColor: '#111', color: 'white' }}>TO DO</option>
+                <option value="In Progress" style={{ backgroundColor: '#111', color: 'white' }}>IN PROGRESS</option>
+                <option value="Done" style={{ backgroundColor: '#111', color: 'white' }}>DONE</option>
               </select>
             </div>
 
             {/* Assignee */}
-            <div className="text-[13px] font-medium text-[#888]">Assignee</div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-indigo-600">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Assignee</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#4f46e5', flexShrink: 0 }}>
                 {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
               </div>
               <select
                 value={selectedIssue.assignee}
                 onChange={(e) => updateTaskField('assignee', e.target.value)}
-                className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors appearance-none"
+                style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
+                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
               >
-                <option value="Unassigned" className="bg-[#111]">Unassigned</option>
+                <option value="Unassigned" style={{ backgroundColor: '#111', color: 'white' }}>Unassigned</option>
                 {users.map(u => (
-                  <option key={u.id} value={u.name} className="bg-[#111]">{u.name}</option>
+                  <option key={u.id} value={u.name} style={{ backgroundColor: '#111', color: 'white' }}>{u.name}</option>
                 ))}
               </select>
             </div>
 
             {/* Priority */}
-            <div className="text-[13px] font-medium text-[#888]">Priority</div>
-            <div className="flex items-center gap-2.5">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Priority</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ 
-                width: 8, height: 8, borderRadius: '50%', display: 'inline-block', 
+                width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flexShrink: 0,
                 backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
               }}/>
               <select
                 value={selectedIssue.urgency || 'Medium'}
                 onChange={(e) => updateTaskField('urgency', e.target.value)}
-                className="bg-transparent text-[#E5E7EB] text-[14px] font-medium outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors appearance-none"
+                style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
+                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
               >
-                <option value="Low" className="bg-[#111]">Low</option>
-                <option value="Medium" className="bg-[#111]">Medium</option>
-                <option value="High" className="bg-[#111]">High</option>
+                <option value="Low" style={{ backgroundColor: '#111', color: 'white' }}>Low</option>
+                <option value="Medium" style={{ backgroundColor: '#111', color: 'white' }}>Medium</option>
+                <option value="High" style={{ backgroundColor: '#111', color: 'white' }}>High</option>
               </select>
             </div>
 
             {/* Dates */}
-            <div className="text-[13px] font-medium text-[#888]">Dates</div>
-            <div className="flex items-center gap-2 text-[14px]">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Dates</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
               <input 
                 type="date" 
                 value={selectedIssue.startDate || ''} 
                 onChange={e => updateTaskField('startDate', e.target.value)} 
-                className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded font-medium transition-colors" 
-                style={{ colorScheme: 'dark' }} 
+                style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', colorScheme: 'dark' }}
+                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
               />
-              <span className="text-[#555] mx-1">→</span>
+              <span style={{ color: '#555' }}>→</span>
               <input 
                 type="date" 
                 value={selectedIssue.dueDate || ''} 
                 onChange={e => updateTaskField('dueDate', e.target.value)} 
-                className="bg-transparent text-[#CCC] outline-none cursor-pointer hover:text-white hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded font-medium transition-colors" 
-                style={{ colorScheme: 'dark' }} 
+                style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
+                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
               />
             </div>
 
             {/* Time Estimate */}
-            <div className="text-[13px] font-medium text-[#888]">Time estimate</div>
-            <div className="flex items-center">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Time estimate</div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               {editingField === 'time' ? (
-                <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 py-1 text-[14px] font-medium text-white outline-none w-24 border-b border-indigo-500 bg-[#1A1A1A] h-[30px]"/>
+                <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }}/>
               ) : (
-                <div onClick={()=>{setEditingField('time');setEditValue(selectedIssue.timeEstimated||'');}} className="flex items-center cursor-pointer hover:bg-[#1A1A1A] px-2 py-1 -ml-2 rounded transition-colors text-[14px] font-medium text-[#CCC]">
-                  {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span className="text-[#555] italic">Not set</span>}
+                <div onClick={()=>{setEditingField('time');setEditValue(selectedIssue.timeEstimated||'');}} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, color: '#CCC' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span style={{ color: '#555', fontStyle: 'italic' }}>Not set</span>}
                 </div>
               )}
             </div>
 
             {/* Tags */}
-            <div className="text-[13px] font-medium text-[#888]">Tags</div>
-            <div className="flex items-center flex-wrap gap-2">
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Tags</div>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               {editingField === 'tags' ? (
-                <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} className="rounded px-2 py-1 text-[13px] font-medium text-white outline-none w-48 border-b border-indigo-500 bg-[#1A1A1A] h-[30px]" placeholder="Comma separated..."/>
+                <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '13px', fontWeight: 500, color: 'white', outline: 'none', width: '192px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }} placeholder="Comma separated..."/>
               ) : (
-                <div onClick={()=>{setEditingField('tags');}} className="flex items-center gap-1.5 cursor-pointer hover:bg-[#1A1A1A] p-1 -ml-1 rounded transition-colors flex-wrap min-h-[28px] w-full max-w-[400px]">
+                <div onClick={()=>{setEditingField('tags');}} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '4px', marginLeft: '-4px', borderRadius: '4px', flexWrap: 'wrap', minHeight: '28px', maxWidth: '400px', width: '100%' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                   {(selectedIssue.tags||[]).length > 0 ? selectedIssue.tags.map(t=>(
-                    <span key={t} className="text-[12px] font-medium px-2.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#A5B4FC] border border-[#312E81]">{t}</span>
-                  )) : <span className="text-[13px] text-[#555] italic px-1">Add tags...</span>}
+                    <span key={t} style={{ fontSize: '12px', fontWeight: 500, padding: '2px 10px', borderRadius: '9999px', backgroundColor: '#1E1B4B', color: '#A5B4FC', border: '1px solid #312E81' }}>{t}</span>
+                  )) : <span style={{ fontSize: '13px', color: '#555', fontStyle: 'italic', padding: '0 4px' }}>Add tags...</span>}
                 </div>
               )}
             </div>
