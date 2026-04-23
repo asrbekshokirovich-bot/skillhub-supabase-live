@@ -169,7 +169,7 @@ export default function Projects({ currentUser }) {
                 >
                   <option value="">Unassigned</option>
                   {users.map(dev => (
-                    <option key={dev.id} value={dev.name}>{dev.name} ({dev.username})</option>
+                    <option key={dev.id} value={dev.name}>{dev.name}</option>
                   ))}
                 </select>
               </div>
@@ -331,9 +331,9 @@ export default function Projects({ currentUser }) {
               className="input w-full mb-4"
               style={{ appearance: 'auto' }}
             >
-              <option value="">Unassigned</option>
+                <option value="">Unassigned</option>
               {users.map(dev => (
-                <option key={dev.id} value={dev.name}>{dev.name} ({dev.username})</option>
+                <option key={dev.id} value={dev.name}>{dev.name}</option>
               ))}
             </select>
             <div className="flex justify-end gap-3">
