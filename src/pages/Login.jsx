@@ -22,7 +22,7 @@ const Login = ({ isDark }) => {
       const email = `${username.trim().toLowerCase()}@skillhubapp.com`;
       
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ 
+        const { data, error } = await supabase.auth.signUp({ 
           email, 
           password,
           options: {
@@ -33,6 +33,16 @@ const Login = ({ isDark }) => {
           }
         });
         if (error) throw error;
+        
+        // Supabase returns a fake success object (with identities: []) if the user already exists to prevent email enumeration.
+        if (data?.user && data.user.identities && data.user.identities.length === 0) {
+          throw new Error('This username is already taken. Please sign in instead.');
+        }
+
+        // If email confirmations are enabled in Supabase, session will be null because the fake email cannot be verified.
+        if (data?.user && !data.session) {
+          throw new Error('Please disable "Confirm email" in your Supabase Dashboard (Authentication -> Providers -> Email) to allow immediate signups with usernames.');
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
