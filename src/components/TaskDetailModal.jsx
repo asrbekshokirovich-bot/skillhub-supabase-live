@@ -22,6 +22,35 @@ const formatChatTime = (dateString) => {
   return `${dateFormat}, ${timeFormat}`;
 };
 
+const MetadataRow = ({ label, children }) => (
+  <>
+    <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>{label}</div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {children}
+    </div>
+  </>
+);
+
+const GhostDropdown = ({ value, onChange, options, prefix }) => (
+  <div 
+    style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
+    onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+    onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+  >
+    {prefix && <div style={{ marginLeft: '8px' }}>{prefix}</div>}
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: prefix ? '4px 24px 4px 4px' : '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
+    >
+      {options.map(opt => (
+        <option key={opt.value} value={opt.value} style={{ backgroundColor: '#111', color: 'white' }}>{opt.label}</option>
+      ))}
+    </select>
+    <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </div>
+);
+
 const TaskDetailModal = ({ 
   issue, 
   projectId, 
@@ -168,104 +197,67 @@ const TaskDetailModal = ({
           {/* Metadata Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', rowGap: '16px', columnGap: '8px', paddingBottom: '24px', borderBottom: '1px solid #222', alignItems: 'center' }}>
 
-            {/* Status */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Status</div>
-            {/* Status */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Status</div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div 
-                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
-                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <select
-                  value={selectedIssue.status}
-                  onChange={(e) => updateTaskField('status', e.target.value)}
-                  style={{ backgroundColor: 'transparent', color: 'white', fontSize: '13px', fontWeight: 'bold', border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
-                >
-                  <option value="To Do" style={{ backgroundColor: '#111', color: 'white' }}>TO DO</option>
-                  <option value="In Progress" style={{ backgroundColor: '#111', color: 'white' }}>IN PROGRESS</option>
-                  <option value="Done" style={{ backgroundColor: '#111', color: 'white' }}>DONE</option>
-                </select>
-                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-            </div>
-
-            {/* Assignee */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Assignee</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#4f46e5', flexShrink: 0 }}>
-                {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
-              </div>
-              <div 
-                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
-                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <select
-                  value={selectedIssue.assignee}
-                  onChange={(e) => updateTaskField('assignee', e.target.value)}
-                  style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
-                >
-                  <option value="Unassigned" style={{ backgroundColor: '#111', color: 'white' }}>Unassigned</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.name} style={{ backgroundColor: '#111', color: 'white' }}>{u.name}</option>
-                  ))}
-                </select>
-                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-            </div>
-
-            {/* Priority */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Priority</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ 
-                width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flexShrink: 0,
-                backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
-              }}/>
-              <div 
-                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
-                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <select
-                  value={selectedIssue.urgency || 'Medium'}
-                  onChange={(e) => updateTaskField('urgency', e.target.value)}
-                  style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
-                >
-                  <option value="Low" style={{ backgroundColor: '#111', color: 'white' }}>Low</option>
-                  <option value="Medium" style={{ backgroundColor: '#111', color: 'white' }}>Medium</option>
-                  <option value="High" style={{ backgroundColor: '#111', color: 'white' }}>High</option>
-                </select>
-                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Dates</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input 
-                type="date" 
-                value={selectedIssue.startDate || ''} 
-                onChange={e => updateTaskField('startDate', e.target.value)} 
-                style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', colorScheme: 'dark' }}
-                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+            <MetadataRow label="Status">
+              <GhostDropdown 
+                value={selectedIssue.status} 
+                onChange={(val) => updateTaskField('status', val)} 
+                options={[{value:'To Do', label:'TO DO'}, {value:'In Progress', label:'IN PROGRESS'}, {value:'Done', label:'DONE'}]}
               />
-              <span style={{ color: '#555' }}>→</span>
-              <input 
-                type="date" 
-                value={selectedIssue.dueDate || ''} 
-                onChange={e => updateTaskField('dueDate', e.target.value)} 
-                style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
-                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
-              />
-            </div>
+            </MetadataRow>
 
-            {/* Time Estimate */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Time estimate</div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <MetadataRow label="Assignee">
+              <GhostDropdown 
+                value={selectedIssue.assignee} 
+                onChange={(val) => updateTaskField('assignee', val)} 
+                prefix={
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#4f46e5', flexShrink: 0 }}>
+                    {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
+                  </div>
+                }
+                options={[
+                  {value:'Unassigned', label:'Unassigned'},
+                  ...users.map(u => ({ value: u.name, label: u.name }))
+                ]}
+              />
+            </MetadataRow>
+
+            <MetadataRow label="Priority">
+              <GhostDropdown 
+                value={selectedIssue.urgency || 'Medium'} 
+                onChange={(val) => updateTaskField('urgency', val)} 
+                prefix={
+                  <span style={{ 
+                    width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flexShrink: 0, marginLeft: '4px',
+                    backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
+                  }}/>
+                }
+                options={[{value:'Low', label:'Low'}, {value:'Medium', label:'Medium'}, {value:'High', label:'High'}]}
+              />
+            </MetadataRow>
+
+            <MetadataRow label="Dates">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+                <input 
+                  type="date" 
+                  value={selectedIssue.startDate || ''} 
+                  onChange={e => updateTaskField('startDate', e.target.value)} 
+                  style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', colorScheme: 'dark' }}
+                  onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                  onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+                />
+                <span style={{ color: '#555' }}>→</span>
+                <input 
+                  type="date" 
+                  value={selectedIssue.dueDate || ''} 
+                  onChange={e => updateTaskField('dueDate', e.target.value)} 
+                  style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
+                  onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                  onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+                />
+              </div>
+            </MetadataRow>
+
+            <MetadataRow label="Time estimate">
               {editingField === 'time' ? (
                 <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }}/>
               ) : (
@@ -273,11 +265,9 @@ const TaskDetailModal = ({
                   {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span style={{ color: '#555', fontStyle: 'italic' }}>Not set</span>}
                 </div>
               )}
-            </div>
+            </MetadataRow>
 
-            {/* Tags */}
-            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Tags</div>
-            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <MetadataRow label="Tags">
               {editingField === 'tags' ? (
                 <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '13px', fontWeight: 500, color: 'white', outline: 'none', width: '192px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }} placeholder="Comma separated..."/>
               ) : (
@@ -287,7 +277,7 @@ const TaskDetailModal = ({
                   )) : <span style={{ fontSize: '13px', color: '#555', fontStyle: 'italic', padding: '0 4px' }}>Add tags...</span>}
                 </div>
               )}
-            </div>
+            </MetadataRow>
 
           </div>
 
