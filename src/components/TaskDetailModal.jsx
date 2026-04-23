@@ -170,18 +170,25 @@ const TaskDetailModal = ({
 
             {/* Status */}
             <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Status</div>
+            {/* Status */}
+            <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>Status</div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <select
-                value={selectedIssue.status}
-                onChange={(e) => updateTaskField('status', e.target.value)}
-                style={{ backgroundColor: 'transparent', color: 'white', fontSize: '13px', fontWeight: 'bold', border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
-                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+              <div 
+                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <option value="To Do" style={{ backgroundColor: '#111', color: 'white' }}>TO DO</option>
-                <option value="In Progress" style={{ backgroundColor: '#111', color: 'white' }}>IN PROGRESS</option>
-                <option value="Done" style={{ backgroundColor: '#111', color: 'white' }}>DONE</option>
-              </select>
+                <select
+                  value={selectedIssue.status}
+                  onChange={(e) => updateTaskField('status', e.target.value)}
+                  style={{ backgroundColor: 'transparent', color: 'white', fontSize: '13px', fontWeight: 'bold', border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
+                >
+                  <option value="To Do" style={{ backgroundColor: '#111', color: 'white' }}>TO DO</option>
+                  <option value="In Progress" style={{ backgroundColor: '#111', color: 'white' }}>IN PROGRESS</option>
+                  <option value="Done" style={{ backgroundColor: '#111', color: 'white' }}>DONE</option>
+                </select>
+                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
             </div>
 
             {/* Assignee */}
@@ -190,18 +197,23 @@ const TaskDetailModal = ({
               <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#4f46e5', flexShrink: 0 }}>
                 {selectedIssue.assignee !== 'Unassigned' ? selectedIssue.assignee.charAt(0).toUpperCase() : '?'}
               </div>
-              <select
-                value={selectedIssue.assignee}
-                onChange={(e) => updateTaskField('assignee', e.target.value)}
-                style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
-                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+              <div 
+                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <option value="Unassigned" style={{ backgroundColor: '#111', color: 'white' }}>Unassigned</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.name} style={{ backgroundColor: '#111', color: 'white' }}>{u.name}</option>
-                ))}
-              </select>
+                <select
+                  value={selectedIssue.assignee}
+                  onChange={(e) => updateTaskField('assignee', e.target.value)}
+                  style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
+                >
+                  <option value="Unassigned" style={{ backgroundColor: '#111', color: 'white' }}>Unassigned</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.name} style={{ backgroundColor: '#111', color: 'white' }}>{u.name}</option>
+                  ))}
+                </select>
+                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
             </div>
 
             {/* Priority */}
@@ -211,17 +223,22 @@ const TaskDetailModal = ({
                 width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flexShrink: 0,
                 backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
               }}/>
-              <select
-                value={selectedIssue.urgency || 'Medium'}
-                onChange={(e) => updateTaskField('urgency', e.target.value)}
-                style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', appearance: 'none', WebkitAppearance: 'none' }}
-                onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+              <div 
+                style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <option value="Low" style={{ backgroundColor: '#111', color: 'white' }}>Low</option>
-                <option value="Medium" style={{ backgroundColor: '#111', color: 'white' }}>Medium</option>
-                <option value="High" style={{ backgroundColor: '#111', color: 'white' }}>High</option>
-              </select>
+                <select
+                  value={selectedIssue.urgency || 'Medium'}
+                  onChange={(e) => updateTaskField('urgency', e.target.value)}
+                  style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 24px 4px 8px', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
+                >
+                  <option value="Low" style={{ backgroundColor: '#111', color: 'white' }}>Low</option>
+                  <option value="Medium" style={{ backgroundColor: '#111', color: 'white' }}>Medium</option>
+                  <option value="High" style={{ backgroundColor: '#111', color: 'white' }}>High</option>
+                </select>
+                <svg style={{ position: 'absolute', right: '8px', color: '#888', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
             </div>
 
             {/* Dates */}
