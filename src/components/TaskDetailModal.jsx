@@ -33,7 +33,7 @@ const MetadataRow = ({ label, children }) => (
 
 const GhostDropdown = ({ value, onChange, options, prefix }) => (
   <div 
-    style={{ display: 'flex', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
+    style={{ display: 'flex', width: 'fit-content', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s' }}
     onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
     onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
   >
@@ -237,31 +237,43 @@ const TaskDetailModal = ({
 
             <MetadataRow label="Dates">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input 
-                  type="date" 
-                  value={selectedIssue.startDate || ''} 
-                  onChange={e => updateTaskField('startDate', e.target.value)} 
-                  style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', colorScheme: 'dark' }}
-                  onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                  onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>Start</span>
+                  <input 
+                    type="date" 
+                    value={selectedIssue.startDate || ''} 
+                    onChange={e => updateTaskField('startDate', e.target.value)} 
+                    onClick={e => { try { e.target.showPicker(); } catch(err) {} }}
+                    style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
+                    onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                    onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+                  />
+                </div>
                 <span style={{ color: '#555' }}>→</span>
-                <input 
-                  type="date" 
-                  value={selectedIssue.dueDate || ''} 
-                  onChange={e => updateTaskField('dueDate', e.target.value)} 
-                  style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
-                  onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
-                  onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>Due</span>
+                  <input 
+                    type="date" 
+                    value={selectedIssue.dueDate || ''} 
+                    onChange={e => updateTaskField('dueDate', e.target.value)} 
+                    onClick={e => { try { e.target.showPicker(); } catch(err) {} }}
+                    style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark' }}
+                    onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                    onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
+                  />
+                </div>
               </div>
             </MetadataRow>
 
             <MetadataRow label="Time estimate">
               {editingField === 'time' ? (
-                <input autoFocus type="number" value={editValue} onChange={e=>setEditValue(e.target.value)} onBlur={()=>{updateTaskField('timeEstimated', editValue ? parseInt(editValue, 10) : 0); setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }}/>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input id="time-input" autoFocus type="number" defaultValue={selectedIssue.timeEstimated || ''} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); updateTaskField('timeEstimated', e.currentTarget.value ? parseInt(e.currentTarget.value, 10) : 0); setEditingField(null);}}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }} placeholder="Hours"/>
+                  <button onClick={() => { const val = document.getElementById('time-input')?.value; updateTaskField('timeEstimated', val ? parseInt(val, 10) : 0); setEditingField(null); }} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#4f46e5', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Save</button>
+                  <button onClick={() => setEditingField(null)} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Cancel</button>
+                </div>
               ) : (
-                <div onClick={()=>{setEditingField('time');setEditValue(selectedIssue.timeEstimated||'');}} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, color: '#CCC' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                <div onClick={()=>{setEditingField('time');}} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, color: '#CCC' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                   {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span style={{ color: '#555', fontStyle: 'italic' }}>Not set</span>}
                 </div>
               )}
@@ -269,7 +281,11 @@ const TaskDetailModal = ({
 
             <MetadataRow label="Tags">
               {editingField === 'tags' ? (
-                <input autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onBlur={e=>{const tags=e.target.value.split(',').map(t=>t.trim()).filter(Boolean);updateTaskField('tags',tags);setEditingField(null);}} onKeyDown={e=>{if(e.key==='Enter')e.target.blur();}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '13px', fontWeight: 500, color: 'white', outline: 'none', width: '192px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }} placeholder="Comma separated..."/>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input id="tags-input" autoFocus type="text" defaultValue={(selectedIssue.tags||[]).join(', ')} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); const tags=e.currentTarget.value.split(',').map(t=>t.trim()).filter(Boolean); updateTaskField('tags',tags); setEditingField(null);}}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '13px', fontWeight: 500, color: 'white', outline: 'none', width: '192px', border: 'none', borderBottom: '1px solid #4f46e5', backgroundColor: '#1A1A1A', height: '30px' }} placeholder="Comma separated..."/>
+                  <button onClick={() => { const input = document.getElementById('tags-input'); if (input) { const tags=input.value.split(',').map(t=>t.trim()).filter(Boolean); updateTaskField('tags',tags); setEditingField(null); } }} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#4f46e5', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Save</button>
+                  <button onClick={() => setEditingField(null)} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Cancel</button>
+                </div>
               ) : (
                 <div onClick={()=>{setEditingField('tags');}} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '4px', marginLeft: '-4px', borderRadius: '4px', flexWrap: 'wrap', minHeight: '28px', maxWidth: '400px', width: '100%' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                   {(selectedIssue.tags||[]).length > 0 ? selectedIssue.tags.map(t=>(
