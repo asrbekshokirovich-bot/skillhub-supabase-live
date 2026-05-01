@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Trash2, AlertTriangle, X, Loader2, ShieldAlert } from 'lucide-react';
 import { triggerHaptic } from '../lib/haptics';
+import { useSystem } from '../components/SystemUI';
 
 /* ─────────────────────────────────────────────────────────────────────────
    Delete Account Modal — 2-step confirmation
@@ -148,11 +149,11 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
             {error && (
               <div style={{
                 padding: '0.75rem 1rem',
-                backgroundColor: '#fee2e2',
-                color: '#b91c1c',
+                backgroundColor: 'var(--alert-error-bg)',
+                color: 'var(--alert-error-text)',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '0.875rem',
-                border: '1px solid #fecaca',
+                border: '1px solid var(--alert-error-border)',
               }}>
                 {error}
               </div>
@@ -215,6 +216,7 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
    Settings Page
 ───────────────────────────────────────────────────────────────────────── */
 const Settings = ({ currentUser, theme, setTheme }) => {
+  const { toast } = useSystem();
   const [notifications, setNotifications] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -295,7 +297,7 @@ const Settings = ({ currentUser, theme, setTheme }) => {
 
       {/* Save Changes */}
       <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
-        <button className="btn btn-primary" style={{ padding: '0.625rem 2rem' }} onClick={() => alert('Settings saved successfully!')}>
+        <button className="btn btn-primary" style={{ padding: '0.625rem 2rem' }} onClick={() => toast.success('Settings saved successfully!')}>
           Save Changes
         </button>
       </div>

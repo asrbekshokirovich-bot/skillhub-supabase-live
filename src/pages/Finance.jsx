@@ -1,109 +1,53 @@
 import React from 'react';
-import { Download, FileText } from 'lucide-react';
+import { FileText, Clock } from 'lucide-react';
 
-const mockInvoices = [];
-
-// Constants to remove magic strings
-const FILTER_CLIENT = 'Acme Corp';
-const STATUS_COLORS = {
-  Paid: 'var(--bg-tertiary)',
-  Overdue: '#fecaca',
-  Pending: 'var(--bg-secondary)' // Default fallback
-};
-
-/**
- * Returns the appropriate background color for an invoice status badge.
- */
-function getStatusBgColor(status) {
-  return STATUS_COLORS[status] || STATUS_COLORS.Pending;
-}
-
-/**
- * Renders a single invoice row in the table.
- */
-const InvoiceRow = ({ invoice, index }) => {
-  return (
-    <tr 
-      className={`invoice-row animate-slide-up delay-${(index + 1) * 100}`}
-    >
-      <td data-label="Invoice ID" className="table-cell" style={{ fontWeight: 500 }}>
-        <div className="flex items-center gap-2">
-          <FileText size={16} className="text-secondary" />
-          <span>{invoice.id}</span>
-        </div>
-      </td>
-      <td data-label="Client" className="table-cell">{invoice.client}</td>
-      <td data-label="Date" className="table-cell" style={{ color: 'var(--text-secondary)' }}>
-        {invoice.date}
-      </td>
-      <td data-label="Amount" className="table-cell" style={{ fontWeight: 500 }}>
-        {invoice.amount}
-      </td>
-      <td data-label="Status" className="table-cell">
-        <span 
-          className="badge" 
-          style={{ backgroundColor: getStatusBgColor(invoice.status), color: 'var(--text-primary)' }}
-        >
-          {invoice.status}
-        </span>
-      </td>
-      <td data-label="Action" className="table-cell">
-        <button className="btn btn-secondary p-2">
-          <Download size={16} />
-        </button>
-      </td>
-    </tr>
-  );
-};
-
+// SYSTEM RULE: Pages must not expose non-functional features.
+// Finance is in development. Show an intentional "coming soon" state.
 export default function Finance({ currentUser }) {
-  // Use early exit pattern if no user
   if (!currentUser) return null;
 
-  // Filter based on role (Functional logic kept simple)
-  const displayInvoices = currentUser.role === 'client' 
-    ? mockInvoices.filter(invoice => invoice.client === FILTER_CLIENT) 
-    : mockInvoices;
-
   return (
-    <div className="flex-col gap-6 h-full">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-bold">Financial Control</h2>
-          <p className="text-secondary">View and manage invoices and billing.</p>
-        </div>
-        {currentUser.role === 'ceo' && (
-          <button className="btn btn-primary">Create Invoice</button>
-        )}
+    <div className="flex-col gap-6 animate-fade-in">
+      <div>
+        <h2 className="text-xl font-bold">Financial Control</h2>
+        <p className="text-secondary">Invoicing and billing management for your projects.</p>
       </div>
 
-      <div className="card">
-        <div style={{ width: '100%', overflowX: 'auto' }}>
-          <table className="responsive-cards" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                <th className="table-header-cell">Invoice ID</th>
-                <th className="table-header-cell">Client</th>
-                <th className="table-header-cell">Date</th>
-                <th className="table-header-cell">Amount</th>
-                <th className="table-header-cell">Status</th>
-                <th className="table-header-cell">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayInvoices.length === 0 ? (
-                <tr>
-                  <td colSpan="6" style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                    No invoices generated yet.
-                  </td>
-                </tr>
-              ) : (
-                displayInvoices.map((invoice, index) => (
-                  <InvoiceRow key={invoice.id} invoice={invoice} index={index} />
-                ))
-              )}
-            </tbody>
-          </table>
+      <div
+        className="card animate-slide-up"
+        style={{ padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}
+      >
+        <div
+          style={{
+            width: 64, height: 64, borderRadius: '16px',
+            backgroundColor: 'var(--accent-primary-muted)',
+            border: '1px solid var(--accent-primary-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--accent-primary-text)',
+            marginBottom: '0.5rem',
+          }}
+        >
+          <FileText size={28} />
+        </div>
+        <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          Invoicing Coming Soon
+        </h3>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', maxWidth: '360px', lineHeight: 1.6, margin: 0 }}>
+          Financial management features are actively being built. Invoice creation, payment tracking, and billing reports will be available in an upcoming update.
+        </p>
+        <div
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            marginTop: '0.5rem', padding: '0.4rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-color)',
+            fontSize: '0.8rem',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <Clock size={14} />
+          Under development
         </div>
       </div>
     </div>

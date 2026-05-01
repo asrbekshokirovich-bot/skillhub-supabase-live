@@ -77,12 +77,12 @@ const Team = ({ currentUser }) => {
 
         <form onSubmit={handleCreateUser} className="card-body flex-col gap-4">
           {error && (
-            <div style={{ padding: '0.75rem', backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}>
+            <div style={{ padding: '0.75rem 1rem', backgroundColor: 'var(--alert-error-bg)', color: 'var(--alert-error-text)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid var(--alert-error-border)' }}>
               {error}
             </div>
           )}
           {success && (
-            <div style={{ padding: '0.75rem', backgroundColor: '#dcfce7', color: '#166534', borderRadius: 'var(--radius-md)', fontSize: '0.875rem' }}>
+            <div style={{ padding: '0.75rem 1rem', backgroundColor: 'var(--alert-success-bg)', color: 'var(--alert-success-text)', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid var(--alert-success-border)' }}>
               {success}
             </div>
           )}
@@ -199,13 +199,11 @@ const Team = ({ currentUser }) => {
                         <td data-label="Role" style={{ padding: '1rem', fontSize: '0.875rem' }}>
                           <span className="badge" style={{
                             textTransform: 'capitalize',
-                            backgroundColor:
-                              profile.role === 'ceo' ? '#fca5a5' :
-                              profile.role === 'worker' ? '#bae6fd' :
-                              'var(--bg-secondary)',
-                            color: 'var(--text-primary)',
+                            backgroundColor: profile.role === 'ceo' ? 'var(--badge-ceo-bg)' : 'var(--badge-worker-bg)',
+                            color: profile.role === 'ceo' ? 'var(--badge-ceo-text)' : 'var(--badge-worker-text)',
+                            border: `1px solid ${profile.role === 'ceo' ? 'var(--badge-ceo-border)' : 'var(--badge-worker-border)'}`,
                           }}>
-                            {profile.role}
+                            {profile.role === 'ceo' ? 'CEO' : profile.role}
                           </span>
                         </td>
 

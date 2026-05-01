@@ -3,7 +3,7 @@ import { triggerHaptic } from '../haptics';
 
 class TaskService {
   async getTasksByProject(projectId) {
-    const { data, error } = await supabase.from('tasks').select('id, projectId, title, description, status, urgency, assignee, startDate, dueDate, timeEstimated, tags, screenshotUrl, isArchived, createdAt, updatedAt').eq('projectId', projectId).neq('isArchived', true).order('createdAt', { ascending: true });
+    const { data, error } = await supabase.from('tasks').select('id, projectId, title, description, status, urgency, assignee, startDate, dueDate, timeEstimated, tags, screenshotUrl, isApproved, isArchived, createdAt, updatedAt, comments, subtasks, notes, type, author, timeTracked, watchers, dependencies, checklists, coverUrl').eq('projectId', projectId).neq('isArchived', true).order('createdAt', { ascending: true });
     if (error) throw error;
     return data;
   }
@@ -13,6 +13,7 @@ class TaskService {
       const { data, error } = await supabase.from('tasks').insert({
         ...taskData,
         projectId,
+        isApproved: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }).select().single();

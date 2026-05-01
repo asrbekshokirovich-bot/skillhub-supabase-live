@@ -142,8 +142,8 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
 
             {error && (
               <div style={{
-                padding: '0.75rem 1rem', backgroundColor: '#fee2e2', color: '#b91c1c',
-                borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid #fecaca',
+                padding: '0.75rem 1rem', backgroundColor: 'var(--alert-error-bg)', color: 'var(--alert-error-text)',
+                borderRadius: 'var(--radius-md)', fontSize: '0.875rem', border: '1px solid var(--alert-error-border)',
               }}>
                 {error}
               </div>

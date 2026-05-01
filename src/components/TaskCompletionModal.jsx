@@ -2,27 +2,45 @@ import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { storageService } from '../lib/services/storageService';
 import { taskService } from '../lib/services/taskService';
+import { useSystem } from './SystemUI';
 
-const TaskCompletionModal = ({ projectId, completingIssueId, onClose, onTaskCompleted }) => {
+const TaskCompletionModal = ({ projectId, completingIssue, issues, currentUser, onClose, onTaskCompleted }) => {
+  const { toast } = useSystem();
   const [screenshotFile, setScreenshotFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const completeTaskWithScreenshot = async (e) => {
     e.preventDefault();
-    if (!screenshotFile || !completingIssueId) return;
+    if (!screenshotFile || !completingIssue) return;
 
     setIsUploading(true);
     try {
       const fileExt = screenshotFile.name.split('.').pop();
-      const path = `projects/${projectId}/tasks/${completingIssueId}/screenshot_${Date.now()}.${fileExt}`;
+      const path = `projects/${projectId}/tasks/${completingIssue.id}/screenshot_${Date.now()}.${fileExt}`;
       const url = await storageService.uploadFile(path, screenshotFile);
 
-      await taskService.updateTask(projectId, completingIssueId, { status: 'Done', screenshotUrl: url });
-      onTaskCompleted(completingIssueId, url);
+      const targetIssue = issues.find(i => i.id === completingIssue.id);
+      const newComment = {
+        id: Date.now().toString(),
+        text: `Task dragged from ${completingIssue.sourceStatus} to Done. Pending Approval.`,
+        author: currentUser?.name || 'System',
+        role: currentUser?.role || 'worker',
+        timestamp: new Date().toISOString(),
+        isSystem: true
+      };
+      const updatedComments = [...(targetIssue?.comments || []), newComment];
+
+      await taskService.updateTask(projectId, completingIssue.id, { 
+        status: 'Done', 
+        screenshotUrl: url,
+        isApproved: false,
+        comments: updatedComments
+      });
+      onTaskCompleted({ ...targetIssue, status: 'Done', screenshotUrl: url, isApproved: false, comments: updatedComments });
       onClose();
     } catch (err) {
       console.error("Error uploading screenshot:", err);
-      alert("Failed to save screenshot.");
+      toast.error('Failed to save screenshot. Try again.');
     } finally {
       setIsUploading(false);
     }

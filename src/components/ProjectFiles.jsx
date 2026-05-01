@@ -3,8 +3,11 @@ import { supabase } from '../lib/supabase';
 import { storageService } from '../lib/services/storageService';
 import { Loader2, UploadCloud, FileText, Trash2, Download } from 'lucide-react';
 import { triggerHaptic } from '../lib/haptics';
+import { useSystem } from './SystemUI';
 
+// SYSTEM RULE: No hardcoded hex colors. All styling uses CSS variables.
 export default function ProjectFiles({ projectId }) {
+  const { toast, showConfirm } = useSystem();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -15,47 +18,37 @@ export default function ProjectFiles({ projectId }) {
     try {
       const { data, error } = await supabase.storage.from('skillhub-bucket').list(`projects/${projectId}/files`);
       if (error) throw error;
-      
       if (!data) return;
-      
       const fileList = data
         .filter(item => item.name !== '.emptyFolderPlaceholder')
         .map(item => {
           const { data: { publicUrl } } = supabase.storage.from('skillhub-bucket').getPublicUrl(`projects/${projectId}/files/${item.name}`);
-          return {
-            name: item.name,
-            url: publicUrl,
-            fullPath: `projects/${projectId}/files/${item.name}`
-          };
-      });
+          return { name: item.name, url: publicUrl, fullPath: `projects/${projectId}/files/${item.name}` };
+        });
       setFiles(fileList);
     } catch (err) {
-      console.error("Error fetching files:", err);
+      console.error('Error fetching files:', err);
     } finally {
       setLoading(false);
     }
   }, [projectId]);
 
-  useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+  useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
   const handleUpload = async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
-
     setUploading(true);
     triggerHaptic('light');
     try {
-      const timestamp = Date.now();
-      const path = `projects/${projectId}/files/${timestamp}_${selectedFile.name}`;
+      const path = `projects/${projectId}/files/${Date.now()}_${selectedFile.name}`;
       await storageService.uploadFile(path, selectedFile);
       triggerHaptic('success');
-      fetchFiles(); // Refresh list
+      fetchFiles();
     } catch (err) {
-      console.error("Error uploading file:", err);
+      console.error('Error uploading file:', err);
       triggerHaptic('error');
-      alert("Failed to upload file. Check Firebase Storage rules.");
+      toast.error('Failed to upload file. Check storage permissions.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -63,16 +56,18 @@ export default function ProjectFiles({ projectId }) {
   };
 
   const handleDelete = async (file) => {
-    if (!window.confirm(`Are you sure you want to delete this file?`)) return;
+    const confirmed = await showConfirm(`Delete "${file.name.split('_').slice(1).join('_') || file.name}"?`, 'Delete File?');
+    if (!confirmed) return;
     try {
       setLoading(true);
       const { error } = await supabase.storage.from('skillhub-bucket').remove([file.fullPath]);
       if (error) throw error;
-      
       triggerHaptic('heavy');
       setFiles(files.filter(f => f.fullPath !== file.fullPath));
+      toast.success('File deleted');
     } catch (err) {
-      console.error("Error deleting file:", err);
+      console.error('Error deleting file:', err);
+      toast.error('Failed to delete file');
       triggerHaptic('error');
     } finally {
       setLoading(false);
@@ -80,101 +75,92 @@ export default function ProjectFiles({ projectId }) {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ padding: '0 2rem 2rem 2rem', overflowY: 'auto' }}>
-      
+    <div className="flex flex-col h-full custom-scrollbar" style={{ padding: '0 1.5rem 1.5rem', overflowY: 'auto' }}>
       {/* Upload Zone */}
-      <div 
+      <div
         onClick={() => fileInputRef.current?.click()}
-        className={`upload-zone ${!uploading ? 'upload-zone-hoverable' : ''}`}
         style={{
-          border: '2px dashed #333333',
-          borderRadius: '12px',
+          border: '2px dashed var(--border-color)',
+          borderRadius: 'var(--radius-lg)',
           padding: '2rem',
           textAlign: 'center',
           cursor: uploading ? 'not-allowed' : 'pointer',
-          backgroundColor: '#0A0A0A',
+          backgroundColor: 'var(--bg-secondary)',
           transition: 'border-color 0.2s',
           marginTop: '1.5rem',
-          marginBottom: '2rem'
+          marginBottom: '1.5rem',
         }}
       >
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleUpload} 
-          style={{ display: 'none' }} 
-        />
+        <input type="file" ref={fileInputRef} onChange={handleUpload} style={{ display: 'none' }} />
         {uploading ? (
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="animate-spin text-secondary" size={28} />
-            <span style={{ color: '#888888', fontSize: '14px', fontWeight: 500 }}>Uploading to Vault...</span>
+            <Loader2 className="animate-spin" size={26} style={{ color: 'var(--text-tertiary)' }} />
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', fontWeight: 500 }}>Uploading...</span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <UploadCloud size={28} style={{ color: '#888888' }} />
-            <span style={{ color: '#FFFFFF', fontSize: '15px', fontWeight: 600 }}>Click to upload file</span>
-            <span style={{ color: '#666666', fontSize: '13px' }}>PDFs, Images, Code snippets, and Documents</span>
+            <UploadCloud size={26} style={{ color: 'var(--text-tertiary)' }} />
+            <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600 }}>Click to upload file</span>
+            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>PDFs, Images, Code snippets, and Documents</span>
           </div>
         )}
       </div>
 
       {/* File List */}
       <div>
-        <h4 style={{ color: '#FFFFFF', fontSize: '14px', fontWeight: 700, margin: '0 0 1rem 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <h4 style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 700, margin: '0 0 1rem 0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Project Assets ({files.length})
         </h4>
-        
         {loading && files.length === 0 ? (
-          <div className="flex justify-center p-8"><Loader2 className="animate-spin text-secondary" /></div>
+          <div className="flex justify-center p-8">
+            <Loader2 className="animate-spin" style={{ color: 'var(--text-tertiary)' }} />
+          </div>
         ) : files.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center', border: '1px solid #222222', borderRadius: '12px', color: '#666666', fontSize: '14px' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
             No files uploaded to this project yet.
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {files.map((file, i) => {
-              // Extract original filename without timestamp
               const rawFileName = file.name.split('_').slice(1).join('_') || file.name;
-              
               return (
-                <div 
+                <div
                   key={i}
                   className="flex items-center justify-between"
                   style={{
-                    backgroundColor: '#0A0A0A',
-                    border: '1px solid #222222',
-                    borderRadius: '10px',
-                    padding: '1rem',
-                    animation: `slideUpFade 0.3s ease-out forwards ${i * 0.05}s`
+                    backgroundColor: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.875rem 1rem',
+                    animation: `slideUpFade 0.3s ease-out forwards ${i * 0.05}s`,
                   }}
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <div style={{ padding: '0.6rem', backgroundColor: '#1A1A1A', borderRadius: '8px', flexShrink: 0 }}>
-                      <FileText size={18} style={{ color: '#AAAAAA' }} />
+                    <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', flexShrink: 0 }}>
+                      <FileText size={16} style={{ color: 'var(--text-secondary)' }} />
                     </div>
-                    <span style={{ color: '#FFFFFF', fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span style={{ color: 'var(--text-primary)', fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {rawFileName}
                     </span>
                   </div>
-                  
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <a 
-                      href={file.url} 
-                      target="_blank" 
+                    <a
+                      href={file.url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       title="Download"
-                      className="btn-icon-hover"
-                      style={{ padding: '0.5rem', borderRadius: '6px' }}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.35rem 0.6rem', lineHeight: 0, display: 'inline-flex' }}
                     >
-                      <Download size={16} />
+                      <Download size={14} />
                     </a>
-                    <button 
+                    <button
                       title="Delete File"
                       onClick={() => handleDelete(file)}
-                      className="btn-danger-hover"
-                      style={{ padding: '0.5rem', borderRadius: '6px' }}
+                      className="btn"
+                      style={{ padding: '0.35rem 0.6rem', lineHeight: 0, backgroundColor: 'var(--alert-error-bg)', color: 'var(--alert-error-text)', border: '1px solid var(--alert-error-border)' }}
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
@@ -183,7 +169,6 @@ export default function ProjectFiles({ projectId }) {
           </div>
         )}
       </div>
-
     </div>
   );
 }

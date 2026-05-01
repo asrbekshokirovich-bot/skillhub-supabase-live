@@ -4,6 +4,11 @@ import { LayoutDashboard, FolderKanban, CreditCard, Users, Settings } from 'luci
 
 export const MobileTabBar = ({ currentUser }) => {
   const location = useLocation();
+
+  // SYSTEM RULE: Same isActive logic as Sidebar — prefix matching for nested routes.
+  const isActive = (path) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
   const navItems = [
     { name: 'Home', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
@@ -15,10 +20,10 @@ export const MobileTabBar = ({ currentUser }) => {
   return (
     <div className="mobile-tab-bar">
       {navItems.map(item => (
-        <Link 
-          key={item.path} 
-          to={item.path} 
-          className={`mobile-tab-item ${location.pathname === item.path ? 'active' : ''}`}
+        <Link
+          key={item.path}
+          to={item.path}
+          className={`mobile-tab-item ${isActive(item.path) ? 'active' : ''}`}
         >
           {item.icon}
           <span>{item.name}</span>

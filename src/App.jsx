@@ -109,8 +109,8 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
       <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} />
       <div className="main-content">
         <Header currentUser={currentUser} title={getRouteTitle()} />
-        <div className="page-content" style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
-          <div className="h-full container">
+        <div className="page-content" style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+          <div className="h-full w-full">
             <Routes>
               <Route path="/" element={<Dashboard currentUser={currentUser} />} />
               <Route path="/projects" element={<Projects currentUser={currentUser} />} />
