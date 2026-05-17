@@ -27,11 +27,13 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
       });
       if (authError) throw authError;
 
-      // 2. Delete the user data from public.users table
-      const { error: dbError } = await supabase.from('users').delete().eq('id', currentUser.id);
-      if (dbError) throw dbError;
+      // 2. Delete the account properly via RPC.
+      //    This removes auth.users (which CASCADEs to public.users) so the
+      //    user is fully gone — no orphaned auth record left behind.
+      const { error: rpcError } = await supabase.rpc('delete_my_account');
+      if (rpcError) throw rpcError;
 
-      // 3. Sign out
+      // 3. Sign out (idempotent: token is already revoked server-side)
       await supabase.auth.signOut();
       
       triggerHaptic('heavy');
@@ -77,9 +79,9 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'rgba(239,68,68,0.06)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: '#ef4444' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: 'var(--alert-error-text)' }}>
             <ShieldAlert size={20} />
-            <span style={{ fontWeight: 700, fontSize: '1rem', color: '#ef4444' }}>
+            <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--alert-error-text)' }}>
               {step === 1 ? 'Delete Account?' : 'Confirm Deletion'}
             </span>
           </div>
@@ -102,9 +104,9 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
               padding: '1rem',
               display: 'flex', gap: '0.75rem',
             }}>
-              <AlertTriangle size={18} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <AlertTriangle size={18} color='var(--alert-error-text)' style={{ flexShrink: 0, marginTop: '2px' }} />
               <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                <strong style={{ color: '#ef4444', display: 'block', marginBottom: '0.25rem' }}>
+                <strong style={{ color: 'var(--alert-error-text)', display: 'block', marginBottom: '0.25rem' }}>
                   This action is permanent and cannot be undone.
                 </strong>
                 Deleting your account will remove your profile, all your data, and revoke access immediately.
@@ -127,8 +129,8 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
                 className="btn"
                 style={{
                   flex: 1,
-                  backgroundColor: '#ef4444',
-                  color: '#fff',
+                  backgroundColor: 'var(--alert-error-text)',
+                  color: 'var(--text-primary)',
                   fontWeight: 600,
                 }}
                 onClick={() => setStep(2)}
@@ -190,8 +192,8 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
                 disabled={loading || !password}
                 style={{
                   flex: 1,
-                  backgroundColor: '#ef4444',
-                  color: '#fff',
+                  backgroundColor: 'var(--alert-error-text)',
+                  color: 'var(--text-primary)',
                   fontWeight: 600,
                   opacity: (!password || loading) ? 0.6 : 1,
                   cursor: (!password || loading) ? 'not-allowed' : 'pointer',
@@ -321,8 +323,8 @@ const Settings = ({ currentUser, theme, setTheme }) => {
           alignItems: 'center',
           gap: '0.5rem',
         }}>
-          <AlertTriangle size={16} color="#ef4444" />
-          <h3 className="card-title" style={{ color: '#ef4444', margin: 0, fontSize: '1rem' }}>Danger Zone</h3>
+          <AlertTriangle size={16} color='var(--alert-error-text)' />
+          <h3 className="card-title" style={{ color: 'var(--alert-error-text)', margin: 0, fontSize: '1rem' }}>Danger Zone</h3>
         </div>
 
         {/* Body */}
@@ -339,7 +341,7 @@ const Settings = ({ currentUser, theme, setTheme }) => {
             style={{
               backgroundColor: 'transparent',
               border: '1.5px solid #ef4444',
-              color: '#ef4444',
+              color: 'var(--alert-error-text)',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',

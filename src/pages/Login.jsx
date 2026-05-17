@@ -10,15 +10,19 @@ const Login = ({ isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Auth domain is configurable via env so this isn't hardcoded to one company.
+  const AUTH_DOMAIN = import.meta.env.VITE_AUTH_EMAIL_DOMAIN || 'skillhubapp.com';
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // Append domain behind the scenes for Auth
-      const email = `${username.trim().toLowerCase()}@skillhubapp.com`;
-      
+      const trimmed = username.trim().toLowerCase();
+      // If the user typed a full email already, use as-is. Otherwise append the configured domain.
+      const email = trimmed.includes('@') ? trimmed : `${trimmed}@${AUTH_DOMAIN}`;
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
     } catch (err) {
@@ -52,11 +56,11 @@ const Login = ({ isDark }) => {
           )}
           
           <div className="flex-col gap-1.5">
-            <label className="text-sm font-bold">Username</label>
-            <input 
-              type="text" 
-              className="input w-full" 
-              placeholder="Enter your username" 
+            <label className="text-sm font-bold">Login name</label>
+            <input
+              type="text"
+              className="input w-full"
+              placeholder={`e.g. davrbek  ·  or full email`}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               inputMode="email"

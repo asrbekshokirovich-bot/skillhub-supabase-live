@@ -6,27 +6,7 @@ import { useSystem } from './SystemUI';
 import { fileExtractionService } from '../lib/services/fileExtractionService';
 import { aiTaskService } from '../lib/services/aiTaskService';
 import { taskService } from '../lib/services/taskService';
-
-const formatToDateMask = (value) => {
-  if (!value) return '';
-  let val = value.replace(/\D/g, '');
-  if (val.length > 8) val = val.substring(0, 8);
-  
-  if (val.length > 4) {
-    return `${val.substring(0, 2)}/${val.substring(2, 4)}/${val.substring(4)}`;
-  } else if (val.length > 2) {
-    return `${val.substring(0, 2)}/${val.substring(2)}`;
-  }
-  return val;
-};
-
-const parseDDMMYYYYtoISO = (dateStr) => {
-  if (!dateStr || dateStr.length !== 10) throw new Error("Invalid date length");
-  const [dd, mm, yyyy] = dateStr.split('/');
-  const date = new Date(parseInt(yyyy, 10), parseInt(mm, 10) - 1, parseInt(dd, 10), 0, 0, 0);
-  if (isNaN(date.getTime())) throw new Error("Invalid date");
-  return date.toISOString();
-};
+import { maskDateInput as formatToDateMask, parseDDMMYYYYtoISO } from '../lib/utils/date';
 
 const formatDateToDDMMYYYY = (isoString) => {
   if (!isoString) return '';
@@ -284,7 +264,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             
             {/* Title */}
             <div>
-              <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
+              <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
                 Project Name
               </label>
               <input 
@@ -311,8 +291,8 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               {/* Client Name */}
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <User size={12} color="#666" /> Client / Organization
+                <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <User size={12} color='var(--text-tertiary)' /> Client / Organization
                 </label>
                 <input 
                   type="text" 
@@ -326,8 +306,8 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
 
               {/* Start Date */}
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <Calendar size={12} color="#666" /> Start Date (DD/MM/YYYY)
+                <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <Calendar size={12} color='var(--text-tertiary)' /> Start Date (DD/MM/YYYY)
                 </label>
                 <input 
                   type="text" 
@@ -342,8 +322,8 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
 
               {/* Deadline (Due Date) */}
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <Calendar size={12} color="#666" /> Deadline (DD/MM/YYYY)
+                <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <Calendar size={12} color='var(--text-tertiary)' /> Deadline (DD/MM/YYYY)
                 </label>
                 <input 
                   type="text" 
@@ -446,9 +426,9 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                       <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
                         {reviewData.issuesDetected.map((issue, idx) => (
                           <li key={idx} style={{ marginBottom: '8px' }}>
-                            <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.originalText}"</span>
+                            <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--alert-error-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.originalText}"</span>
                             {' '}was detected as an issue and has been fixed to{' '}
-                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.fixedText}"</span>.
+                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: 'var(--accent-success-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.fixedText}"</span>.
                           </li>
                         ))}
                       </ul>
@@ -555,7 +535,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                     </div>
                   ) : (
                     <>
-                      <UploadCloud size={24} color={isDragOver ? '#8b5cf6' : '#888'} />
+                      <UploadCloud size={24} color={isDragOver ? '#8b5cf6' : 'var(--text-tertiary)'} />
                       <div style={{ textAlign: 'center' }}>
                         <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', display: 'block' }}>Drop file here</span>
                         <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PDF, DOCX, TXT</span>
@@ -615,7 +595,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             <button 
               type="button" 
               className="btn flex items-center gap-2"
-              style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '8px 12px' }}
+              style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--alert-error-text)', border: 'none', padding: '8px 12px' }}
               onClick={async () => {
                 const confirmed = await showConfirm('Are you sure you want to delete this project? This action cannot be undone and will delete all tasks.', 'Delete Project?');
                 if (confirmed) {

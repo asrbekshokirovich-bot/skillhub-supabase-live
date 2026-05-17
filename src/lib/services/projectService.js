@@ -1,91 +1,114 @@
 import { supabase } from '../supabase';
-import { triggerHaptic } from '../haptics';
+// Haptic feedback belongs in the UI layer (component handlers), not in services.
+// Services are pure data access — the UI decides what feels like a "save".
+
+// DB columns (post-v11 cleanup):
+//   id, title, client, assignee, status, startDate, dueDate, notes,
+//   createdBy, members, isArchived, createdAt, updatedAt
+//
+// UI shape:
+//   name (= title), client, assignee, projectDescription, clientNotes,
+//   status, startDate, dueDate, progress, tasks, createdBy, createdAt, updatedAt
+const SELECT_COLUMNS =
+  'id, title, client, assignee, status, startDate, dueDate, notes, createdBy, isArchived, createdAt, updatedAt';
 
 class ProjectService {
   _mapToUI(p) {
     if (!p) return null;
-    let projectDescription = p.notes || '';
+
+    // Parse notes — either JSON { projectDescription, clientNotes } or raw HTML.
+    let projectDescription = '';
     let clientNotes = '';
-    
-    if (p.notes && p.notes.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(p.notes);
-        if (parsed.projectDescription !== undefined) {
-          projectDescription = parsed.projectDescription;
+    if (p.notes) {
+      if (typeof p.notes === 'string' && p.notes.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(p.notes);
+          projectDescription = parsed.projectDescription || '';
           clientNotes = parsed.clientNotes || '';
+        } catch {
+          projectDescription = p.notes;
         }
-      } catch (e) {
-        // Fallback to treating as raw HTML string if JSON parse fails
+      } else {
+        projectDescription = p.notes;
       }
     }
 
     return {
       id: p.id,
       name: p.title,
-      client: p.description,
+      client: p.client || '',
       status: p.status,
       startDate: p.startDate,
+      dueDate: p.dueDate,
       projectDescription,
       clientNotes,
       progress: 0,
       tasks: 0,
-      dueDate: p.dueDate,
-      assignee: p.coverUrl || 'Unassigned',
+      assignee: p.assignee || 'Unassigned',
       createdBy: p.createdBy,
       createdAt: p.createdAt,
-      updatedAt: p.updatedAt
+      updatedAt: p.updatedAt,
     };
   }
 
   async getProject(id) {
-    const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, startDate, dueDate, notes, createdBy, isArchived, createdAt, updatedAt').eq('id', id).single();
+    const { data, error } = await supabase.from('projects').select(SELECT_COLUMNS).eq('id', id).single();
     if (error && error.code !== 'PGRST116') throw error;
     return this._mapToUI(data);
   }
 
   async getAllProjects() {
-    const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, startDate, dueDate, notes, createdBy, isArchived, createdAt, updatedAt').neq('isArchived', true).order('createdAt', { ascending: false });
+    const { data, error } = await supabase
+      .from('projects').select(SELECT_COLUMNS)
+      .neq('isArchived', true)
+      .order('createdAt', { ascending: false });
     if (error) throw error;
-    return data.map(this._mapToUI.bind(this));
+    return (data || []).map(p => this._mapToUI(p));
   }
 
-  async getProjectsByAssignee(assigneeName) {
-    const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, startDate, dueDate, notes, createdBy, isArchived, createdAt, updatedAt').eq('coverUrl', assigneeName).neq('isArchived', true).order('createdAt', { ascending: false });
+  async getProjectsByAssignee(assigneeId) {
+    const { data, error } = await supabase
+      .from('projects').select(SELECT_COLUMNS)
+      .eq('assignee', assigneeId)
+      .neq('isArchived', true)
+      .order('createdAt', { ascending: false });
     if (error) throw error;
-    return data.map(this._mapToUI.bind(this));
+    return (data || []).map(p => this._mapToUI(p));
   }
 
   async getProjectsByClient(clientName) {
-    const { data, error } = await supabase.from('projects').select('id, title, description, status, coverUrl, startDate, dueDate, notes, createdBy, isArchived, createdAt, updatedAt').eq('description', clientName).neq('isArchived', true).order('createdAt', { ascending: false });
+    const { data, error } = await supabase
+      .from('projects').select(SELECT_COLUMNS)
+      .eq('client', clientName)
+      .neq('isArchived', true)
+      .order('createdAt', { ascending: false });
     if (error) throw error;
-    return data.map(this._mapToUI.bind(this));
+    return (data || []).map(p => this._mapToUI(p));
   }
 
   async createProject(projectData) {
     try {
       const notesPayload = JSON.stringify({
         projectDescription: projectData.projectDescription || '',
-        clientNotes: projectData.clientNotes || ''
+        clientNotes: projectData.clientNotes || '',
       });
 
       const { data, error } = await supabase.from('projects').insert({
         title: projectData.name,
-        description: projectData.client,
+        client: projectData.client,
+        assignee: projectData.assignee,
         status: projectData.status,
-        coverUrl: projectData.assignee,
         startDate: projectData.startDate,
         dueDate: projectData.dueDate,
         notes: notesPayload,
         createdBy: projectData.createdBy,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }).select().single();
-      
+        updatedAt: new Date().toISOString(),
+      }).select(SELECT_COLUMNS).single();
+
       if (error) throw error;
-      triggerHaptic('success');
       return this._mapToUI(data);
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }
@@ -93,42 +116,36 @@ class ProjectService {
   async updateProject(id, projectData) {
     try {
       const dbUpdate = { updatedAt: new Date().toISOString() };
-      if (projectData.name !== undefined) dbUpdate.title = projectData.name;
-      if (projectData.client !== undefined) dbUpdate.description = projectData.client;
-      if (projectData.status !== undefined) dbUpdate.status = projectData.status;
-      if (projectData.assignee !== undefined) dbUpdate.coverUrl = projectData.assignee;
+      if (projectData.name !== undefined)      dbUpdate.title = projectData.name;
+      if (projectData.client !== undefined)    dbUpdate.client = projectData.client;
+      if (projectData.assignee !== undefined)  dbUpdate.assignee = projectData.assignee;
+      if (projectData.status !== undefined)    dbUpdate.status = projectData.status;
       if (projectData.startDate !== undefined) dbUpdate.startDate = projectData.startDate;
-      if (projectData.dueDate !== undefined) dbUpdate.dueDate = projectData.dueDate;
+      if (projectData.dueDate !== undefined)   dbUpdate.dueDate = projectData.dueDate;
 
       if (projectData.projectDescription !== undefined || projectData.clientNotes !== undefined) {
         const { data: existing } = await supabase.from('projects').select('notes').eq('id', id).single();
-        let existingNotes = { projectDescription: '', clientNotes: '' };
-        
-        if (existing && existing.notes) {
-          if (existing.notes.startsWith('{')) {
-            try { 
-              const parsed = JSON.parse(existing.notes); 
-              if (parsed.projectDescription !== undefined) existingNotes = parsed;
-              else existingNotes.projectDescription = existing.notes;
-            } catch(e) { existingNotes.projectDescription = existing.notes; }
+        let notes = { projectDescription: '', clientNotes: '' };
+
+        if (existing?.notes) {
+          if (typeof existing.notes === 'string' && existing.notes.trim().startsWith('{')) {
+            try { notes = JSON.parse(existing.notes); } catch { notes.projectDescription = existing.notes; }
           } else {
-            existingNotes.projectDescription = existing.notes;
+            notes.projectDescription = existing.notes;
           }
         }
-        
-        if (projectData.projectDescription !== undefined) existingNotes.projectDescription = projectData.projectDescription;
-        if (projectData.clientNotes !== undefined) existingNotes.clientNotes = projectData.clientNotes;
-        
-        dbUpdate.notes = JSON.stringify(existingNotes);
+
+        if (projectData.projectDescription !== undefined) notes.projectDescription = projectData.projectDescription;
+        if (projectData.clientNotes !== undefined)        notes.clientNotes = projectData.clientNotes;
+
+        dbUpdate.notes = JSON.stringify(notes);
       }
 
-      const { data, error } = await supabase.from('projects').update(dbUpdate).eq('id', id).select().single();
-      
+      const { data, error } = await supabase.from('projects').update(dbUpdate).eq('id', id).select(SELECT_COLUMNS).single();
+
       if (error) throw error;
-      triggerHaptic('light');
       return this._mapToUI(data);
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }
@@ -137,10 +154,8 @@ class ProjectService {
     try {
       const { error } = await supabase.from('projects').update({ isArchived: true }).eq('id', id);
       if (error) throw error;
-      triggerHaptic('heavy');
       return true;
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }

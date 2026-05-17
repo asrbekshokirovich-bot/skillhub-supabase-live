@@ -7,28 +7,7 @@ import ProjectVault from './ProjectVault';
 import ProjectSettingsModal from '../components/ProjectSettingsModal';
 import { useSystem } from '../components/SystemUI';
 import DOMPurify from 'dompurify';
-
-const formatToDateMask = (value) => {
-  if (!value) return '';
-  let val = value.replace(/\D/g, '');
-  if (val.length > 8) val = val.substring(0, 8);
-  
-  if (val.length > 4) {
-    return `${val.substring(0, 2)}/${val.substring(2, 4)}/${val.substring(4)}`;
-  } else if (val.length > 2) {
-    return `${val.substring(0, 2)}/${val.substring(2)}`;
-  }
-  return val;
-};
-
-const parseDDMMYYYYtoISO = (dateStr) => {
-  if (!dateStr || dateStr.length !== 10) throw new Error("Invalid date length");
-  const [dd, mm, yyyy] = dateStr.split('/');
-  // Create Date using local timezone at exactly 00:00:00
-  const date = new Date(parseInt(yyyy, 10), parseInt(mm, 10) - 1, parseInt(dd, 10), 0, 0, 0);
-  if (isNaN(date.getTime())) throw new Error("Invalid date");
-  return date.toISOString();
-};
+import { maskDateInput as formatToDateMask, parseDDMMYYYYtoISO } from '../lib/utils/date';
 
 export default function Projects({ currentUser }) {
   const { toast } = useSystem();
@@ -450,7 +429,7 @@ export default function Projects({ currentUser }) {
                       <div className="flex gap-2 mt-1">
                         <button 
                           className="btn btn-primary" 
-                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', flex: 1, backgroundColor: 'var(--alert-error-text)', color: '#fff', border: 'none' }}
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', flex: 1, backgroundColor: 'var(--alert-error-text)', color: 'var(--text-primary)', border: 'none' }}
                           onClick={async () => {
                             await projectService.updateProject(project.id, { status: 'In Progress' });
                             fetchProjects();
@@ -553,7 +532,7 @@ export default function Projects({ currentUser }) {
                         padding: '0.5rem 0.75rem', 
                         backgroundColor: expandedNotes[project.id] ? 'var(--accent-primary)' : 'var(--bg-primary)', 
                         border: '1px solid var(--border-color)', 
-                        color: expandedNotes[project.id] ? '#fff' : 'var(--text-primary)', 
+                        color: expandedNotes[project.id] ? 'var(--text-primary)' : 'var(--text-primary)', 
                         borderRadius: '6px' 
                       }}
                       onClick={() => {

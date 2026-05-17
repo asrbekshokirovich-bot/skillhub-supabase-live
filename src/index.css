@@ -1,103 +1,107 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f4f4f5;
-  --bg-tertiary: #e4e4e7;
-  
-  --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-tertiary: #a1a1aa;
-  
-  --border-color: #e4e4e7;
-  --border-focus: #18181b;
-  
-  --btn-primary-bg: #09090b;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #27272a;
-  
-  --btn-secondary-bg: #ffffff;
-  --btn-secondary-text: #09090b;
-  --btn-secondary-border: #e4e4e7;
-  --btn-secondary-hover: #f4f4f5;
-  
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
+  /* Claude.ai-inspired warm light theme */
+  --bg-primary: #FAF9F7;       /* warm cream */
+  --bg-secondary: #F0EDE5;     /* slightly deeper cream */
+  --bg-tertiary: #E5E0D4;
 
-  /* ── Accent & Semantic Colors ── */
-  --accent-primary: #6366f1;
-  --accent-primary-muted: rgba(99, 102, 241, 0.12);
-  --accent-primary-border: rgba(99, 102, 241, 0.25);
-  --accent-primary-text: #4f46e5;
+  --text-primary: #1F1E1B;     /* warm near-black */
+  --text-secondary: #6B6657;   /* warm gray */
+  --text-tertiary: #97928A;
 
-  --accent-success: #22c55e;
-  --accent-success-muted: rgba(34, 197, 94, 0.12);
-  --accent-success-border: rgba(34, 197, 94, 0.25);
-  --accent-success-text: #16a34a;
+  --border-color: #E8E2D5;
+  --border-focus: #CC785C;     /* salmon focus ring */
 
-  --accent-warning: #f59e0b;
-  --accent-warning-muted: rgba(245, 158, 11, 0.12);
-  --accent-warning-text: #d97706;
+  --btn-primary-bg: #1F1E1B;
+  --btn-primary-text: #FAF9F7;
+  --btn-primary-hover: #3D3A33;
 
-  /* ── Alert Colors (theme-aware) ── */
-  --alert-error-bg: #fef2f2;
-  --alert-error-text: #b91c1c;
-  --alert-error-border: #fecaca;
-  --alert-success-bg: #f0fdf4;
-  --alert-success-text: #166534;
-  --alert-success-border: #bbf7d0;
+  --btn-secondary-bg: #FAF9F7;
+  --btn-secondary-text: #1F1E1B;
+  --btn-secondary-border: #E8E2D5;
+  --btn-secondary-hover: #F0EDE5;
 
-  /* ── Role Badge Colors ── */
-  --badge-ceo-bg: rgba(99, 102, 241, 0.12);
-  --badge-ceo-text: #4f46e5;
-  --badge-ceo-border: rgba(99, 102, 241, 0.25);
-  --badge-worker-bg: rgba(34, 197, 94, 0.12);
-  --badge-worker-text: #16a34a;
-  --badge-worker-border: rgba(34, 197, 94, 0.25);
+  --shadow-sm: 0 1px 2px 0 rgb(31 30 27 / 0.05);
+  --shadow-md: 0 4px 8px -2px rgb(31 30 27 / 0.08), 0 2px 4px -2px rgb(31 30 27 / 0.06);
+  --shadow-lg: 0 10px 20px -5px rgb(31 30 27 / 0.12), 0 4px 8px -4px rgb(31 30 27 / 0.08);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* ── Accent: Anthropic Salmon ── */
+  --accent-primary: #CC785C;
+  --accent-primary-muted: rgba(204, 120, 92, 0.12);
+  --accent-primary-border: rgba(204, 120, 92, 0.28);
+  --accent-primary-text: #B36044;
+
+  --accent-success: #5FA77B;
+  --accent-success-muted: rgba(95, 167, 123, 0.14);
+  --accent-success-border: rgba(95, 167, 123, 0.28);
+  --accent-success-text: #4A8C62;
+
+  --accent-warning: #D9985C;
+  --accent-warning-muted: rgba(217, 152, 92, 0.14);
+  --accent-warning-text: #BA7E44;
+
+  /* ── Alerts ── */
+  --alert-error-bg: #FDEDE8;
+  --alert-error-text: #B5432F;
+  --alert-error-border: #F5C9BC;
+  --alert-success-bg: #EDF4EE;
+  --alert-success-text: #4A8C62;
+  --alert-success-border: #C9DFCE;
+
+  /* ── Role badges ── */
+  --badge-ceo-bg: rgba(204, 120, 92, 0.14);
+  --badge-ceo-text: #B36044;
+  --badge-ceo-border: rgba(204, 120, 92, 0.28);
+  --badge-worker-bg: rgba(95, 167, 123, 0.14);
+  --badge-worker-text: #4A8C62;
+  --badge-worker-border: rgba(95, 167, 123, 0.28);
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #09090b;
-  --bg-secondary: #18181b;
-  --bg-tertiary: #3f3f46;
-  
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #71717a;
-  
-  --border-color: #3f3f46;
-  --border-focus: #fafafa;
-  
-  --btn-primary-bg: #fafafa;
-  --btn-primary-text: #09090b;
-  --btn-primary-hover: #e4e4e7;
-  
-  --btn-secondary-bg: #09090b;
-  --btn-secondary-text: #fafafa;
-  --btn-secondary-border: #27272a;
-  --btn-secondary-hover: #18181b;
+  /* Claude.ai-inspired warm dark theme */
+  --bg-primary: #1A1815;       /* warm near-black */
+  --bg-secondary: #22201C;     /* surface */
+  --bg-tertiary: #2E2B25;
 
-  /* ── Accent overrides for dark mode ── */
-  --accent-primary-text: #818cf8;
-  --accent-success-text: #4ade80;
-  --accent-warning-text: #fbbf24;
+  --text-primary: #F5F2EB;     /* warm cream */
+  --text-secondary: #B8B2A4;   /* warm gray */
+  --text-tertiary: #7F7B70;
 
-  /* ── Alert overrides for dark mode ── */
-  --alert-error-bg: rgba(239, 68, 68, 0.12);
-  --alert-error-text: #f87171;
-  --alert-error-border: rgba(239, 68, 68, 0.25);
-  --alert-success-bg: rgba(34, 197, 94, 0.12);
-  --alert-success-text: #4ade80;
-  --alert-success-border: rgba(34, 197, 94, 0.25);
+  --border-color: #2E2B25;
+  --border-focus: #D49574;
 
-  /* ── Role badge overrides for dark mode ── */
-  --badge-ceo-text: #818cf8;
-  --badge-worker-text: #4ade80;
+  --btn-primary-bg: #F5F2EB;
+  --btn-primary-text: #1A1815;
+  --btn-primary-hover: #E0DBCF;
+
+  --btn-secondary-bg: #22201C;
+  --btn-secondary-text: #F5F2EB;
+  --btn-secondary-border: #3A362E;
+  --btn-secondary-hover: #2E2B25;
+
+  /* Accents tuned for dark — slightly brighter salmon */
+  --accent-primary: #D49574;
+  --accent-primary-muted: rgba(212, 149, 116, 0.14);
+  --accent-primary-border: rgba(212, 149, 116, 0.28);
+  --accent-primary-text: #E0A689;
+
+  --accent-success-text: #7EC09A;
+  --accent-warning-text: #E5B07C;
+
+  --alert-error-bg: rgba(229, 117, 90, 0.14);
+  --alert-error-text: #EE8C70;
+  --alert-error-border: rgba(229, 117, 90, 0.28);
+  --alert-success-bg: rgba(126, 192, 154, 0.12);
+  --alert-success-text: #7EC09A;
+  --alert-success-border: rgba(126, 192, 154, 0.28);
+
+  --badge-ceo-text: #E0A689;
+  --badge-worker-text: #7EC09A;
 }
 
 * {

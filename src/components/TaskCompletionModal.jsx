@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { storageService } from '../lib/services/storageService';
 import { taskService } from '../lib/services/taskService';
 import { useSystem } from './SystemUI';
+import { uuid } from '../lib/utils/ids';
 
 const TaskCompletionModal = ({ projectId, completingIssue, issues, currentUser, onClose, onTaskCompleted }) => {
   const { toast } = useSystem();
@@ -21,7 +22,7 @@ const TaskCompletionModal = ({ projectId, completingIssue, issues, currentUser, 
 
       const targetIssue = issues.find(i => i.id === completingIssue.id);
       const newComment = {
-        id: Date.now().toString(),
+        id: uuid(),
         text: `Task dragged from ${completingIssue.sourceStatus} to Done. Pending Approval.`,
         author: currentUser?.name || 'System',
         role: currentUser?.role || 'worker',

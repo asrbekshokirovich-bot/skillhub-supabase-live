@@ -1,5 +1,4 @@
 import { supabase } from '../supabase';
-import { triggerHaptic } from '../haptics';
 
 class TaskService {
   async getTasksByProject(projectId) {
@@ -19,10 +18,8 @@ class TaskService {
       }).select().single();
       
       if (error) throw error;
-      triggerHaptic('success');
       return data;
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }
@@ -35,10 +32,8 @@ class TaskService {
       }).eq('id', taskId).select().single();
       
       if (error) throw error;
-      triggerHaptic('light');
       return data;
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }
@@ -47,10 +42,8 @@ class TaskService {
     try {
       const { error } = await supabase.from('tasks').update({ isArchived: true }).eq('id', taskId);
       if (error) throw error;
-      triggerHaptic('heavy');
       return true;
     } catch (error) {
-      triggerHaptic('error');
       throw error;
     }
   }

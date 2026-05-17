@@ -1,32 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, MoreHorizontal, Trash2, Check, Calendar, User, AlignLeft, Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { taskService } from '../lib/services/taskService';
 import DOMPurify from 'dompurify';
 import { useSystem } from './SystemUI';
-
-const formatChatTime = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  const now = new Date();
-  
-  const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-  
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
-  
-  const timeFormat = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  if (isToday) return timeFormat;
-  if (isYesterday) return `Yesterday, ${timeFormat}`;
-  
-  const dateFormat = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  return `${dateFormat}, ${timeFormat}`;
-};
+import TaskCommentsTab from './task/TaskCommentsTab';
+import TaskSubtasksList from './task/TaskSubtasksList';
+import { uuid } from '../lib/utils/ids';
 
 const MetadataRow = ({ label, children }) => (
   <>
-    <div style={{ fontSize: '13px', fontWeight: 500, color: '#888' }}>{label}</div>
+    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-tertiary)' }}>{label}</div>
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       {children}
     </div>
@@ -38,15 +21,15 @@ const GhostDropdown = ({ value, onChange, options, prefix }) => {
   return (
     <div 
       style={{ display: 'flex', width: 'fit-content', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '4px', transition: 'background-color 0.2s', padding: '4px 8px' }}
-      onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+      onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
       onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
     >
       {prefix && <div style={{ marginRight: '8px' }}>{prefix}</div>}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span style={{ color: '#E5E7EB', fontSize: '14px', fontWeight: 500 }}>
+        <span style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 500 }}>
           {selectedLabel}
         </span>
-        <svg style={{ color: '#888' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <svg style={{ color: 'var(--text-tertiary)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
       <select
         value={value}
@@ -54,7 +37,7 @@ const GhostDropdown = ({ value, onChange, options, prefix }) => {
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
       >
         {options.map(opt => (
-          <option key={opt.value} value={opt.value} style={{ backgroundColor: '#111', color: 'white' }}>{opt.label}</option>
+          <option key={opt.value} value={opt.value} style={{ backgroundColor: 'var(--bg-secondary)', color: 'white' }}>{opt.label}</option>
         ))}
       </select>
     </div>
@@ -101,21 +84,45 @@ const TaskDetailModal = ({
     }
   };
 
+  // Parse @mentions from a string. Returns array of mentioned user IDs.
+  // Matches @firstname or @full_name (no spaces). Case-insensitive.
+  const parseMentions = (text) => {
+    if (!text || !users?.length) return [];
+    const matches = [...text.matchAll(/@(\w+)/g)].map(m => m[1].toLowerCase());
+    if (matches.length === 0) return [];
+    const ids = new Set();
+    users.forEach(u => {
+      const firstName = (u.name || '').split(' ')[0].toLowerCase();
+      const full = (u.name || '').replace(/\s+/g, '').toLowerCase();
+      const emailUser = (u.email || '').split('@')[0].toLowerCase();
+      if (matches.some(m => m === firstName || m === full || m === emailUser)) {
+        ids.add(u.id);
+      }
+    });
+    return [...ids];
+  };
+
   const addComment = async (e) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
     setIsCommenting(true);
     try {
+      const mentions = parseMentions(newCommentText);
       const newComment = {
-        id: Date.now().toString(),
+        id: uuid(),
         text: newCommentText.trim(),
         author: currentUser?.name || 'Unknown',
+        authorId: currentUser?.id || null,
+        mentions,
         createdAt: new Date().toISOString()
       };
       const updatedComments = [...(issue.comments || []), newComment];
       await taskService.updateTask(projectId, issue.id, { comments: updatedComments });
       onIssueUpdated({ ...issue, comments: updatedComments });
       setNewCommentText('');
+      if (mentions.length > 0) {
+        toast.success(`Comment posted${mentions.length === 1 ? ' (1 person mentioned)' : ` (${mentions.length} people mentioned)`}`);
+      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to update task: ' + err.message);
@@ -128,7 +135,7 @@ const TaskDetailModal = ({
     e.preventDefault();
     if (!newSubtaskText.trim()) return;
     try {
-      const newSubtask = { id: Date.now().toString(), text: newSubtaskText.trim(), completed: false };
+      const newSubtask = { id: uuid(), text: newSubtaskText.trim(), completed: false };
       const updatedSubtasks = [...(issue.subtasks || []), newSubtask];
       await taskService.updateTask(projectId, issue.id, { subtasks: updatedSubtasks });
       onIssueUpdated({ ...issue, subtasks: updatedSubtasks });
@@ -290,7 +297,7 @@ const TaskDetailModal = ({
                 value={selectedIssue.assignee} 
                 onChange={(val) => updateTaskField('assignee', val)} 
                 prefix={
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: '#4f46e5', flexShrink: 0 }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: 'white', backgroundColor: 'var(--accent-primary)', flexShrink: 0 }}>
                     {selectedIssue.assignee !== 'Unassigned' ? (users.find(u => u.id === selectedIssue.assignee)?.name || '?').charAt(0).toUpperCase() : '?'}
                   </div>
                 }
@@ -308,7 +315,7 @@ const TaskDetailModal = ({
                 prefix={
                   <span style={{ 
                     width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flexShrink: 0, marginLeft: '4px',
-                    backgroundColor: selectedIssue.urgency === 'High' ? '#ef4444' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
+                    backgroundColor: selectedIssue.urgency === 'High' ? 'var(--alert-error-text)' : selectedIssue.urgency === 'Medium' ? '#f59e0b' : '#71717a' 
                   }}/>
                 }
                 options={[{value:'Low', label:'Low'}, {value:'Medium', label:'Medium'}, {value:'High', label:'High'}]}
@@ -318,27 +325,27 @@ const TaskDetailModal = ({
             <MetadataRow label="Dates">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>Start</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Start</span>
                   <input 
                     type="date" 
                     value={selectedIssue.startDate || ''} 
                     onChange={e => updateTaskField('startDate', e.target.value)} 
                     onClick={e => { try { e.target.showPicker(); } catch(err) {} }}
-                    style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark', height: '28px' }}
-                    onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                    style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark', height: '28px' }}
+                    onMouseOver={e => e.target.style.backgroundColor = 'var(--bg-secondary)'}
                     onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
                   />
                 </div>
-                <span style={{ color: '#555' }}>→</span>
+                <span style={{ color: 'var(--border-color)' }}>→</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>Due</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Due</span>
                   <input 
                     type="date" 
                     value={selectedIssue.dueDate || ''} 
                     onChange={e => updateTaskField('dueDate', e.target.value)} 
                     onClick={e => { try { e.target.showPicker(); } catch(err) {} }}
-                    style={{ backgroundColor: 'transparent', color: '#CCC', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark', height: '28px' }}
-                    onMouseOver={e => e.target.style.backgroundColor = '#1A1A1A'}
+                    style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500, border: '1px solid transparent', outline: 'none', cursor: 'text', padding: '4px 8px', borderRadius: '4px', colorScheme: 'dark', height: '28px' }}
+                    onMouseOver={e => e.target.style.backgroundColor = 'var(--bg-secondary)'}
                     onMouseOut={e => e.target.style.backgroundColor = 'transparent'}
                   />
                 </div>
@@ -348,13 +355,13 @@ const TaskDetailModal = ({
             <MetadataRow label="Time estimate">
               {editingField === 'time' ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input id="time-input" autoFocus type="number" defaultValue={selectedIssue.timeEstimated || ''} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); updateTaskField('timeEstimated', e.currentTarget.value ? parseInt(e.currentTarget.value, 10) : 0); setEditingField(null);}}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: '1px solid #4f46e5', backgroundColor: '#111', height: '28px' }} placeholder="Hours"/>
-                  <button onClick={() => { const val = document.getElementById('time-input')?.value; updateTaskField('timeEstimated', val ? parseInt(val, 10) : 0); setEditingField(null); }} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#4f46e5', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Save</button>
-                  <button onClick={() => setEditingField(null)} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#333', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Cancel</button>
+                  <input id="time-input" autoFocus type="number" defaultValue={selectedIssue.timeEstimated || ''} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); updateTaskField('timeEstimated', e.currentTarget.value ? parseInt(e.currentTarget.value, 10) : 0); setEditingField(null);}}} style={{ borderRadius: '4px', padding: '4px 8px', fontSize: '14px', fontWeight: 500, color: 'white', outline: 'none', width: '96px', border: '1px solid #4f46e5', backgroundColor: 'var(--bg-secondary)', height: '28px' }} placeholder="Hours"/>
+                  <button onClick={() => { const val = document.getElementById('time-input')?.value; updateTaskField('timeEstimated', val ? parseInt(val, 10) : 0); setEditingField(null); }} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: 'var(--accent-primary)', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Save</button>
+                  <button onClick={() => setEditingField(null)} style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: 'var(--border-color)', color: 'white', borderRadius: '4px', border: 'none', cursor: 'pointer', height: '28px', fontWeight: 600 }}>Cancel</button>
                 </div>
               ) : (
-                <div onClick={()=>{setEditingField('time');}} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, color: '#CCC' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                  {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span style={{ color: '#555', fontStyle: 'italic' }}>Not set</span>}
+                <div onClick={()=>{setEditingField('time');}} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px 8px', marginLeft: '-8px', borderRadius: '4px', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  {selectedIssue.timeEstimated ? <span>{selectedIssue.timeEstimated} hrs</span> : <span style={{ color: 'var(--border-color)', fontStyle: 'italic' }}>Not set</span>}
                 </div>
               )}
             </MetadataRow>
@@ -403,15 +410,15 @@ const TaskDetailModal = ({
                         setEditingField(null);
                       }
                     }} 
-                    style={{ minWidth: '100px', flex: 1, background: '#111', border: '1px solid #4f46e5', color: 'white', outline: 'none', fontSize: '13px', padding: '4px 10px', borderRadius: '9999px', height: '28px', boxShadow: '0 0 0 2px rgba(79,70,229,0.2)' }} 
+                    style={{ minWidth: '100px', flex: 1, background: 'var(--bg-secondary)', border: '1px solid #4f46e5', color: 'white', outline: 'none', fontSize: '13px', padding: '4px 10px', borderRadius: '9999px', height: '28px', boxShadow: '0 0 0 2px rgba(79,70,229,0.2)' }} 
                     placeholder="Type tag & press Enter"
                   />
                 ) : (
                   <button 
                     onClick={() => setEditingField('tags')}
-                    style={{ fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '9999px', backgroundColor: '#111', color: '#AAA', border: '1px dashed #444', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s', height: '28px' }}
-                    onMouseOver={e => { e.currentTarget.style.color = '#FFF'; e.currentTarget.style.borderColor = '#666'; e.currentTarget.style.backgroundColor = '#1A1A1A'; }}
-                    onMouseOut={e => { e.currentTarget.style.color = '#AAA'; e.currentTarget.style.borderColor = '#444'; e.currentTarget.style.backgroundColor = '#111'; }}
+                    style={{ fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '9999px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px dashed #444', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s', height: '28px' }}
+                    onMouseOver={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--text-tertiary)'; e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
+                    onMouseOut={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = '#444'; e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
                     title="Add new tag"
                   >
                     <Plus size={12} strokeWidth={3} />
@@ -430,7 +437,7 @@ const TaskDetailModal = ({
               <div 
                 id="desc-placeholder"
                 className="absolute top-0 left-0 w-full h-full p-4"
-                style={{ color: '#666', fontStyle: 'italic', fontSize: '15px', display: isEmptyDesc ? 'block' : 'none', pointerEvents: 'none', zIndex: 10 }}
+                style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: '15px', display: isEmptyDesc ? 'block' : 'none', pointerEvents: 'none', zIndex: 10 }}
               >
                 Add description...
               </div>
@@ -475,7 +482,7 @@ const TaskDetailModal = ({
                   minHeight: '120px',
                   backgroundColor: isEmptyDesc ? '#111111' : 'transparent',
                   border: isEmptyDesc ? '1px solid #333333' : '1px solid transparent',
-                  color: '#CCC'
+                  color: 'var(--text-secondary)'
                 }}
                 onMouseOver={e => {
                   if (document.activeElement !== e.currentTarget) {
@@ -495,255 +502,17 @@ const TaskDetailModal = ({
           </div>
 
           {/* Subtasks */}
-          <div className="flex flex-col shrink-0 gap-3 mt-4 mb-8" style={{ marginTop: '1rem', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#EEE' }}>Subtasks</h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden', border: '1px solid #333', backgroundColor: '#0A0A0A', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-              {selectedIssue.subtasks && selectedIssue.subtasks.map(st => (
-                <div key={st.id} style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #222' }}>
-                  
-                  {/* Main Row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#111', width: '100%', gap: '16px', transition: 'background-color 0.2s' }}>
-                    
-                    {/* Robust Checkbox - ALWAYS VISIBLE */}
-                    <button 
-                      onClick={() => toggleSubtask(st.id)}
-                      style={{
-                        flexShrink: 0,
-                        width: '22px',
-                        height: '22px',
-                        minWidth: '22px',
-                        minHeight: '22px',
-                        borderRadius: '6px',
-                        border: st.completed ? '2px solid #4f46e5' : '2px solid #888',
-                        backgroundColor: st.completed ? '#4f46e5' : '#1A1A1A',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        boxShadow: st.completed ? '0 0 10px rgba(79,70,229,0.3)' : 'none',
-                        outline: 'none',
-                        padding: 0
-                      }}
-                      title="Mark as complete"
-                    >
-                      {st.completed && <Check size={14} color="white" strokeWidth={3} />}
-                    </button>
-                    
-                    {/* Subtask Title */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {editingSubtaskId === st.id ? (
-                        <input
-                          autoFocus
-                          type="text"
-                          value={editSubtaskName}
-                          onChange={e => setEditSubtaskName(e.target.value)}
-                          onBlur={() => {
-                            if (editSubtaskName.trim() && editSubtaskName.trim() !== st.text) {
-                              updateSubtaskField(st.id, 'text', editSubtaskName.trim());
-                            }
-                            setEditingSubtaskId(null);
-                          }}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                              if (editSubtaskName.trim() && editSubtaskName.trim() !== st.text) {
-                                updateSubtaskField(st.id, 'text', editSubtaskName.trim());
-                              }
-                              setEditingSubtaskId(null);
-                            } else if (e.key === 'Escape') {
-                              setEditingSubtaskId(null);
-                            }
-                          }}
-                          style={{
-                            width: '100%',
-                            backgroundColor: '#222',
-                            borderRadius: '4px',
-                            padding: '6px 12px',
-                            border: '1px solid #4f46e5',
-                            fontSize: '14px',
-                            color: 'white',
-                            outline: 'none',
-                            boxShadow: '0 0 0 2px rgba(79,70,229,0.2)'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => { setEditingSubtaskId(st.id); setEditSubtaskName(st.text); }}
-                          title="Click to edit subtask name"
-                          style={{
-                            display: 'block',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            fontSize: '14px',
-                            cursor: 'text',
-                            userSelect: 'none',
-                            padding: '6px 0',
-                            textDecoration: st.completed ? 'line-through' : 'none',
-                            color: st.completed ? '#666' : '#E5E7EB',
-                            transition: 'color 0.2s'
-                          }}
-                        >
-                          {st.text}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Actions Panel - ALWAYS VISIBLE */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      <button 
-                        onClick={() => {
-                          if (expandedSubtaskId === st.id) {
-                            setExpandedSubtaskId(null);
-                          } else {
-                            setExpandedSubtaskId(st.id);
-                            setEditSubtaskDesc(st.description || '');
-                          }
-                        }} 
-                        title="Edit Details"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '32px',
-                          height: '32px',
-                          minWidth: '32px',
-                          minHeight: '32px',
-                          borderRadius: '8px',
-                          transition: 'all 0.2s',
-                          backgroundColor: expandedSubtaskId === st.id ? 'rgba(79,70,229,0.2)' : '#222',
-                          color: expandedSubtaskId === st.id ? '#818cf8' : '#AAA',
-                          border: expandedSubtaskId === st.id ? '1px solid rgba(79,70,229,0.3)' : '1px solid #333',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <MoreHorizontal size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Detail View */}
-                  {expandedSubtaskId === st.id && (
-                    <div style={{ padding: '20px', backgroundColor: '#050505', borderTop: '1px solid #222', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
-                      
-                      {/* Delete Button - Moved to inside Expanded View for cleanliness */}
-                      <button 
-                        onClick={() => deleteSubtask(st.id)} 
-                        title="Delete Subtask"
-                        style={{
-                          position: 'absolute',
-                          top: '16px',
-                          right: '20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                          color: '#f87171',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          letterSpacing: '0.05em',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          border: 'none'
-                        }}
-                      >
-                        <Trash2 size={14} /> DELETE
-                      </button>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', width: '100%', paddingRight: '100px' }}>
-                        {/* Assignee Field */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <User size={12} color="#666" /> Assignee
-                          </label>
-                          <div style={{ height: '32px', display: 'flex', alignItems: 'center' }}>
-                            <GhostDropdown 
-                              value={st.assignee || 'Unassigned'} 
-                              onChange={(val) => updateSubtaskField(st.id, 'assignee', val)} 
-                              options={[{value:'Unassigned', label:'Unassigned'}, ...(users || []).map(u => ({ value: u.id, label: u.name }))]}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Due Date Field */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Calendar size={12} color="#666" /> Due Date
-                          </label>
-                          <div style={{ height: '32px', display: 'flex', alignItems: 'center', paddingLeft: '4px' }}>
-                            <input 
-                              type="date" 
-                              value={st.dueDate || ''} 
-                              onChange={e => updateSubtaskField(st.id, 'dueDate', e.target.value)} 
-                              style={{ backgroundColor: 'transparent', color: '#E5E7EB', fontSize: '14px', fontWeight: 500, border: 'none', outline: 'none', cursor: 'pointer', colorScheme: 'dark', padding: 0 }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Description Field */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-                        <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <AlignLeft size={12} color="#666" /> Description
-                        </label>
-                        <div 
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={e => {
-                            const html = e.currentTarget.innerHTML;
-                            if (html !== (st.description || '')) {
-                              updateSubtaskField(st.id, 'description', html);
-                            }
-                          }}
-                          onPaste={handleRichTextPaste}
-                          dangerouslySetInnerHTML={{ 
-                            __html: DOMPurify.sanitize(
-                              (st.description || '').includes('<') 
-                                ? st.description 
-                                : (st.description || '').replace(/\n/g, '<br>')
-                            )
-                          }}
-                          className="rich-text-editor custom-scrollbar"
-                          style={{
-                            width: '100%',
-                            backgroundColor: '#111',
-                            border: '1px solid #333',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            fontSize: '13px',
-                            color: '#E5E7EB',
-                            outline: 'none',
-                            minHeight: '90px',
-                            transition: 'all 0.2s',
-                            fontFamily: 'inherit',
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                            overflowY: 'auto'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-              
-              {/* Add New Subtask Input */}
-              <form onSubmit={addSubtask} style={{ padding: '16px', backgroundColor: '#0A0A0A', borderTop: '1px solid #333', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'text', transition: 'background-color 0.2s' }} onClick={() => document.getElementById('new-subtask-input')?.focus()}>
-                <Plus size={18} color="#666" />
-                <input 
-                  id="new-subtask-input"
-                  type="text" 
-                  value={newSubtaskText} 
-                  onChange={e => setNewSubtaskText(e.target.value)} 
-                  placeholder="Add new subtask..." 
-                  style={{ width: '100%', fontSize: '14px', backgroundColor: 'transparent', border: 'none', outline: 'none', color: '#DDD' }} 
-                />
-              </form>
-            </div>
-          </div>
+          <TaskSubtasksList
+            subtasks={selectedIssue.subtasks}
+            users={users}
+            newSubtaskText={newSubtaskText}
+            setNewSubtaskText={setNewSubtaskText}
+            onAdd={addSubtask}
+            onToggle={toggleSubtask}
+            onUpdate={updateSubtaskField}
+            onDelete={deleteSubtask}
+            handleRichTextPaste={handleRichTextPaste}
+          />
 
         </div>
 
@@ -764,12 +533,12 @@ const TaskDetailModal = ({
                      transition: 'all 0.2s',
                      border: activeTab === tab ? '1px solid #333' : '1px solid transparent',
                      cursor: 'pointer',
-                     backgroundColor: activeTab === tab ? '#1A1A1A' : 'transparent',
-                     color: activeTab === tab ? '#FFF' : '#888',
+                     backgroundColor: activeTab === tab ? 'var(--bg-secondary)' : 'transparent',
+                     color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-tertiary)',
                      boxShadow: activeTab === tab ? '0 2px 4px rgba(0,0,0,0.4)' : 'none'
                    }}
-                   onMouseOver={e => { if(activeTab !== tab) e.currentTarget.style.color = '#CCC'; }}
-                   onMouseOut={e => { if(activeTab !== tab) e.currentTarget.style.color = '#888'; }}
+                   onMouseOver={e => { if(activeTab !== tab) e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                   onMouseOut={e => { if(activeTab !== tab) e.currentTarget.style.color = 'var(--text-tertiary)'; }}
                  >
                    {tab}
                  </button>
@@ -801,51 +570,13 @@ const TaskDetailModal = ({
               />
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-              <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
-                {(selectedIssue.comments || []).map(c => (
-                  <div key={c.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #9333ea)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: 'white', fontWeight: 'bold', flexShrink: 0 }}>
-                      {c.author.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '14px', color: 'white', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.author}</span>
-                        <span style={{ fontSize: '11px', color: '#888', fontWeight: 500, flexShrink: 0 }}>{formatChatTime(c.createdAt)}</span>
-                      </div>
-                      <div style={{ fontSize: '14px', color: '#DDD', lineHeight: 1.5, wordBreak: 'break-word', backgroundColor: '#1A1A1A', padding: '10px 16px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #222' }}>
-                        {c.text}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ padding: '16px', backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)' }}>
-                <form onSubmit={addComment} style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', position: 'relative' }}>
-                  <textarea 
-                    value={newCommentText} 
-                    onChange={e => setNewCommentText(e.target.value)}
-                    onKeyDown={e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addComment(e); } }}
-                    className="custom-scrollbar"
-                    style={{ width: '100%', padding: '12px 48px 12px 16px', fontSize: '14px', backgroundColor: '#0A0A0A', color: '#EEE', border: '1px solid #333', borderRadius: '16px', resize: 'none', minHeight: '44px', maxHeight: '120px', outline: 'none', transition: 'border-color 0.2s' }}
-                    placeholder="Write a comment..." 
-                    rows={1}
-                    onFocus={e => e.target.style.borderColor = '#6366f1'}
-                    onBlur={e => e.target.style.borderColor = '#333'}
-                  />
-                  <button 
-                    type="submit" 
-                    disabled={isCommenting || !newCommentText.trim()} 
-                    style={{ position: 'absolute', right: '8px', bottom: '8px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: (!newCommentText.trim() || isCommenting) ? '#333' : '#4f46e5', color: (!newCommentText.trim() || isCommenting) ? '#888' : 'white', borderRadius: '12px', border: 'none', cursor: (!newCommentText.trim() || isCommenting) ? 'default' : 'pointer', transition: 'background-color 0.2s' }}
-                    title="Send comment"
-                    onMouseOver={e => { if(newCommentText.trim() && !isCommenting) e.currentTarget.style.backgroundColor = '#4338ca'; }}
-                    onMouseOut={e => { if(newCommentText.trim() && !isCommenting) e.currentTarget.style.backgroundColor = '#4f46e5'; }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                  </button>
-                </form>
-              </div>
-            </div>
+            <TaskCommentsTab
+              comments={selectedIssue.comments}
+              newCommentText={newCommentText}
+              setNewCommentText={setNewCommentText}
+              isCommenting={isCommenting}
+              onSubmit={addComment}
+            />
           )}
         </div>
       </div>

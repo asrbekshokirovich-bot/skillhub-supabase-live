@@ -10,15 +10,15 @@ const GhostDropdown = ({ value, onChange, options, prefix }) => {
   return (
     <div 
       style={{ display: 'flex', width: 'fit-content', alignItems: 'center', position: 'relative', marginLeft: '-8px', borderRadius: '6px', transition: 'background-color 0.2s', padding: '6px 10px' }}
-      onMouseOver={e => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+      onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
       onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
     >
       {prefix && <div style={{ marginRight: '8px' }}>{prefix}</div>}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#E5E7EB', fontSize: '14px', fontWeight: 600 }}>
+        <span style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600 }}>
           {selectedLabel}
         </span>
-        <svg style={{ color: '#888' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <svg style={{ color: 'var(--text-tertiary)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
       <select
         value={value}
@@ -26,7 +26,7 @@ const GhostDropdown = ({ value, onChange, options, prefix }) => {
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', zIndex: 1 }}
       >
         {options.map(opt => (
-          <option key={opt.value} value={opt.value} style={{ backgroundColor: '#111', color: 'white' }}>{opt.label}</option>
+          <option key={opt.value} value={opt.value} style={{ backgroundColor: 'var(--bg-secondary)', color: 'white' }}>{opt.label}</option>
         ))}
       </select>
     </div>
@@ -158,8 +158,8 @@ const NewTaskModal = ({ projectId, projectAssignee, users, currentUser, onClose,
             {/* Metadata Bar */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', backgroundColor: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <User size={12} color="#666" /> Assignee
+                <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <User size={12} color='var(--text-tertiary)' /> Assignee
                 </label>
                 <GhostDropdown 
                   value={newAssignee || 'Unassigned'} 
@@ -174,8 +174,8 @@ const NewTaskModal = ({ projectId, projectAssignee, users, currentUser, onClose,
               </div>
               
               <div>
-                <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <AlertCircle size={12} color="#666" /> Urgency
+                <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                  <AlertCircle size={12} color='var(--text-tertiary)' /> Urgency
                 </label>
                 <GhostDropdown 
                   value={newUrgency} 

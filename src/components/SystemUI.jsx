@@ -82,8 +82,8 @@ export const ToastProvider = ({ children }) => {
                 className="btn"
                 onClick={() => handleConfirmResolve(true)}
                 style={{
-                  backgroundColor: '#ef4444',
-                  color: '#fff',
+                  backgroundColor: 'var(--alert-error-text)',
+                  color: 'var(--text-primary)',
                   fontWeight: 600,
                 }}
               >

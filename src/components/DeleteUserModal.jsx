@@ -53,7 +53,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
           background: 'rgba(239,68,68,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: '#ef4444' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: 'var(--alert-error-text)' }}>
             <AlertTriangle size={20} />
             <span style={{ fontWeight: 700, fontSize: '1rem' }}>
               {step === 1 ? 'Delete User Account?' : 'Confirm Deletion'}
@@ -103,9 +103,9 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
               padding: '1rem',
               display: 'flex', gap: '0.75rem',
             }}>
-              <AlertTriangle size={16} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <AlertTriangle size={16} color='var(--alert-error-text)' style={{ flexShrink: 0, marginTop: '2px' }} />
               <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                <strong style={{ color: '#ef4444', display: 'block', marginBottom: '0.25rem' }}>
+                <strong style={{ color: 'var(--alert-error-text)', display: 'block', marginBottom: '0.25rem' }}>
                   This action is permanent.
                 </strong>
                 The user's profile will be deleted from the system. They will no longer be able to access the portal.
@@ -122,7 +122,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
               </button>
               <button
                 className="btn"
-                style={{ flex: 1, backgroundColor: '#ef4444', color: '#fff', fontWeight: 600 }}
+                style={{ flex: 1, backgroundColor: 'var(--alert-error-text)', color: 'var(--text-primary)', fontWeight: 600 }}
                 onClick={() => setStep(2)}
               >
                 Yes, Continue
@@ -162,7 +162,7 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
                 style={{ width: '100%' }}
               />
               {confirmText && confirmText !== target.name && (
-                <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--alert-error-text)' }}>
                   Doesn't match. Keep typing…
                 </span>
               )}
@@ -184,8 +184,8 @@ const DeleteUserModal = ({ target, onClose, onDeleted }) => {
                 disabled={loading || confirmText !== target.name}
                 style={{
                   flex: 1,
-                  backgroundColor: '#ef4444',
-                  color: '#fff',
+                  backgroundColor: 'var(--alert-error-text)',
+                  color: 'var(--text-primary)',
                   fontWeight: 600,
                   opacity: (loading || confirmText !== target.name) ? 0.5 : 1,
                   cursor: (loading || confirmText !== target.name) ? 'not-allowed' : 'pointer',
