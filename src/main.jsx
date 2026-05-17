@@ -6,12 +6,12 @@ import { ToastProvider } from './components/SystemUI.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
 import './index.css'
 
+// Service worker is no longer used. Forcibly unregister any stuck SW from
+// previous versions so users on old caches recover automatically.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.log('SW registration failed: ', err);
-    });
-  });
+  navigator.serviceWorker.getRegistrations()
+    .then(regs => Promise.all(regs.map(r => r.unregister())))
+    .catch(() => {});
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
