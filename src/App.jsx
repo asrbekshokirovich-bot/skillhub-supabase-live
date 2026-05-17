@@ -1,6 +1,17 @@
+// ─────────────────────────────────────────────────────────────────────────
+// App shell — sidebar + header.
+//
+// Drop-in replacement for src/App.jsx.
+// Same routes, same auth flow, same theme handling, same data fetches.
+// Visual polish to the sidebar and header so they match the redesigned pages.
+// ─────────────────────────────────────────────────────────────────────────
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut, Hexagon, Users, Loader2, Menu, X } from 'lucide-react';
+import {
+  Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut,
+  Users, Loader2,
+} from 'lucide-react';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Discussions from './pages/Discussions';
@@ -12,97 +23,136 @@ import SettingsView from './pages/Settings';
 import Team from './pages/Team';
 import logoLight from './assets/logo-light.png';
 import logoDark from './assets/logo-dark.png';
-import './App.css'; 
+import './App.css';
+
+// ── Sidebar ──────────────────────────────────────────────────────────────
 
 const Sidebar = ({ currentUser, onLogout, isDark, actionCount }) => {
   const location = useLocation();
-
   const navItems = [
-    { name: 'Home', path: '/', icon: <Home size={20} />, badge: actionCount },
-    { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
-    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
-    ...(currentUser.role === 'ceo' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
+    { name: 'Home',     path: '/',         icon: <Home size={16}/>,        badge: actionCount },
+    { name: 'Projects', path: '/projects', icon: <FolderKanban size={16}/> },
+    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
+    ...(currentUser.role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
   ];
 
   return (
     <div className="sidebar">
-      <div className="flex items-center justify-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="flex items-center gap-2">
-          <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
-          <span className="font-bold text-xl tracking-tight">Skillhub</span>
-        </div>
+      <div style={{
+        padding: '14px 16px', height: 60, display: 'flex', alignItems: 'center',
+        gap: 10, borderBottom: '1px solid var(--border-color)',
+      }}>
+        <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo"
+          style={{ height: 26, width: 'auto', objectFit: 'contain' }}/>
+        <span style={{
+          fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.01em',
+          color: 'var(--text-primary)',
+        }}>Skillhub</span>
       </div>
 
-      <div className="flex-col flex-1" style={{ padding: '1.5rem 0', overflowY: 'auto' }}>
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
-          >
-            {item.icon}
-            <span style={{ flex: 1 }}>{item.name}</span>
-            {item.badge > 0 && (
-              <span style={{
-                fontSize: '0.7rem', fontWeight: 700,
-                padding: '1px 7px', borderRadius: 999, minWidth: 18, textAlign: 'center',
-                color: 'white',
-                background: 'var(--accent-primary)',
-              }}>{item.badge}</span>
-            )}
-          </Link>
-        ))}
-      </div>
+      <nav style={{ padding: '10px 8px', flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {navItems.map((item) => {
+          const isActive = item.path === '/'
+            ? location.pathname === '/'
+            : location.pathname.startsWith(item.path);
+          return (
+            <Link key={item.path} to={item.path}
+              className={`sidebar-link ${isActive ? 'active' : ''}`}
+              style={{ margin: 0 }}
+            >
+              {item.icon}
+              <span style={{ flex: 1 }}>{item.name}</span>
+              {item.badge > 0 && (
+                <span style={{
+                  fontSize: 10, fontWeight: 700,
+                  padding: '1px 6px', borderRadius: 999, minWidth: 18, textAlign: 'center',
+                  background: isActive ? 'var(--bg-primary)' : 'var(--accent-primary-muted)',
+                  color: isActive ? 'var(--text-primary)' : 'var(--accent-primary-text)',
+                  border: `1px solid ${isActive ? 'var(--border-color)' : 'var(--accent-primary-border)'}`,
+                }}>{item.badge}</span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
 
-      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-        <Link 
-          to="/settings" 
-          className={`sidebar-link w-full ${location.pathname === '/settings' ? 'active' : ''}`} 
-          style={{ justifyContent: 'flex-start', margin: 0 }}
-        >
-          <Settings size={20} /> Settings
+      <div style={{ padding: '10px 8px', borderTop: '1px solid var(--border-color)' }}>
+        <Link to="/settings"
+          className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}
+          style={{ margin: 0, marginBottom: 2 }}>
+          <Settings size={16}/>
+          <span>Settings</span>
         </Link>
-        <button 
-          onClick={onLogout}
-          className="sidebar-link w-full mt-2" 
-          style={{ justifyContent: 'flex-start', margin: 0, color: 'var(--text-secondary)' }}
-        >
-          <LogOut size={20} /> Logout
+        <button onClick={onLogout} className="sidebar-link"
+          style={{
+            margin: 0, width: '100%', border: 'none', background: 'transparent',
+            color: 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left',
+          }}>
+          <LogOut size={16}/>
+          <span>Logout</span>
         </button>
       </div>
     </div>
   );
 };
 
+// ── Header ───────────────────────────────────────────────────────────────
+
 const Header = ({ currentUser, title }) => {
+  const role = (currentUser.role || 'worker').toLowerCase();
+  const roleColors = {
+    ceo:    { bg: 'var(--accent-primary-muted)', fg: 'var(--accent-primary-text)', br: 'var(--accent-primary-border)' },
+    worker: { bg: 'var(--accent-success-muted)', fg: 'var(--accent-success-text)', br: 'var(--accent-success-border)' },
+    client: { bg: 'var(--bg-tertiary)',          fg: 'var(--text-secondary)',      br: 'var(--border-color)' },
+  }[role] || { bg: 'var(--bg-tertiary)', fg: 'var(--text-secondary)', br: 'var(--border-color)' };
+
   return (
     <div className="header">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold">{title}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+        <h1 style={{
+          margin: 0, fontSize: '0.9375rem', fontWeight: 700,
+          color: 'var(--text-primary)', letterSpacing: '-0.01em',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {title}
+        </h1>
       </div>
-      <div className="flex items-center gap-4">
-        <span className="badge" style={{ textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.7rem' }}>
-          {currentUser.role}
-        </span>
-        <div className="flex items-center gap-2">
-          <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-            {currentUser.name.charAt(0)}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '4px 10px 4px 4px', borderRadius: 999,
+          background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
+        }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: '50%',
+            background: 'var(--accent-primary-muted)', color: 'var(--accent-primary-text)',
+            border: '1px solid var(--accent-primary-border)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 700, flexShrink: 0,
+          }}>
+            {String(currentUser.name || '?').charAt(0).toUpperCase()}
           </div>
-          <span className="font-medium text-sm">{currentUser.name}</span>
+          <span style={{
+            fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)',
+            maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>{currentUser.name}</span>
+          <span style={{
+            padding: '1px 7px', borderRadius: 999,
+            background: roleColors.bg, color: roleColors.fg, border: `1px solid ${roleColors.br}`,
+            fontSize: 9.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+          }}>{currentUser.role}</span>
         </div>
       </div>
     </div>
   );
 };
 
-// --- Page Components (Imported) ---
+// ── Layout ───────────────────────────────────────────────────────────────
 
 const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const location = useLocation();
   const [actionCount, setActionCount] = useState(0);
 
-  // Compute Inbox action items count for the sidebar badge.
-  // Refreshes on route change so it stays roughly in sync without sockets.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -119,14 +169,11 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
         const overdue  = my.filter(t => t.dueDate && t.dueDate < today).length;
         const dueToday = my.filter(t => t.dueDate && t.dueDate.startsWith(today)).length;
 
-        // Mentions of me (across all visible tasks)
         let mentions = 0;
         (tasks || []).forEach(t => {
           (Array.isArray(t.comments) ? t.comments : []).forEach(c => {
             if (Array.isArray(c.mentions) && c.mentions.includes(currentUser.id) &&
-                c.authorId !== currentUser.id) {
-              mentions++;
-            }
+                c.authorId !== currentUser.id) mentions++;
           });
         });
 
@@ -152,37 +199,39 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const getRouteTitle = () => {
     if (location.pathname.startsWith('/projects/')) return 'Project';
     switch (location.pathname) {
-      case '/': return 'Home';
+      case '/':         return 'Home';
       case '/projects': return 'Projects';
-      case '/finance': return 'Finance';
+      case '/finance':  return 'Finance';
       case '/settings': return 'Settings';
-      case '/team': return 'Team';
-      default: return 'Skillhub';
+      case '/team':     return 'Team';
+      default:          return 'Skillhub';
     }
   };
 
   return (
     <div className="app-layout">
-      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount} />
+      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount}/>
       <div className="main-content">
-        <Header currentUser={currentUser} title={getRouteTitle()} />
-        <div className="page-content" style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
-          <div className="h-full w-full">
+        <Header currentUser={currentUser} title={getRouteTitle()}/>
+        <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto', width: '100%' }}>
+          <div style={{ width: '100%' }}>
             <Routes>
-              <Route path="/" element={<Inbox currentUser={currentUser} />} />
-              <Route path="/projects" element={<Projects currentUser={currentUser} />} />
-              <Route path="/projects/:projectId" element={<Discussions currentUser={currentUser} />} />
-              <Route path="/finance" element={<Finance currentUser={currentUser} />} />
-              <Route path="/team" element={<Team currentUser={currentUser} />} />
-              <Route path="/settings" element={<SettingsView currentUser={currentUser} theme={theme} setTheme={setTheme} />} />
+              <Route path="/"                     element={<Inbox       currentUser={currentUser}/>}/>
+              <Route path="/projects"             element={<Projects    currentUser={currentUser}/>}/>
+              <Route path="/projects/:projectId"  element={<Discussions currentUser={currentUser}/>}/>
+              <Route path="/finance"              element={<Finance     currentUser={currentUser}/>}/>
+              <Route path="/team"                 element={<Team        currentUser={currentUser}/>}/>
+              <Route path="/settings"             element={<SettingsView currentUser={currentUser} theme={theme} setTheme={setTheme}/>}/>
             </Routes>
           </div>
         </div>
       </div>
-      <MobileTabBar currentUser={currentUser} />
+      <MobileTabBar currentUser={currentUser}/>
     </div>
   );
 };
+
+// ── App ──────────────────────────────────────────────────────────────────
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -194,10 +243,9 @@ function App() {
     const handleSession = async (session) => {
       if (session?.user) {
         try {
-          let { data: userData, error } = await supabase.from('users').select('id, name, role').eq('id', session.user.id).single();
+          let { data: userData, error } = await supabase
+            .from('users').select('id, name, role').eq('id', session.user.id).single();
 
-          // Self-heal: if profile is missing (trigger failed or pre-trigger account),
-          // call the RPC to create one. This avoids a permanent "client" role lockout.
           if (error && error.code === 'PGRST116') {
             const { data: ensured } = await supabase.rpc('ensure_my_profile');
             if (ensured) userData = { id: ensured.id, name: ensured.name, role: ensured.role };
@@ -226,14 +274,8 @@ function App() {
       setIsLoading(false);
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleSession(session);
-    });
-
+    supabase.auth.getSession().then(({ data: { session } }) => handleSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => handleSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -244,24 +286,32 @@ function App() {
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     };
     updateTheme();
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', updateTheme);
-    return () => mediaQuery.removeEventListener('change', updateTheme);
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', updateTheme);
+    return () => mq.removeEventListener('change', updateTheme);
   }, [theme]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
+  const handleLogout = async () => { await supabase.auth.signOut(); };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center w-full h-full" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)' }}>Loading...</div>;
+    return (
+      <div style={{
+        minHeight: '100vh', backgroundColor: 'var(--bg-primary)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--text-secondary)' }}/>
+      </div>
+    );
   }
 
-  if (!currentUser) {
-    return <Login isDark={isDark} />;
-  }
+  if (!currentUser) return <Login isDark={isDark}/>;
 
-  return <AppLayout currentUser={currentUser} onLogout={handleLogout} theme={theme} setTheme={setTheme} isDark={isDark} />;
+  return (
+    <AppLayout
+      currentUser={currentUser} onLogout={handleLogout}
+      theme={theme} setTheme={setTheme} isDark={isDark}
+    />
+  );
 }
 
 export default App;
