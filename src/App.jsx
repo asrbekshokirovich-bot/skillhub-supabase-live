@@ -272,7 +272,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let unmounted = false;
+    let resolved  = false;
+
     const handleSession = async (session) => {
+      if (unmounted) return;
       if (session?.user) {
         try {
           let { data: userData, error } = await supabase
@@ -285,6 +289,7 @@ function App() {
             console.warn('Error fetching user data:', error);
           }
 
+          if (unmounted) return;
           setCurrentUser({
             id: session.user.id,
             email: session.user.email,
@@ -293,6 +298,7 @@ function App() {
           });
         } catch (err) {
           console.error('Error fetching profile:', err);
+          if (unmounted) return;
           setCurrentUser({
             id: session.user.id,
             email: session.user.email,
@@ -306,9 +312,46 @@ function App() {
       setIsLoading(false);
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => handleSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => handleSession(session));
-    return () => subscription.unsubscribe();
+    // ── Watchdog: never let the loading screen persist past 3 s. ────────
+    // If supabase.auth.getSession() hangs (navigator.locks contention,
+    // expired token refresh blocking, network stall, …), fall through to
+    // Login so the user can at least re-authenticate instead of staring
+    // at a black screen forever. If a real session arrives later, the
+    // onAuthStateChange subscription below will still pick it up.
+    const watchdog = setTimeout(() => {
+      if (unmounted || resolved) return;
+      console.warn('[App] session bootstrap timed out (3s) — falling through to Login');
+      setCurrentUser(null);
+      setIsLoading(false);
+    }, 3000);
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        resolved = true;
+        clearTimeout(watchdog);
+        handleSession(session);
+      })
+      .catch((err) => {
+        resolved = true;
+        clearTimeout(watchdog);
+        console.error('[App] getSession failed:', err);
+        if (!unmounted) {
+          setCurrentUser(null);
+          setIsLoading(false);
+        }
+      });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // If the watchdog fired first, this still resolves the session
+      // when supabase eventually wakes up (e.g. user signs in).
+      handleSession(session);
+    });
+
+    return () => {
+      unmounted = true;
+      clearTimeout(watchdog);
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
