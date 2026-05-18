@@ -34,7 +34,7 @@ export default function Inbox({ currentUser }) {
     (async () => {
       try {
         const [projectsRes, tasksRes] = await Promise.all([
-          supabase.from('projects').select('id, title, name, status, isArchived').neq('isArchived', true),
+          supabase.from('projects').select('id, title, status, isArchived').neq('isArchived', true),
           supabase.from('tasks').select('id, projectId, title, status, urgency, assignee, dueDate, comments, isApproved, updatedAt').neq('isArchived', true),
         ]);
         const projects = projectsRes.data || [];
