@@ -138,24 +138,27 @@ export default function Finance({ currentUser }) {
 
       {/* KPI ROW — hero + 3 supporting */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: 12 }}>
-        <Kpi big tone="accent" label="Net revenue · this quarter"
+        <Kpi big tone="accent" label="Net revenue · last 6 months"
           value={fmtMoney(stats.net)}
           extra={
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '2px 7px', borderRadius: 999,
-                background: stats.net >= 0 ? 'var(--accent-success-muted)' : 'var(--alert-error-bg)',
-                color: stats.net >= 0 ? 'var(--accent-success-text)' : 'var(--alert-error-text)',
-                border: `1px solid ${stats.net >= 0 ? 'var(--accent-success-border)' : 'var(--alert-error-border)'}`,
-                fontSize: 10.5, fontWeight: 700,
-              }}>
-                <ArrowUpRight size={10} style={{ transform: stats.net >= 0 ? 'none' : 'rotate(90deg)' }}/>
-                {stats.net >= 0 ? 'Profit' : 'Loss'}
-              </span>
-              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                {fmtMoney(stats.revenue)} in − {fmtMoney(stats.expensesTotal)} out
-              </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '2px 7px', borderRadius: 999,
+                  background: stats.net >= 0 ? 'var(--accent-success-muted)' : 'var(--alert-error-bg)',
+                  color: stats.net >= 0 ? 'var(--accent-success-text)' : 'var(--alert-error-text)',
+                  border: `1px solid ${stats.net >= 0 ? 'var(--accent-success-border)' : 'var(--alert-error-border)'}`,
+                  fontSize: 10.5, fontWeight: 700,
+                }}>
+                  <ArrowUpRight size={10} style={{ transform: stats.net >= 0 ? 'none' : 'rotate(90deg)' }}/>
+                  {stats.net >= 0 ? 'Profit' : 'Loss'}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                  {fmtMoney(stats.revenue)} in − {fmtMoney(stats.expensesTotal)} out
+                </span>
+              </div>
+              <RevenueSparkline invoices={invoices} expenses={expenses}/>
             </div>
           }
         />
@@ -511,3 +514,89 @@ const EmptyState = ({ icon, title, body }) => (
 );
 
 const Dot = () => <span style={{ margin: '0 8px', color: 'var(--text-tertiary)' }}>·</span>;
+
+// ── Revenue sparkline ───────────────────────────────────────────────────
+// Renders the last 6 calendar months of paid-invoice revenue as a tiny
+// inline bar chart with hover tooltips.
+const RevenueSparkline = ({ invoices = [], expenses = [] }) => {
+  // Bucket into the last 6 months (oldest → newest)
+  const now = new Date();
+  const buckets = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    buckets.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleDateString('en-US', { month: 'short' }),
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      revenue: 0,
+      expense: 0,
+    });
+  }
+  const indexFor = (iso) => {
+    if (!iso) return -1;
+    const d = new Date(iso); if (isNaN(d)) return -1;
+    return buckets.findIndex(b => b.year === d.getFullYear() && b.month === d.getMonth());
+  };
+  invoices.forEach(inv => {
+    if (inv.status !== 'paid') return;
+    const idx = indexFor(inv.paidAt || inv.paidDate || inv.issuedDate);
+    if (idx >= 0) buckets[idx].revenue += Number(inv.amount) || 0;
+  });
+  expenses.forEach(exp => {
+    const idx = indexFor(exp.date);
+    if (idx >= 0) buckets[idx].expense += Number(exp.amount) || 0;
+  });
+
+  const max = Math.max(1, ...buckets.map(b => Math.max(b.revenue, b.expense)));
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 56 }}>
+        {buckets.map((b, i) => {
+          const revH = Math.round((b.revenue / max) * 48);
+          const expH = Math.round((b.expense / max) * 48);
+          return (
+            <div key={b.key} style={{
+              flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+              height: '100%', justifyContent: 'flex-end',
+            }} title={`${b.label}: ${fmtMoney(b.revenue)} in · ${fmtMoney(b.expense)} out`}>
+              <div style={{ position: 'relative', width: '100%', height: 48,
+                display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 2 }}>
+                <div style={{
+                  width: '38%', height: Math.max(2, revH),
+                  background: i === buckets.length - 1 ? 'var(--accent-primary)' : 'var(--accent-primary-muted)',
+                  borderTop: i === buckets.length - 1 ? 'none' : `1px solid var(--accent-primary-border)`,
+                  borderRadius: '3px 3px 0 0',
+                  transition: 'background 0.15s',
+                }}/>
+                <div style={{
+                  width: '38%', height: Math.max(2, expH),
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '3px 3px 0 0',
+                }}/>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+        {buckets.map(b => (
+          <span key={b.key} style={{
+            flex: 1, textAlign: 'center', fontSize: 9.5, fontWeight: 600,
+            color: 'var(--text-tertiary)', letterSpacing: '0.04em', textTransform: 'uppercase',
+          }}>{b.label}</span>
+        ))}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-tertiary)' }}>
+          <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--accent-primary)' }}/>Revenue
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-tertiary)' }}>
+          <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}/>Expenses
+        </span>
+      </div>
+    </div>
+  );
+};

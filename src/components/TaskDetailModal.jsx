@@ -719,6 +719,23 @@ const TaskDetailModal = ({
           <div className="custom-scrollbar"
             style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 18, overflowY: 'auto' }}>
 
+            {/* Contextual primary action — assignee/CEO sees Mark complete; CEO sees Approve on done unapproved tasks */}
+            <PrimaryAction
+              issue={selectedIssue}
+              currentUser={currentUser}
+              onMarkComplete={async () => {
+                await updateTaskField('status', 'Done');
+                await updateTaskField('isApproved', false);
+              }}
+              onApprove={async () => {
+                await updateTaskField('isApproved', true);
+                toast.success('Task approved');
+              }}
+              onReopen={async () => {
+                await updateTaskField('status', 'In Progress');
+              }}
+            />
+
             <Inspector label="Status">
               <StatusPicker
                 value={selectedIssue.status}
@@ -993,6 +1010,124 @@ const IconButton = ({ children, onClick, title }) => (
   >
     {children}
   </button>
+);
+
+// ── Contextual primary action button at top of inspector ──────────────
+
+const PrimaryAction = ({ issue, currentUser, onMarkComplete, onApprove, onReopen }) => {
+  const role = currentUser?.role;
+  const isAssignee = issue.assignee === currentUser?.id;
+  const isDone = issue.status === 'Done';
+  const isApproved = !!issue.isApproved;
+
+  // Done + approved → success badge, with reopen affordance for CEO
+  if (isDone && isApproved) {
+    return (
+      <div style={{
+        padding: '10px 12px', borderRadius: 'var(--radius-md)',
+        background: 'var(--accent-success-muted)', border: '1px solid var(--accent-success-border)',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <span style={{
+          width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+          background: 'var(--accent-success-text)', color: '#fff',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <CheckIcon size={12}/>
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--accent-success-text)' }}>
+            Completed & approved
+          </div>
+          {role === 'ceo' && (
+            <button onClick={onReopen}
+              style={{
+                marginTop: 2, padding: 0, background: 'transparent', border: 'none',
+                color: 'var(--text-secondary)', cursor: 'pointer',
+                fontFamily: 'inherit', fontSize: 11, fontWeight: 500, textDecoration: 'underline',
+              }}>
+              Reopen task
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Done but waiting approval — CEO gets primary Approve button
+  if (isDone && !isApproved && role === 'ceo') {
+    return (
+      <button type="button" onClick={onApprove}
+        style={{
+          width: '100%', height: 38, padding: '0 14px',
+          background: 'var(--accent-success-text)', color: '#fff', border: 'none',
+          borderRadius: 'var(--radius-md)',
+          fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700,
+          cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          transition: 'filter 0.12s',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.filter = 'none'; }}>
+        <CheckIcon size={13}/>Approve task
+      </button>
+    );
+  }
+
+  // Done but waiting approval — assignee/others see informational state
+  if (isDone && !isApproved) {
+    return (
+      <div style={{
+        padding: '10px 12px', borderRadius: 'var(--radius-md)',
+        background: 'var(--accent-warning-muted)', border: '1px solid var(--accent-warning-text)',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <span style={{
+          width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+          background: 'var(--accent-warning-text)', color: '#fff',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <ClockSmall/>
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--accent-warning-text)' }}>
+            Awaiting approval
+          </div>
+          <div style={{ fontSize: 10.5, color: 'var(--text-secondary)', marginTop: 1 }}>
+            CEO will be notified
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not done — assignee or CEO can mark complete
+  if (isAssignee || role === 'ceo') {
+    return (
+      <button type="button" onClick={onMarkComplete}
+        style={{
+          width: '100%', height: 38, padding: '0 14px',
+          background: 'var(--accent-primary)', color: '#fff', border: 'none',
+          borderRadius: 'var(--radius-md)',
+          fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700,
+          cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          transition: 'filter 0.12s, transform 0.08s',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.filter = 'none'; }}
+        onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+        onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}>
+        <CheckIcon size={13}/>Mark complete
+      </button>
+    );
+  }
+
+  return null;
+};
+
+const ClockSmall = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+  </svg>
 );
 
 export default TaskDetailModal;

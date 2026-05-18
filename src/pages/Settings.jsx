@@ -1,209 +1,155 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Settings — preferences, appearance, danger zone (with delete-account flow).
+//
+// Drop-in replacement for src/pages/Settings.jsx.
+// Same Supabase auth flow, same RPC ('delete_my_account'), same haptics,
+// same useSystem toast.
+// ─────────────────────────────────────────────────────────────────────────
+
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trash2, AlertTriangle, X, Loader2, ShieldAlert } from 'lucide-react';
+import {
+  Trash2, AlertTriangle, X, Loader2, ShieldAlert,
+  Sun, Moon, Monitor, Bell, User, Settings as SettingsIcon,
+  Check,
+} from 'lucide-react';
 import { triggerHaptic } from '../lib/haptics';
 import { useSystem } from '../components/SystemUI';
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Delete Account Modal — 2-step confirmation
-   Step 1: Warning + "Are you sure?" prompt
-   Step 2: Password entry to complete deletion
-───────────────────────────────────────────────────────────────────────── */
+// ─────────────────────────────────────────────────────────────────────────
+// Delete Account Modal — 2-step (warning → password).
+// ─────────────────────────────────────────────────────────────────────────
+
 const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
-  const [step, setStep] = useState(1);      // 1 = confirm warning, 2 = enter password
+  const [step, setStep] = useState(1);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    setError(null); setLoading(true);
     try {
-      // 1. Re-authenticate to verify password
       const { error: authError } = await supabase.auth.signInWithPassword({
-        email: currentUser.email,
-        password: password
+        email: currentUser.email, password,
       });
       if (authError) throw authError;
-
-      // 2. Delete the account properly via RPC.
-      //    This removes auth.users (which CASCADEs to public.users) so the
-      //    user is fully gone — no orphaned auth record left behind.
       const { error: rpcError } = await supabase.rpc('delete_my_account');
       if (rpcError) throw rpcError;
-
-      // 3. Sign out (idempotent: token is already revoked server-side)
       await supabase.auth.signOut();
-      
       triggerHaptic('heavy');
       onDeleted();
     } catch (err) {
-      if (err.message === 'Invalid login credentials') {
-        setError('Incorrect password. Please try again.');
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+      setError(err.message === 'Invalid login credentials'
+        ? 'Incorrect password. Please try again.'
+        : err.message);
+    } finally { setLoading(false); }
   };
 
   return (
-    <div
+    <div onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backdropFilter: 'blur(6px)',
-      }}
-      onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
-    >
-      <div
-        className="bottom-sheet"
+        background: 'rgba(8,7,6,0.62)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+      }}>
+      <div className="bottom-sheet animate-slide-up"
         style={{
-          width: '95vw',
-          maxWidth: '440px',
-          backgroundColor: 'var(--bg-primary)',
-          border: '1.5px solid #ef4444',
+          width: '95vw', maxWidth: 440,
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--alert-error-border)',
           borderRadius: 'var(--radius-lg)',
-          boxShadow: '0 20px 60px rgba(239,68,68,0.2)',
+          boxShadow: 'var(--shadow-lg)',
           overflow: 'hidden',
-          animation: 'slideUpFade 0.25s cubic-bezier(0.16,1,0.3,1) forwards',
-        }}
-      >
+        }}>
         {/* Header */}
         <div style={{
-          padding: '1.25rem 1.5rem',
-          borderBottom: '1px solid rgba(239,68,68,0.25)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(239,68,68,0.06)',
+          padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid var(--alert-error-border)',
+          background: 'var(--alert-error-bg)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: 'var(--alert-error-text)' }}>
-            <ShieldAlert size={20} />
-            <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--alert-error-text)' }}>
-              {step === 1 ? 'Delete Account?' : 'Confirm Deletion'}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--alert-error-text)' }}>
+            <ShieldAlert size={16}/>
+            <span style={{ fontWeight: 700, fontSize: '0.9375rem' }}>
+              {step === 1 ? 'Delete account?' : 'Confirm deletion'}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px', lineHeight: 0 }}
-          >
-            <X size={18} />
-          </button>
+          <button onClick={onClose} disabled={loading}
+            style={{
+              width: 26, height: 26, padding: 0, borderRadius: 'var(--radius-sm)',
+              background: 'transparent', border: 'none', cursor: loading ? 'default' : 'pointer',
+              color: 'var(--text-secondary)', opacity: loading ? 0.4 : 1,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            }}><X size={14}/></button>
         </div>
 
-        {/* Step 1 — Warning */}
-        {step === 1 && (
-          <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {/* Body */}
+        {step === 1 ? (
+          <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 'var(--radius-md)',
-              padding: '1rem',
-              display: 'flex', gap: '0.75rem',
+              padding: 12, borderRadius: 'var(--radius-md)',
+              background: 'var(--alert-error-bg)', border: '1px solid var(--alert-error-border)',
+              display: 'flex', gap: 10,
             }}>
-              <AlertTriangle size={18} color='var(--alert-error-text)' style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                <strong style={{ color: 'var(--alert-error-text)', display: 'block', marginBottom: '0.25rem' }}>
+              <AlertTriangle size={16} color="var(--alert-error-text)" style={{ flexShrink: 0, marginTop: 2 }}/>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                <strong style={{ color: 'var(--alert-error-text)', display: 'block', marginBottom: 2 }}>
                   This action is permanent and cannot be undone.
                 </strong>
-                Deleting your account will remove your profile, all your data, and revoke access immediately.
+                Deleting your account removes your profile, all your data, and revokes access immediately.
               </div>
             </div>
-
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               Are you sure you want to permanently delete your account?
             </p>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn"
-                style={{
-                  flex: 1,
-                  backgroundColor: 'var(--alert-error-text)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 600,
-                }}
-                onClick={() => setStep(2)}
-              >
-                Yes, Delete My Account
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+              <button className="btn" style={{
+                flex: 1, background: 'var(--alert-error-text)', color: '#fff',
+                border: 'none', fontWeight: 600,
+              }} onClick={() => setStep(2)}>
+                Yes, delete
               </button>
             </div>
           </div>
-        )}
-
-        {/* Step 2 — Password Confirmation */}
-        {step === 2 && (
-          <form onSubmit={handleDelete} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Enter your password one last time to confirm. This is required to verify your identity before deletion.
+        ) : (
+          <form onSubmit={handleDelete}
+            style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              Enter your password to confirm. This verifies your identity before the account is removed.
             </p>
-
             {error && (
               <div style={{
-                padding: '0.75rem 1rem',
-                backgroundColor: 'var(--alert-error-bg)',
-                color: 'var(--alert-error-text)',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.875rem',
+                padding: '10px 12px', borderRadius: 'var(--radius-md)',
+                background: 'var(--alert-error-bg)', color: 'var(--alert-error-text)',
                 border: '1px solid var(--alert-error-border)',
-              }}>
-                {error}
-              </div>
+                fontSize: '0.8125rem', fontWeight: 500,
+              }}>{error}</div>
             )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                Your Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter your current password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoFocus
-                style={{ width: '100%' }}
-              />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
+                color: 'var(--text-tertiary)',
+              }}>Password</label>
+              <input type="password" className="input" autoFocus required
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your current password"/>
             </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <button type="button" className="btn btn-secondary" style={{ flex: 1 }}
                 onClick={() => { setStep(1); setError(null); setPassword(''); }}
-                disabled={loading}
-              >
+                disabled={loading}>
                 ← Back
               </button>
-              <button
-                type="submit"
-                className="btn"
-                disabled={loading || !password}
+              <button type="submit" className="btn" disabled={loading || !password}
                 style={{
-                  flex: 1,
-                  backgroundColor: 'var(--alert-error-text)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 600,
+                  flex: 1, background: 'var(--alert-error-text)', color: '#fff',
+                  border: 'none', fontWeight: 600,
                   opacity: (!password || loading) ? 0.6 : 1,
-                  cursor: (!password || loading) ? 'not-allowed' : 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-                }}
-              >
-                {loading
-                  ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  : <><Trash2 size={14} /> Delete Forever</>
-                }
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                {loading ? <Loader2 size={14} className="animate-spin"/> : <Trash2 size={13}/>}
+                {loading ? 'Deleting…' : 'Delete forever'}
               </button>
             </div>
           </form>
@@ -213,149 +159,141 @@ const DeleteAccountModal = ({ onClose, onDeleted, currentUser }) => {
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────
+// Settings page
+// ─────────────────────────────────────────────────────────────────────────
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Settings Page
-───────────────────────────────────────────────────────────────────────── */
 const Settings = ({ currentUser, theme, setTheme }) => {
   const { toast } = useSystem();
   const [notifications, setNotifications] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '2rem' }} className="animate-fade-in">
+    <div className="animate-fade-in"
+      style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%', maxWidth: 720 }}>
 
-      {/* Page title */}
+      {/* HEADER */}
       <div>
-        <h2 className="text-xl font-bold">Platform Settings</h2>
-        <p className="text-secondary">Manage your account preferences and system configurations.</p>
+        <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.015em' }}>
+          Settings
+        </h2>
+        <p style={{ marginTop: 4, fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>
+          Account preferences and platform configuration.
+        </p>
       </div>
 
-      {/* Profile Information */}
-      <div className="card hover-elevate animate-slide-up" style={{ maxWidth: '600px', animationDelay: '100ms' }}>
-        <div className="card-header">
-          <h3 className="card-title">Profile Information</h3>
+      {/* PROFILE */}
+      <Card>
+        <CardHeader
+          eyebrow={<><User size={12}/>Profile</>}
+          title="Your account"
+          subtitle="Read-only — provisioned by your project manager."
+        />
+        <div style={{ padding: 18, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Display name">
+            <input type="text" className="input" value={currentUser.name} disabled/>
+          </Field>
+          <Field label="Account role">
+            <div style={{ display: 'flex' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '7px 12px', borderRadius: 'var(--radius-md)',
+                background: currentUser.role === 'ceo' ? 'var(--badge-ceo-bg)' : 'var(--badge-worker-bg)',
+                color: currentUser.role === 'ceo' ? 'var(--badge-ceo-text)' : 'var(--badge-worker-text)',
+                border: `1px solid ${currentUser.role === 'ceo' ? 'var(--badge-ceo-border)' : 'var(--badge-worker-border)'}`,
+                fontSize: 12.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
+              }}>
+                {currentUser.role === 'ceo' ? 'CEO / Project Manager' : currentUser.role}
+              </span>
+            </div>
+          </Field>
         </div>
-        <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label className="text-sm font-bold">Display Name</label>
-            <input type="text" defaultValue={currentUser.name} className="w-full" disabled />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label className="text-sm font-bold">Account Role</label>
-            <input
-              type="text"
-              value={currentUser.role}
-              className="w-full"
-              disabled
-              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
-            />
-          </div>
-        </div>
-      </div>
+      </Card>
 
-      {/* Preferences */}
-      <div className="card hover-elevate animate-slide-up" style={{ maxWidth: '600px', animationDelay: '200ms' }}>
-        <div className="card-header">
-          <h3 className="card-title">Preferences</h3>
-        </div>
-        <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* PREFERENCES */}
+      <Card>
+        <CardHeader
+          eyebrow={<><SettingsIcon size={12}/>Preferences</>}
+          title="How Skillhub behaves"
+        />
+        <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 18 }}>
+
           {/* Notifications */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span className="font-bold text-sm">Email Notifications</span>
-              <span className="text-secondary" style={{ fontSize: '0.75rem' }}>Receive updates for assigned tasks</span>
-            </div>
-            <button
-              className={`btn ${notifications ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ padding: '0.5rem 1.5rem' }}
-              onClick={() => setNotifications(!notifications)}
-            >
-              {notifications ? 'Enabled' : 'Disabled'}
-            </button>
-          </div>
+          <Row
+            icon={<Bell size={16}/>}
+            title="Email notifications"
+            description="Receive updates when you're assigned to a task or @-mentioned."
+            control={<Toggle on={notifications} onChange={setNotifications}/>}
+          />
 
-          {/* Appearance */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span className="font-bold text-sm">Appearance</span>
-              <span className="text-secondary" style={{ fontSize: '0.75rem' }}>Choose between light, dark, or system mode.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {['light', 'dark', 'system'].map((t) => (
-                <button
-                  key={t}
-                  className={`btn flex-1 ${theme === t ? 'btn-primary' : 'btn-secondary'}`}
-                  onClick={() => setTheme(t)}
-                  style={{ textTransform: 'capitalize' }}
-                >
-                  {t === 'system' ? 'System Auto' : t}
-                </button>
-              ))}
-            </div>
-          </div>
+          <Divider/>
+
+          {/* Theme */}
+          <Row
+            icon={<Sun size={16}/>}
+            title="Appearance"
+            description="Match your system or pick a fixed theme."
+            control={<SegmentedTheme value={theme} onChange={setTheme}/>}
+            stack
+          />
         </div>
-      </div>
 
-      {/* Save Changes */}
-      <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
-        <button className="btn btn-primary" style={{ padding: '0.625rem 2rem' }} onClick={() => toast.success('Settings saved successfully!')}>
-          Save Changes
-        </button>
-      </div>
-
-      {/* ── Danger Zone ─────────────────────────────────────────────────── */}
-      <div
-        className="card hover-elevate animate-slide-up"
-        style={{
-          maxWidth: '600px',
-          animationDelay: '400ms',
-          border: '1.5px solid #ef4444',
-          marginTop: '0.5rem',
-        }}
-      >
-        {/* Header */}
         <div style={{
-          padding: '1rem 1.5rem',
-          borderBottom: '1px solid rgba(239,68,68,0.25)',
-          background: 'rgba(239,68,68,0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
+          padding: '12px 18px', borderTop: '1px solid var(--border-color)',
+          background: 'var(--bg-primary)', display: 'flex', justifyContent: 'flex-end', gap: 8,
         }}>
-          <AlertTriangle size={16} color='var(--alert-error-text)' />
-          <h3 className="card-title" style={{ color: 'var(--alert-error-text)', margin: 0, fontSize: '1rem' }}>Danger Zone</h3>
+          <button className="btn btn-primary"
+            onClick={() => toast.success('Settings saved')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Check size={14}/>Save changes
+          </button>
         </div>
+      </Card>
 
-        {/* Body */}
-        <div className="card-body" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <span className="font-bold text-sm">Delete Account</span>
-            <span className="text-secondary" style={{ fontSize: '0.75rem', maxWidth: '340px' }}>
-              Permanently remove your account and all associated data. This action cannot be undone.
-            </span>
+      {/* DANGER ZONE */}
+      <div style={{
+        background: 'var(--alert-error-bg)',
+        border: '1px solid var(--alert-error-border)',
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '12px 18px', borderBottom: '1px solid var(--alert-error-border)',
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <AlertTriangle size={14} color="var(--alert-error-text)"/>
+          <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--alert-error-text)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            Danger zone
+          </h3>
+        </div>
+        <div style={{
+          padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 14, background: 'var(--bg-primary)',
+        }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+              Delete account
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Permanently remove your account and all associated data. This cannot be undone.
+            </div>
           </div>
-          <button
-            className="btn"
-            onClick={() => setShowDeleteModal(true)}
+          <button onClick={() => setShowDeleteModal(true)}
             style={{
-              backgroundColor: 'transparent',
-              border: '1.5px solid #ef4444',
+              padding: '7px 12px', borderRadius: 'var(--radius-md)',
+              background: 'transparent', border: '1px solid var(--alert-error-border)',
               color: 'var(--alert-error-text)',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              whiteSpace: 'nowrap',
+              fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
+              transition: 'background 0.12s',
             }}
-          >
-            <Trash2 size={14} />
-            Delete Account
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--alert-error-bg)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>
+            <Trash2 size={13}/>Delete account
           </button>
         </div>
       </div>
 
-      {/* Modal */}
       {showDeleteModal && (
         <DeleteAccountModal
           currentUser={currentUser}
@@ -363,6 +301,125 @@ const Settings = ({ currentUser, theme, setTheme }) => {
           onDeleted={() => setShowDeleteModal(false)}
         />
       )}
+    </div>
+  );
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+
+const Card = ({ children }) => (
+  <div style={{
+    background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
+    borderRadius: 'var(--radius-lg)', overflow: 'hidden',
+  }}>{children}</div>
+);
+
+const CardHeader = ({ eyebrow, title, subtitle }) => (
+  <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border-color)' }}>
+    {eyebrow && (
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 5,
+        fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em',
+        textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 4,
+      }}>{eyebrow}</div>
+    )}
+    <h3 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h3>
+    {subtitle && (
+      <p style={{ margin: '3px 0 0 0', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{subtitle}</p>
+    )}
+  </div>
+);
+
+const Field = ({ label, children }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <label style={{
+      fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em',
+      textTransform: 'uppercase', color: 'var(--text-tertiary)',
+    }}>{label}</label>
+    {children}
+  </div>
+);
+
+const Row = ({ icon, title, description, control, stack }) => (
+  <div style={{
+    display: 'flex', alignItems: stack ? 'flex-start' : 'center', justifyContent: 'space-between',
+    gap: 14, flexWrap: 'wrap',
+  }}>
+    <div style={{ display: 'flex', gap: 12, flex: 1, minWidth: 220 }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: 'var(--radius-md)', flexShrink: 0,
+        background: 'var(--bg-primary)', border: '1px solid var(--border-color)',
+        color: 'var(--text-secondary)',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      }}>{icon}</div>
+      <div>
+        <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          {description}
+        </div>
+      </div>
+    </div>
+    <div style={{ flexShrink: 0, width: stack ? '100%' : 'auto', marginTop: stack ? 6 : 0 }}>
+      {control}
+    </div>
+  </div>
+);
+
+const Divider = () => (
+  <div style={{ height: 1, background: 'var(--border-color)' }}/>
+);
+
+// Proper iOS-style toggle switch
+const Toggle = ({ on, onChange }) => (
+  <button type="button" onClick={() => onChange(!on)}
+    role="switch" aria-checked={on}
+    style={{
+      width: 42, height: 24, borderRadius: 999, padding: 2,
+      background: on ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+      border: `1px solid ${on ? 'var(--accent-primary)' : 'var(--border-color)'}`,
+      cursor: 'pointer', position: 'relative',
+      transition: 'background 0.18s, border-color 0.18s',
+    }}>
+    <span style={{
+      position: 'absolute', top: 2, left: on ? 20 : 2,
+      width: 18, height: 18, borderRadius: '50%',
+      background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+      transition: 'left 0.18s cubic-bezier(0.16,1,0.3,1)',
+    }}/>
+  </button>
+);
+
+// Segmented theme picker — Light / Dark / System with icons
+const SegmentedTheme = ({ value, onChange }) => {
+  const opts = [
+    { id: 'light',  label: 'Light',  icon: <Sun size={13}/> },
+    { id: 'dark',   label: 'Dark',   icon: <Moon size={13}/> },
+    { id: 'system', label: 'System', icon: <Monitor size={13}/> },
+  ];
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4,
+      padding: 4, background: 'var(--bg-primary)',
+      border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)',
+      width: '100%', maxWidth: 320,
+    }}>
+      {opts.map(o => (
+        <button key={o.id} type="button" onClick={() => onChange(o.id)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            padding: '8px 10px', borderRadius: 'var(--radius-sm)',
+            background: value === o.id ? 'var(--bg-secondary)' : 'transparent',
+            color: value === o.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+            border: value === o.id ? '1px solid var(--border-color)' : '1px solid transparent',
+            boxShadow: value === o.id ? 'var(--shadow-sm)' : 'none',
+            fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+            transition: 'background 0.12s, color 0.12s',
+          }}>
+          {o.icon}{o.label}
+        </button>
+      ))}
     </div>
   );
 };

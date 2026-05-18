@@ -81,6 +81,18 @@ export default function KanbanTaskCard({
       }}
     >
       <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        {/* COVER IMAGE (if set) — shown at top, edge to edge minus card padding */}
+        {issue.coverUrl && (
+          <div style={{
+            margin: '-12px -14px 0', borderBottom: '1px solid var(--border-color)',
+            background: 'var(--bg-secondary)', overflow: 'hidden',
+            aspectRatio: '16 / 7',
+          }}>
+            <img src={issue.coverUrl} alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}/>
+          </div>
+        )}
+
         {/* TOP ROW: pills + delete */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, minWidth: 0 }}>

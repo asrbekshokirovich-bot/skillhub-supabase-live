@@ -317,6 +317,9 @@ const Discussions = ({ currentUser, onTitleChange }) => {
                     <div style={{
                       padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       borderBottom: '1px solid var(--border-color)',
+                      position: 'sticky', top: 0, zIndex: 2,
+                      background: snapshot.isDraggingOver ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                      backdropFilter: 'blur(8px)',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 7, height: 7, borderRadius: '50%', background: col.dot, flexShrink: 0 }}/>
@@ -324,10 +327,26 @@ const Discussions = ({ currentUser, onTitleChange }) => {
                           fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
                           color: 'var(--text-primary)',
                         }}>{col.id}</span>
-                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>
-                          {colIssues.length}
-                        </span>
+                        <span style={{
+                          fontSize: 10.5, color: 'var(--text-secondary)', fontWeight: 700,
+                          padding: '1px 7px', borderRadius: 999,
+                          background: 'var(--bg-primary)', border: '1px solid var(--border-color)',
+                        }}>{colIssues.length}</span>
                       </div>
+                      {['ceo', 'worker'].includes(currentUser?.role) && (
+                        <button onClick={() => setShowNew(true)} title="New task in this column"
+                          style={{
+                            width: 24, height: 24, padding: 0, borderRadius: 'var(--radius-sm)',
+                            background: 'transparent', border: 'none', cursor: 'pointer',
+                            color: 'var(--text-tertiary)',
+                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'background 0.12s, color 0.12s',
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-tertiary)'; }}>
+                          <Plus size={14}/>
+                        </button>
+                      )}
                     </div>
 
                     <div style={{

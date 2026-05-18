@@ -21,8 +21,8 @@ import Projects from './pages/Projects';
 import Finance from './pages/Finance';
 import SettingsView from './pages/Settings';
 import Team from './pages/Team';
-import logoLight from './assets/logo-light.png';
-import logoDark from './assets/logo-dark.png';
+import logoMarkLight from './assets/logo-mark-dark-256.png';
+import logoMarkDark  from './assets/logo-mark-white-256.png';
 import './App.css';
 
 // ── Sidebar ──────────────────────────────────────────────────────────────
@@ -42,8 +42,8 @@ const Sidebar = ({ currentUser, onLogout, isDark, actionCount }) => {
         padding: '14px 16px', height: 60, display: 'flex', alignItems: 'center',
         gap: 10, borderBottom: '1px solid var(--border-color)',
       }}>
-        <img src={isDark ? logoDark : logoLight} alt="Skillhub Logo"
-          style={{ height: 26, width: 'auto', objectFit: 'contain' }}/>
+        <img src={isDark ? logoMarkDark : logoMarkLight} alt="Skillhub"
+          style={{ height: 24, width: 'auto', objectFit: 'contain' }}/>
         <span style={{
           fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.01em',
           color: 'var(--text-primary)',
@@ -83,13 +83,45 @@ const Sidebar = ({ currentUser, onLogout, isDark, actionCount }) => {
           <Settings size={16}/>
           <span>Settings</span>
         </Link>
-        <button onClick={onLogout} className="sidebar-link"
+      </div>
+
+      {/* User profile block — anchored to the very bottom */}
+      <div style={{
+        padding: 10, borderTop: '1px solid var(--border-color)',
+        background: 'var(--bg-primary)',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+          background: 'var(--accent-primary-muted)', color: 'var(--accent-primary-text)',
+          border: '1px solid var(--accent-primary-border)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 13, fontWeight: 700, textTransform: 'uppercase',
+        }}>
+          {String(currentUser.name || '?').charAt(0)}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 12.5, fontWeight: 700, color: 'var(--text-primary)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>{currentUser.name}</div>
+          <div style={{
+            fontSize: 10.5, color: 'var(--text-tertiary)', fontWeight: 600,
+            letterSpacing: '0.04em', textTransform: 'uppercase',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>{currentUser.role}</div>
+        </div>
+        <button onClick={onLogout} title="Sign out"
           style={{
-            margin: 0, width: '100%', border: 'none', background: 'transparent',
-            color: 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left',
-          }}>
-          <LogOut size={16}/>
-          <span>Logout</span>
+            width: 28, height: 28, padding: 0, borderRadius: 'var(--radius-sm)',
+            background: 'transparent', border: '1px solid var(--border-color)',
+            color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.12s, color 0.12s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--alert-error-bg)'; e.currentTarget.style.color = 'var(--alert-error-text)'; e.currentTarget.style.borderColor = 'var(--alert-error-border)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}>
+          <LogOut size={13}/>
         </button>
       </div>
     </div>
