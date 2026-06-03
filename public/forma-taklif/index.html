@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>FORMA — Mebel 3D Loyihalash · Tariflar va Narxlar</title>
+<style>
+  :root{
+    --navy:#0f1830; --ink:#1b2438; --muted:#64708a; --line:#e7eaf2; --bg:#f4f6fb;
+    --t1:#0ea5a4; --t2:#3b5bdb; --t3:#7c3aed; --gold:#e6a817;
+    --green:#16a34a; --amber:#d97706;
+    --shadow:0 2px 10px rgba(15,24,48,.06); --shadow-lg:0 18px 50px rgba(15,24,48,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+  h1,h2,h3{line-height:1.12;letter-spacing:-.02em}
+
+  header{background:radial-gradient(900px 360px at 82% -20%,#2a3a6e 0,transparent 60%),linear-gradient(160deg,#0f1830,#1a2547);color:#fff;padding:40px 0 34px}
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+  .brand{font-weight:800;font-size:1.3rem;letter-spacing:.02em}
+  .brand span{color:var(--gold)}
+  .top .pill{margin-left:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:30px;padding:6px 15px;font-size:.82rem;font-weight:600}
+  .print-btn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer}
+  .print-btn:hover{background:rgba(255,255,255,.12)}
+  header h1{font-size:clamp(1.9rem,4.4vw,3rem);font-weight:800;max-width:940px}
+  header h1 b{color:var(--gold)}
+  header .sub{color:#cdd5ee;font-size:clamp(1rem,1.8vw,1.18rem);margin-top:12px;max-width:780px}
+
+  .section-h{text-align:center;margin:48px 0 4px}
+  .section-h .k{font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--t2)}
+  .section-h h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;color:var(--navy);margin-top:6px}
+  .section-h p{color:var(--muted);margin-top:8px;font-size:1.05rem;max-width:720px;margin-left:auto;margin-right:auto}
+
+  /* VISUAL FLOW */
+  .flow{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .viz{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px 14px 16px;text-align:center;flex:1;min-width:230px;max-width:340px}
+  .viz svg{width:100%;height:auto;display:block;border-radius:10px;background:#f8fafe}
+  .viz .lab{margin-top:12px;font-weight:800;color:var(--navy);font-size:1rem}
+  .viz .lab span{display:block;font-weight:500;color:var(--muted);font-size:.85rem;margin-top:2px}
+  .flow .ar{align-self:center;font-size:1.9rem;color:#c0cbe2;font-weight:800}
+
+  /* DEMO MOCKUP */
+  .demo{margin-top:18px}
+  .demo svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+  .demo .cap{text-align:center;color:var(--muted);margin-top:14px;font-size:1rem;max-width:760px;margin-left:auto;margin-right:auto}
+  .demo .cap b{color:var(--navy)}
+
+  /* PRICING */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:34px 0 10px;align-items:start}
+  .card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  .card.rec{border:2px solid var(--t2);box-shadow:var(--shadow-lg);transform:scale(1.025);z-index:2}
+  .card .cap2{padding:22px 24px 18px;color:#fff}
+  .card.c1 .cap2{background:linear-gradient(135deg,#0ea5a4,#0b8a89)}
+  .card.c2 .cap2{background:linear-gradient(135deg,#3b5bdb,#2942b8)}
+  .card.c3 .cap2{background:linear-gradient(135deg,#7c3aed,#5b21b6)}
+  .card .lvl{font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+  .card .nm{font-size:1.4rem;font-weight:800;margin:5px 0 4px}
+  .card .tg{font-size:.9rem;opacity:.95;min-height:38px}
+  .rec-badge{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--gold);color:#3a2a00;font-weight:800;font-size:.72rem;letter-spacing:.1em;padding:5px 16px;border-radius:0 0 10px 10px}
+  .price{padding:24px 24px 10px;text-align:center;border-bottom:1px dashed var(--line)}
+  .price .amt{font-size:2.7rem;font-weight:800;color:var(--navy);line-height:1}
+  .price .amt small{font-size:1.2rem;color:var(--muted);font-weight:700}
+  .price .once{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:7px;text-transform:uppercase;letter-spacing:.05em}
+  .price .term{margin-top:10px;font-size:.92rem;color:var(--ink);font-weight:600}
+  .price .term b{color:var(--t2)}
+  .feats{padding:18px 24px 8px;flex:1}
+  .feats li{list-style:none;position:relative;padding-left:26px;margin:10px 0;font-size:.93rem;color:#33405c}
+  .feats li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
+  .feats li.plus{font-weight:700;color:var(--navy)}
+  .feats li.plus:before{content:"➕";font-size:.8rem}
+  .who{margin:6px 24px 22px;background:#f5f7fc;border-radius:12px;padding:12px 14px;font-size:.86rem;color:var(--muted)}
+  .who b{color:var(--navy)}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);background:#fff;margin-top:30px}
+  table{border-collapse:collapse;width:100%;min-width:680px}
+  th,td{padding:12px 16px;border-bottom:1px solid var(--line);font-size:.92rem;text-align:left}
+  thead th{color:#fff;font-weight:800;font-size:.9rem}
+  thead th:first-child{background:var(--navy);border-top-left-radius:16px}
+  thead th.h1{background:linear-gradient(135deg,#0ea5a4,#0b8a89)}
+  thead th.h2{background:linear-gradient(135deg,#3b5bdb,#2942b8)}
+  thead th.h3{background:linear-gradient(135deg,#7c3aed,#5b21b6);border-top-right-radius:16px}
+  th.c,td.c{text-align:center;width:150px}
+  tbody td:first-child{font-weight:600;color:var(--navy)}
+  tbody tr:nth-child(even){background:#fafbfe}
+  tbody tr.money td{background:#fff8ec !important;font-weight:700}
+  tbody tr.money .c{color:var(--navy);font-size:1.04rem}
+  .yes{color:var(--green);font-weight:800;font-size:1.05rem}
+  .part{color:var(--amber);font-weight:800;font-size:1.05rem}
+  .no{color:#c2c8d4;font-weight:700}
+  .star{color:var(--t3);font-size:.66rem;vertical-align:super;font-weight:800}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:.86rem;color:var(--muted)}
+
+  .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
+  .trust .t{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .trust .t h4{color:var(--navy);font-size:1rem;margin-bottom:4px}
+  .trust .t p{color:var(--muted);font-size:.9rem}
+  .cta{background:linear-gradient(160deg,#0f1830,#1a2547);color:#fff;border-radius:20px;padding:32px 34px;margin:30px 0 10px;text-align:center}
+  .cta h2{font-size:1.6rem;font-weight:800}
+  .cta p{color:#c4cbe0;margin-top:8px;max-width:680px;margin-left:auto;margin-right:auto}
+  .cta .big{display:inline-block;margin-top:16px;background:var(--gold);color:#3a2a00;font-weight:800;padding:13px 26px;border-radius:12px;font-size:1.02rem}
+
+  footer{color:var(--muted);font-size:.84rem;text-align:center;padding:26px 0 40px;line-height:1.7}
+  footer b{color:var(--ink)}
+
+  @media(max-width:880px){
+    .cards,.trust{grid-template-columns:1fr}
+    .card.rec{transform:none}
+    .flow .ar{transform:rotate(90deg)}
+  }
+  @media print{
+    .print-btn{display:none}
+    body{background:#fff}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .card.rec{transform:none}
+    .cards,.tbl-wrap,.cta,.trust,.demo,.flow{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">FORM<span>A</span></div>
+      <div class="pill">Mebel uchun 3D loyihalash · Tijoriy taklif 2026</div>
+      <button class="print-btn" onclick="window.print()">⤓ PDF</button>
+    </div>
+    <h1>Chizmadan — aniq 3D modelgacha va tezkor narxgacha. <b>2–3 kun emas, 15 daqiqada.</b></h1>
+    <p class="sub">Suratga oling yoki chizing — tizim har bir panelni aniq o'lchamli 3D modelga aylantiradi va narxni darhol hisoblaydi. Pastda real misol bilan ko'rsatamiz.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ VISUAL: SHUNDAY ISHLAYDI ============ -->
+  <div class="section-h">
+    <div class="k">Bu shunday ishlaydi</div>
+    <h2>Uch oddiy qadam</h2>
+    <p>Ishchi shunchaki chizmani suratga oladi — qolganini tizim qiladi.</p>
+  </div>
+
+  <div class="flow">
+    <!-- 1: SKETCH -->
+    <div class="viz">
+      <svg viewBox="0 0 230 200" role="img" aria-label="Qo'lda chizma">
+        <rect x="18" y="14" width="194" height="172" rx="9" fill="#fffdf6" stroke="#e6dfca" stroke-width="2"/>
+        <path d="M196 14 l16 16 h-16 z" fill="#efe8d2"/>
+        <!-- bed elevation, hand-drawn -->
+        <g fill="none" stroke="#33415c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="52" y="56" width="26" height="86" rx="2"/>
+          <rect x="78" y="106" width="112" height="36" rx="2"/>
+          <path d="M58 142 l0 16 M184 142 l0 16"/>
+          <path d="M88 102 q22 -10 40 0" />
+        </g>
+        <!-- handwritten dims -->
+        <g fill="#c0392b" font-family="'Comic Sans MS',cursive" font-size="14" font-weight="700">
+          <text x="112" y="176">2000</text>
+          <text x="22" y="104" transform="rotate(-90 22 104)">850</text>
+        </g>
+        <g stroke="#c0392b" stroke-width="1.6" stroke-linecap="round">
+          <path d="M78 166 H190 M78 162 v8 M190 162 v8"/>
+        </g>
+        <text x="170" y="50" font-size="20">✏️</text>
+      </svg>
+      <div class="lab">1. Qo'lda chizma yoki surat<span>Qog'ozdagi chizma + o'lchamlar</span></div>
+    </div>
+
+    <div class="ar">→</div>
+
+    <!-- 2: 3D MODEL -->
+    <div class="viz">
+      <svg viewBox="0 0 230 200" role="img" aria-label="Aniq 3D model">
+        <ellipse cx="120" cy="156" rx="96" ry="11" fill="rgba(0,0,0,.07)"/>
+        <!-- headboard -->
+        <polygon points="45,62 57,62 91,42 79,42" fill="#e2ab63"/>
+        <polygon points="57,62 91,42 91,90 57,110" fill="#ad6f37"/>
+        <polygon points="45,62 57,62 57,110 45,110" fill="#cf9350"/>
+        <!-- frame -->
+        <polygon points="45,110 165,110 199,90 79,90" fill="#e2ab63"/>
+        <polygon points="165,110 199,90 199,120 165,140" fill="#ad6f37"/>
+        <polygon points="45,110 165,110 165,140 45,140" fill="#c98a4b"/>
+        <!-- pillow -->
+        <polygon points="70,104 104,104 120,94 86,94" fill="#fbf3e2" stroke="#e3d4b4" stroke-width="1.5"/>
+        <!-- legs -->
+        <g stroke="#8a5a2b" stroke-width="4" stroke-linecap="round">
+          <path d="M52 140 v12 M158 140 v12 M192 120 v11"/>
+        </g>
+        <!-- dimension -->
+        <g stroke="#16203a" stroke-width="1.4">
+          <path d="M45 168 H165 M45 164 v8 M165 164 v8"/>
+        </g>
+        <rect x="86" y="174" width="40" height="16" rx="3" fill="#fff" stroke="#dfe4ee"/>
+        <text x="106" y="186" text-anchor="middle" fill="#16203a" font-size="11" font-weight="700">2000 mm</text>
+      </svg>
+      <div class="lab">2. Aniq 3D model<span>Har bir qism o'lchamli</span></div>
+    </div>
+
+    <div class="ar">→</div>
+
+    <!-- 3: PRICE -->
+    <div class="viz">
+      <svg viewBox="0 0 230 200" role="img" aria-label="Tayyor narx">
+        <rect x="32" y="26" width="166" height="150" rx="12" fill="#ffffff" stroke="#e7eaf2" stroke-width="2"/>
+        <path d="M32 38 a12 12 0 0 1 12 -12 h142 a12 12 0 0 1 12 12 v16 H32 Z" fill="#2942b8"/>
+        <text x="44" y="46" fill="#fff" font-size="12" font-weight="800" letter-spacing="1">TAYYOR NARX</text>
+        <g font-size="11.5" font-weight="600">
+          <text x="46" y="78" fill="#64708a">Material (LDSP)</text><text x="184" y="78" text-anchor="end" fill="#1b2438">6 200 000</text>
+          <text x="46" y="100" fill="#64708a">Furnitura</text><text x="184" y="100" text-anchor="end" fill="#1b2438">2 400 000</text>
+          <text x="46" y="122" fill="#64708a">Ish haqi</text><text x="184" y="122" text-anchor="end" fill="#1b2438">1 850 000</text>
+        </g>
+        <line x1="46" y1="134" x2="184" y2="134" stroke="#e7eaf2" stroke-dasharray="3 3"/>
+        <text x="46" y="158" fill="#0f1830" font-size="13" font-weight="800">Jami</text>
+        <text x="184" y="159" text-anchor="end" fill="#16a34a" font-size="15" font-weight="800">12 450 000</text>
+        <circle cx="100" cy="153" r="0" />
+      </svg>
+      <div class="lab">3. Tayyor narx<span>Soniyalar ichida — so'mda</span></div>
+    </div>
+  </div>
+
+  <!-- ============ VISUAL: 3D ISH MUHITI ============ -->
+  <div class="section-h">
+    <div class="k">Eng qiziq qismi</div>
+    <h2>3D ish muhiti shunday ko'rinadi</h2>
+    <p>Modelni xohlagan tomonga aylantiring, istalgan qismni bosib o'lchamini o'zgartiring — yoki shunchaki yozib buyuring.</p>
+  </div>
+
+  <div class="demo">
+    <svg viewBox="0 0 800 440" role="img" aria-label="3D ish muhiti namunasi">
+      <defs>
+        <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0f1830" flood-opacity="0.18"/>
+        </filter>
+      </defs>
+      <!-- window -->
+      <g filter="url(#ds)">
+        <rect x="20" y="20" width="760" height="400" rx="16" fill="#ffffff" stroke="#e7eaf2"/>
+      </g>
+      <path d="M20 36 a16 16 0 0 1 16 -16 h728 a16 16 0 0 1 16 16 v24 H20 Z" fill="#0f1830"/>
+      <circle cx="44" cy="40" r="6" fill="#ff5f57"/><circle cx="64" cy="40" r="6" fill="#febc2e"/><circle cx="84" cy="40" r="6" fill="#28c840"/>
+      <text x="120" y="45" fill="#cdd5ee" font-size="13" font-weight="700">FORMA — 3D ish muhiti</text>
+      <!-- canvas -->
+      <rect x="20" y="60" width="760" height="360" fill="#eef3fb"/>
+      <g stroke="#dde7f5" stroke-width="1">
+        <path d="M116 60V420M212 60V420M308 60V420M404 60V420M500 60V420M596 60V420M692 60V420"/>
+        <path d="M20 108H780M20 156H780M20 204H780M20 252H780M20 300H780M20 348H780M20 396H780"/>
+      </g>
+
+      <!-- ground shadow + orbit -->
+      <ellipse cx="395" cy="372" rx="150" ry="20" fill="rgba(0,0,0,.08)"/>
+      <ellipse cx="395" cy="372" rx="170" ry="30" fill="none" stroke="#9bb0d8" stroke-width="2" stroke-dasharray="6 7"/>
+      <path d="M225 372 l-8 -7 m-0 0 l9 -3" stroke="#9bb0d8" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+      <!-- wardrobe -->
+      <polygon points="300,150 470,150 522,118 352,118" fill="#e2ab63"/>
+      <polygon points="470,150 522,118 522,328 470,360" fill="#a96a32"/>
+      <polygon points="300,150 470,150 470,360 300,360" fill="#c98a4b"/>
+      <!-- doors -->
+      <rect x="308" y="158" width="73" height="194" rx="3" fill="#d49a5b" stroke="#a86a32" stroke-width="1.5"/>
+      <rect x="389" y="158" width="73" height="194" rx="3" fill="#d49a5b" stroke="#a86a32" stroke-width="1.5"/>
+      <rect x="316" y="166" width="57" height="178" rx="2" fill="none" stroke="#b67c40" stroke-width="1"/>
+      <rect x="397" y="166" width="57" height="178" rx="2" fill="none" stroke="#b67c40" stroke-width="1"/>
+      <!-- selected RIGHT door -->
+      <rect x="389" y="158" width="73" height="194" rx="3" fill="#ffd873" fill-opacity="0.45" stroke="#e6a817" stroke-width="3"/>
+      <!-- handles -->
+      <g stroke="#5a3a17" stroke-width="3" stroke-linecap="round"><path d="M373 246 v32 M397 246 v32"/></g>
+
+      <!-- height dim -->
+      <g stroke="#16203a" stroke-width="1.6"><path d="M285 150 V360 M281 150 h8 M281 360 h8"/></g>
+      <rect x="246" y="244" width="40" height="22" rx="4" fill="#fff" stroke="#dfe4ee"/>
+      <text x="266" y="259" text-anchor="middle" fill="#16203a" font-size="12" font-weight="800">2200</text>
+      <!-- width dim -->
+      <g stroke="#16203a" stroke-width="1.6"><path d="M300 378 H470 M300 374 v8 M470 374 v8"/></g>
+      <rect x="362" y="384" width="46" height="22" rx="4" fill="#fff" stroke="#dfe4ee"/>
+      <text x="385" y="399" text-anchor="middle" fill="#16203a" font-size="12" font-weight="800">1200</text>
+      <!-- depth dim -->
+      <text x="500" y="128" fill="#445566" font-size="11" font-weight="700">600</text>
+
+      <!-- tooltip on selected door -->
+      <line x1="462" y1="210" x2="556" y2="196" stroke="#16203a" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <g filter="url(#ds)"><rect x="556" y="174" width="172" height="48" rx="9" fill="#16203a"/></g>
+      <text x="570" y="195" fill="#ffd873" font-size="12.5" font-weight="800">O'ng eshik (tanlangan)</text>
+      <text x="570" y="212" fill="#eaf0ff" font-size="12" font-weight="600">596 × 1380 mm</text>
+
+      <!-- rotate hint -->
+      <g transform="translate(648,96)">
+        <path d="M0 10 a14 14 0 1 1 4 10" fill="none" stroke="#3b5bdb" stroke-width="3" stroke-linecap="round"/>
+        <path d="M4 20 l-6 2 l2 -7 z" fill="#3b5bdb"/>
+        <text x="34" y="16" fill="#2942b8" font-size="12.5" font-weight="800">360° aylantiring</text>
+      </g>
+
+      <!-- chat / prompt -->
+      <g filter="url(#ds)"><rect x="56" y="300" width="224" height="66" rx="13" fill="#0f1830"/></g>
+      <path d="M86 366 l-6 14 l18 -10 z" fill="#0f1830"/>
+      <text x="72" y="326" fill="#fff" font-size="12.5" font-weight="700">« bu eshik 2 mm balandroq »</text>
+      <text x="72" y="348" fill="#46d68a" font-size="12.5" font-weight="800">✓ model yangilandi</text>
+
+      <!-- cursor -->
+      <g transform="translate(424,206)"><path d="M0 0 L0 18 L5 13 L9 21 L12 19 L8 12 L15 12 Z" fill="#fff" stroke="#0f1830" stroke-width="1.4"/></g>
+    </svg>
+    <div class="cap"><b>"3D ish muhiti"</b> — bu kompyuterda mebelni har tomondan aylantirib ko'rish va xohlagan eshik yoki tokchani sichqoncha bilan bosib, o'lchamini o'zgartirish imkoni (xuddi o'yindagidek). Yoki shunchaki <b>"bu eshik 2 mm balandroq bo'lsin"</b> deb yozasiz — model o'zi yangilanadi.</div>
+  </div>
+
+  <!-- ============ TARIFLAR ============ -->
+  <div class="section-h">
+    <div class="k">Tariflar</div>
+    <h2>Uchta tarif — bitta aniq tanlov</h2>
+    <p>Bir xil o'zak, uch darajada. Kichikdan boshlab, biznes o'sgani sari yuqoriga muammosiz o'tasiz.</p>
+  </div>
+
+  <!-- ====== NARXLAR shu yerda (o'zgartirish oson) ====== -->
+  <div class="cards">
+
+    <div class="card c1">
+      <div class="cap2">
+        <div class="lvl">Tarif 1 · Boshlang'ich</div>
+        <div class="nm">Telegram</div>
+        <div class="tg">Tez ishga tushadigan, ishlaydigan tizim — har bir ishchi biladigan botda.</div>
+      </div>
+      <div class="price">
+        <div class="amt">$1,000</div>
+        <div class="once">bir martalik · to'liq narx</div>
+        <div class="term">Tayyor: <b>3–5 hafta</b></div>
+      </div>
+      <ul class="feats">
+        <li>Telegramda savol-javob orqali buyurtma</li>
+        <li>Aniq 3D model (har qism o'lchamli)</li>
+        <li>Tezkor narx hisob-kitobi</li>
+        <li>3D ko'rinish (aylantirib ko'rish)</li>
+        <li>Chizma suratidan o'lcham olish</li>
+        <li>STEP + kesish ro'yxati eksport</li>
+        <li>2–3 mebel turi (karavot, shkaf, tumba)</li>
+      </ul>
+      <div class="who"><b>Kimga:</b> tez boshlash va g'oyani isbotlash uchun. Minimal xarajat.</div>
+    </div>
+
+    <div class="card c2 rec">
+      <div class="rec-badge">ENG MOS TANLOV</div>
+      <div class="cap2">
+        <div class="lvl">Tarif 2 · Professional</div>
+        <div class="nm">To'liq Web CAD</div>
+        <div class="tg">Aynan Sizga kerak bo'lgan to'liq yechim — surat, chizish, 3D tahrir va eksport.</div>
+      </div>
+      <div class="price">
+        <div class="amt">$7,000</div>
+        <div class="once">bir martalik · to'liq narx</div>
+        <div class="term">Tayyor: <b>2–3 oy</b></div>
+      </div>
+      <ul class="feats">
+        <li class="plus">Tarif 1'dagi hamma narsa, ustiga:</li>
+        <li>To'liq web-ilova (brauzerda)</li>
+        <li>Surat tanish + ilovada chizish</li>
+        <li>3D ish muhitida tahrir (qismni bosib)</li>
+        <li>Matnli buyruq: "bu eshik 2 mm balandroq"</li>
+        <li>To'liq material/furnitura narx bazasi</li>
+        <li>BOM, kesish ro'yxati, nesting, DXF/STEP</li>
+        <li>Mijoz uchun 3D tasdiqlash havolasi</li>
+        <li>3–5 mebel turi · o'zbek/rus · oflayn</li>
+      </ul>
+      <div class="who"><b>Kimga:</b> buyurtmani 2–3 kundan 15–30 daqiqaga qisqartirmoqchi bo'lganlarga.</div>
+    </div>
+
+    <div class="card c3">
+      <div class="cap2">
+        <div class="lvl">Tarif 3 · Maksimal</div>
+        <div class="nm">Raqamli Fabrika</div>
+        <div class="tg">Texnologiyaning eng yuqori cho'qqisi — to'liq avtomatlashtirilgan fabrika.</div>
+      </div>
+      <div class="price">
+        <div class="amt">$30,000<small>+</small></div>
+        <div class="once">individual · to'liq narx</div>
+        <div class="term">Tayyor: <b>4–8 oy</b></div>
+      </div>
+      <ul class="feats">
+        <li class="plus">Tarif 2'dagi hamma narsa, ustiga:</li>
+        <li>Maxsus o'qitilgan tanish (deyarli avtomatik)</li>
+        <li>O'zbekcha gaplashadigan SI yordamchi</li>
+        <li>Telefon AR/LiDAR bilan o'lchash</li>
+        <li>To'liq avtomatik CNC/CAM (Homag/Biesse)</li>
+        <li>1C ERP integratsiya</li>
+        <li>Fotorealistik render + mijoz uchun AR</li>
+        <li>Real vaqtda hamkorlikda tahrir</li>
+      </ul>
+      <div class="who"><b>Kimga:</b> bozorda yetakchilik va fabrika miqyosini xohlaganlarga.</div>
+    </div>
+
+  </div>
+  <!-- ====== NARXLAR tugadi ====== -->
+
+  <div class="section-h"><h2>To'liq taqqoslash</h2></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Imkoniyat</th>
+          <th class="c h1">Tarif 1<br>Telegram</th>
+          <th class="c h2">Tarif 2<br>Professional</th>
+          <th class="c h3">Tarif 3<br>Maksimal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="money"><td>Narx (bir martalik)</td><td class="c">$1,000</td><td class="c">$7,000</td><td class="c">$30,000+</td></tr>
+        <tr class="money"><td>Tayyorlash muddati</td><td class="c">3–5 hafta</td><td class="c">2–3 oy</td><td class="c">4–8 oy</td></tr>
+        <tr><td>Platforma</td><td class="c">Telegram</td><td class="c">Web</td><td class="c">Web + Fabrika</td></tr>
+        <tr><td>Aniq 3D model (har qism o'lchamli)</td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>Chizma suratidan tanish</td><td class="c"><span class="part">◑</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span><span class="star">maxsus</span></td></tr>
+        <tr><td>Ilovada chizish</td><td class="c"><span class="no">—</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>3D ish muhitida tahrir (qismni bosib)</td><td class="c"><span class="no">—</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>Matnli (buyruq) tahrir</td><td class="c"><span class="part">◑</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>Material narx bazasi + PDF taklif</td><td class="c"><span class="part">◑</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>BOM / kesish ro'yxati / nesting</td><td class="c"><span class="part">◑</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>DXF / STEP eksport</td><td class="c">STEP</td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>CNC mashinaga (Homag/Biesse)</td><td class="c"><span class="no">—</span></td><td class="c"><span class="part">◑</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>1C ERP integratsiya</td><td class="c"><span class="no">—</span></td><td class="c"><span class="no">—</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>SI dizayn-yordamchi (o'zbekcha)</td><td class="c"><span class="no">—</span></td><td class="c"><span class="no">—</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>AR/LiDAR bilan o'lchash</td><td class="c"><span class="no">—</span></td><td class="c"><span class="no">—</span></td><td class="c"><span class="yes">✓</span></td></tr>
+        <tr><td>O'zbek / rus tili</td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td><td class="c"><span class="yes">✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <span><b class="yes">✓</b> To'liq</span>
+    <span><b class="part">◑</b> Qisman / bazaviy</span>
+    <span><b class="no">—</b> Yo'q</span>
+    <span><b class="star" style="font-size:.85rem">★</b> Maxsus o'qitilgan model</span>
+  </div>
+
+  <div class="trust">
+    <div class="t"><h4>📐 Aniqlik kafolati</h4><p>Bu — aniq parametrik modellashtirish (chizmachilik), SI "to'qigan" rasm emas. O'lchamlar tasdiqlangach, aniqlik ~100%.</p></div>
+    <div class="t"><h4>👤 Inson nazorati</h4><p>Tizim ishchini 2–3 daqiqada 80% yo'lgacha olib boradi; qolganini ishchi 3D'da tezda to'g'rilaydi.</p></div>
+    <div class="t"><h4>🚀 Bosqichma-bosqich</h4><p>Tarif 1'dan boshlang, keyin yo'qotishsiz yuqoriga o'ting. Bir xil o'zak — qayta qurish shart emas.</p></div>
+  </div>
+
+  <div class="cta">
+    <h2>Keling, o'z chizmalaringizda ko'rsatamiz</h2>
+    <p>Ikkala kompaniyaning haqiqiy qo'lda chizmalari ustida <b style="color:#fff">bepul demo</b> o'tkazamiz — natijani o'z ko'zingiz bilan ko'rasiz, keyin tarifni tanlaysiz.</p>
+    <span class="big">Bepul demo uchun bog'laning →</span>
+  </div>
+
+  <footer>
+    <p><b>FORMA</b> — ishchi nom; yakuniy brend Siz bilan kelishiladi. Narxlar — bir martalik, to'liq ishlab chiqarish narxi. UZS'da ham taqdim etiladi. Vizual rasmlar — tushuntirish uchun namuna.</p>
+    <p>Texnologiya va imkoniyatlar 200+ ochiq manba va sanoat tahliliga asoslangan · 2026-yil</p>
+  </footer>
+
+</div>
+</body>
+</html>
