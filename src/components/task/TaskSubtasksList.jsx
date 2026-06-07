@@ -1,17 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Check, MoreHorizontal, Trash2, User, Calendar, AlignLeft } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
-// Small reusable dropdown for assignee inside expanded subtask
+// Custom property dropdown (spec §4) for assignee inside expanded subtask.
+// No native <select> — a popover of rows, so the OS-blue dropdown never appears.
 const GhostDropdown = ({ value, onChange, options }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   const selectedLabel = options.find(opt => opt.value === value)?.label || value;
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
   return (
-    <div style={{ display: 'flex', width: 'fit-content', alignItems: 'center', position: 'relative', marginLeft: -8, borderRadius: 4, padding: '4px 8px' }}>
-      <span style={{ color: 'var(--text-primary)', fontSize: 14, fontWeight: 500 }}>{selectedLabel}</span>
-      <svg style={{ color: 'var(--text-tertiary)', marginLeft: 6 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-      <select value={value} onChange={e => onChange(e.target.value)} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', appearance: 'none' }}>
-        {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-      </select>
+    <div ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          marginLeft: -8, padding: '4px 8px', borderRadius: 'var(--radius-sm)',
+          background: open ? 'var(--bg-secondary)' : 'transparent',
+          border: 'none', cursor: 'pointer', transition: 'background 120ms',
+          color: 'var(--text-primary)', fontSize: 14, fontWeight: 500,
+        }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.background = 'var(--bg-secondary)'; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = 'transparent'; }}
+      >
+        <span>{selectedLabel}</span>
+        <svg style={{ color: 'var(--text-tertiary)' }} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          className="custom-scrollbar animate-fade-in"
+          style={{
+            position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 50,
+            minWidth: 180, maxHeight: 260, overflowY: 'auto',
+            padding: 4, borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-primary)', border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-lg)',
+          }}
+        >
+          {options.map(opt => {
+            const isSel = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={isSel}
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+                  width: '100%', textAlign: 'left',
+                  padding: '7px 10px', borderRadius: 'var(--radius-sm)',
+                  background: isSel ? 'var(--bg-secondary)' : 'transparent',
+                  border: 'none', cursor: 'pointer',
+                  color: 'var(--text-primary)', fontSize: 14, fontWeight: isSel ? 600 : 500,
+                  transition: 'background 120ms',
+                }}
+                onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = 'var(--bg-secondary)'; }}
+                onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
+                {isSel && <Check size={14} color="var(--accent-primary-text)" style={{ flexShrink: 0 }} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

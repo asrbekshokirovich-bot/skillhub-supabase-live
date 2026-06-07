@@ -47,7 +47,7 @@ export const ToastProvider = ({ children }) => {
         <div
           style={{
             position: 'fixed', inset: 0, zIndex: 10000,
-            backgroundColor: 'rgba(0,0,0,0.55)',
+            backgroundColor: 'rgba(8,7,6,0.62)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             backdropFilter: 'blur(4px)',
             padding: '1rem',

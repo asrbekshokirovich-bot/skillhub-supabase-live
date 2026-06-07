@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2, Plus, FileText, AlertCircle, Calendar } from 'lucide-react';
 import { financeService } from '../lib/services/financeService';
 import { projectService } from '../lib/services/projectService';
+import CustomSelect from './CustomSelect';
 
 const CURRENCIES = ['USD', 'EUR', 'UZS', 'RUB'];
 
@@ -136,10 +137,12 @@ export default function NewInvoiceModal({ currentUser, onClose, onCreated }) {
             style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
 
             <Field label="Project" hint="optional · pre-fills client">
-              <select className="input" value={form.projectId} onChange={e => onProjectChange(e.target.value)}>
-                <option value="">— No project —</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{p.title || p.name}</option>)}
-              </select>
+              <CustomSelect
+                value={form.projectId}
+                onChange={(v) => onProjectChange(v)}
+                placeholder="— No project —"
+                options={[{ value: '', label: '— No project —' }, ...projects.map(p => ({ value: p.id, label: p.title || p.name }))]}
+              />
             </Field>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
@@ -172,9 +175,11 @@ export default function NewInvoiceModal({ currentUser, onClose, onCreated }) {
                 )}
               </Field>
               <Field label="Currency">
-                <select className="input" value={form.currency} onChange={e => set('currency', e.target.value)}>
-                  {CURRENCIES.map(c => <option key={c}>{c}</option>)}
-                </select>
+                <CustomSelect
+                  value={form.currency}
+                  onChange={(v) => set('currency', v)}
+                  options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                />
               </Field>
             </div>
 

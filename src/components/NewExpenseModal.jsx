@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Loader2, Plus, Receipt, AlertCircle, Calendar } from 'lucide-react';
 import { financeService } from '../lib/services/financeService';
 import { supabase } from '../lib/supabase';
+import CustomSelect from './CustomSelect';
 
 const CATEGORIES = ['Marketing', 'Operations', 'Salaries', 'Subscriptions', 'Travel', 'Office', 'Software', 'Other'];
 const CURRENCIES = ['USD', 'EUR', 'UZS', 'RUB'];
@@ -112,10 +113,12 @@ export default function NewExpenseModal({ currentUser, onClose, onCreated }) {
             </Field>
 
             <Field label="Project" hint="optional · or general overhead">
-              <select className="input" value={form.projectId} onChange={e => set('projectId', e.target.value)}>
-                <option value="">— General overhead —</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{p.title || p.name}</option>)}
-              </select>
+              <CustomSelect
+                value={form.projectId}
+                onChange={(v) => set('projectId', v)}
+                placeholder="— General overhead —"
+                options={[{ value: '', label: '— General overhead —' }, ...projects.map(p => ({ value: p.id, label: p.title || p.name }))]}
+              />
             </Field>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
@@ -132,9 +135,11 @@ export default function NewExpenseModal({ currentUser, onClose, onCreated }) {
                 </div>
               </Field>
               <Field label="Currency">
-                <select className="input" value={form.currency} onChange={e => set('currency', e.target.value)}>
-                  {CURRENCIES.map(c => <option key={c}>{c}</option>)}
-                </select>
+                <CustomSelect
+                  value={form.currency}
+                  onChange={(v) => set('currency', v)}
+                  options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                />
               </Field>
             </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Calendar, Edit3, User, Wand2, UploadCloud, Link, Sparkles, CheckCircle2, Trash2 } from 'lucide-react';
+import { Loader2, Calendar, Edit3, User, Wand2, UploadCloud, Link, Sparkles, CheckCircle2, Trash2, X } from 'lucide-react';
 import { projectService } from '../lib/services/projectService';
 import DOMPurify from 'dompurify';
 import { useSystem } from './SystemUI';
@@ -19,14 +19,14 @@ const formatDateToDDMMYYYY = (isoString) => {
 
 export default function ProjectSettingsModal({ project, onClose, onProjectUpdated, onTasksGenerated, onProjectDeleted }) {
   const { toast, showConfirm } = useSystem();
-  
+
   const [projectName, setProjectName] = useState(project.name || '');
   const [clientName, setClientName] = useState(project.client || '');
   const [startDate, setStartDate] = useState(formatDateToDDMMYYYY(project.startDate));
   const [dueDate, setDueDate] = useState(formatDateToDDMMYYYY(project.dueDate));
   const [projectDescription, setProjectDescription] = useState(project.projectDescription || '');
   const [clientNotes, setClientNotes] = useState(project.clientNotes || '');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [magicUrl, setMagicUrl] = useState('');
@@ -49,7 +49,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
     try {
       setMagicStatus('AI Analyzing phases...');
       const result = await aiTaskService.generateTasksFromPlan(text);
-      
+
       if (!result.tasks || result.tasks.length === 0) {
         throw new Error('No tasks could be identified.');
       }
@@ -78,7 +78,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
     if (!reviewData) return;
     setIsMagicLoading(true);
     setMagicStatus(`Creating ${reviewData.tasks.length} tasks...`);
-    
+
     let createdCount = 0;
     try {
       for (const t of reviewData.tasks) {
@@ -93,7 +93,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
         });
         createdCount++;
       }
-      
+
       setGeneratedTasksCount(createdCount);
       toast.success(`Successfully generated ${createdCount} tasks!`);
       if (onTasksGenerated) onTasksGenerated();
@@ -180,7 +180,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
   const handleSave = async (e) => {
     if (e) e.preventDefault();
     if (!projectName) return;
-    
+
     setIsSubmitting(true);
     try {
       let parsedStartDate = project.startDate;
@@ -213,7 +213,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
         projectDescription: projectDescription,
         clientNotes: clientNotes
       });
-      
+
       toast.success('Project settings updated!');
       onProjectUpdated(updatedProject);
       onClose();
@@ -246,44 +246,51 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
         }
       `}
     </style>
-    <div className="fixed inset-0 animate-fade-in flex items-center justify-center" style={{ zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }} onClick={onClose}>
-      <div 
-        className="relative flex flex-col shadow-2xl" 
-        style={{ width: '95vw', maxWidth: '800px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }} 
+    <div className="fixed inset-0 animate-fade-in flex items-center justify-center" style={{ zIndex: 1000, backgroundColor: 'rgba(8,7,6,0.62)', backdropFilter: 'blur(4px)', padding: '1rem' }} onClick={onClose}>
+      <div
+        className="relative flex flex-col animate-slide-up"
+        style={{ width: '95vw', maxWidth: '800px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}
       >
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ padding: '8px', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <Edit3 size={18} className="text-primary" />
+        {/* Header — icon tile + eyebrow + title + close */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: 34, height: 34, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-primary-muted)', color: 'var(--accent-primary-text)', borderRadius: 'var(--radius-md)', border: '1px solid var(--accent-primary-border)' }}>
+            <Edit3 size={16} />
           </div>
-          <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>Project Settings</h3>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Project</div>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>Project Settings</h3>
+          </div>
+          <button type="button" onClick={onClose} title="Close" style={{ width: 28, height: 28, padding: 0, flexShrink: 0, borderRadius: 'var(--radius-sm)', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X size={14} />
+          </button>
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="custom-scrollbar" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', maxHeight: '70vh', overflowY: 'auto' }}>
-            
+
             {/* Title */}
             <div>
               <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
                 Project Name
               </label>
-              <input 
-                type="text" 
-                value={projectName} 
-                onChange={(e) => setProjectName(e.target.value)} 
-                placeholder="Project Name..." 
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Project Name..."
                 className="w-full bg-transparent outline-none"
-                style={{ 
-                  fontSize: '24px', 
-                  fontWeight: 'bold', 
-                  color: 'var(--text-primary)', 
+                style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: 'var(--text-primary)',
                   padding: '8px 0',
                   boxShadow: 'none',
                   border: 'none',
                   borderBottom: '1px solid var(--border-color)',
                   borderRadius: 0,
                   backgroundColor: 'transparent'
-                }} 
+                }}
                 required
               />
             </div>
@@ -294,10 +301,10 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                 <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                   <User size={12} color='var(--text-tertiary)' /> Client / Organization
                 </label>
-                <input 
-                  type="text" 
-                  value={clientName} 
-                  onChange={(e) => setClientName(e.target.value)} 
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
                   className="input w-full"
                   style={{ padding: '12px', fontSize: '14px', borderRadius: '8px' }}
                   required
@@ -309,13 +316,13 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                 <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                   <Calendar size={12} color='var(--text-tertiary)' /> Start Date (DD/MM/YYYY)
                 </label>
-                <input 
-                  type="text" 
-                  value={startDate} 
-                  onChange={(e) => setStartDate(formatToDateMask(e.target.value))} 
+                <input
+                  type="text"
+                  value={startDate}
+                  onChange={(e) => setStartDate(formatToDateMask(e.target.value))}
                   placeholder="DD/MM/YYYY"
                   className="input w-full"
-                  style={{ padding: '12px', fontSize: '14px', letterSpacing: '0.05em', borderRadius: '8px' }}
+                  style={{ padding: '12px', fontSize: '14px', letterSpacing: '0.05em', borderRadius: '8px', fontVariantNumeric: 'tabular-nums' }}
                   maxLength={10}
                 />
               </div>
@@ -325,13 +332,13 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                 <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                   <Calendar size={12} color='var(--text-tertiary)' /> Deadline (DD/MM/YYYY)
                 </label>
-                <input 
-                  type="text" 
-                  value={dueDate} 
-                  onChange={(e) => setDueDate(formatToDateMask(e.target.value))} 
+                <input
+                  type="text"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(formatToDateMask(e.target.value))}
                   placeholder="DD/MM/YYYY"
                   className="input w-full"
-                  style={{ padding: '12px', fontSize: '14px', letterSpacing: '0.05em', borderRadius: '8px' }}
+                  style={{ padding: '12px', fontSize: '14px', letterSpacing: '0.05em', borderRadius: '8px', fontVariantNumeric: 'tabular-nums' }}
                   maxLength={10}
                 />
               </div>
@@ -340,7 +347,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             {/* Client Notes */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
               <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>Client Notes (Initial Meeting)</label>
-              <textarea 
+              <textarea
                 className="input w-full custom-scrollbar"
                 placeholder="Jot down raw notes here during your initial client call..."
                 value={clientNotes}
@@ -353,7 +360,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
               <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>Project Description (Phased Plan)</label>
               <div style={{ position: 'relative' }}>
-                <div 
+                <div
                   style={{
                     position: 'absolute',
                     top: '16px',
@@ -366,7 +373,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                 >
                   Write the phased plan and project details here...
                 </div>
-                <div 
+                <div
                   contentEditable
                   suppressContentEditableWarning
                   onBlur={e => setProjectDescription(e.currentTarget.innerHTML)}
@@ -378,9 +385,9 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                   onPaste={handleRichTextPaste}
                   dangerouslySetInnerHTML={{ __html: projectDescription }}
                   className="w-full text-[15px] leading-[1.6] transition-colors overflow-y-auto rich-text-editor custom-scrollbar cursor-text"
-                  style={{ 
-                    whiteSpace: 'normal', 
-                    wordBreak: 'break-word', 
+                  style={{
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-word',
                     minHeight: '240px',
                     backgroundColor: 'var(--bg-secondary)',
                     border: '1px solid var(--border-color)',
@@ -394,41 +401,41 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
             </div>
 
             {/* Magic Task Generator */}
-            <div style={{ 
-              marginTop: '16px', 
-              padding: '20px', 
-              borderRadius: '12px', 
-              background: 'linear-gradient(145deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
+            <div style={{
+              marginTop: '16px',
+              padding: '20px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--accent-primary-muted)',
+              border: '1px solid var(--accent-primary-border)',
               display: 'flex',
               flexDirection: 'column',
               gap: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ padding: '6px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '8px' }}>
-                  <Wand2 size={16} color="#8b5cf6" />
+                <div style={{ padding: '6px', background: 'var(--accent-primary-muted)', borderRadius: 'var(--radius-md)', border: '1px solid var(--accent-primary-border)', display: 'inline-flex' }}>
+                  <Wand2 size={16} color="var(--accent-primary-text)" />
                 </div>
                 <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>
                   {reviewData ? 'Review AI Generation' : 'Magic Task Generator'}
                 </h4>
                 {generatedTasksCount > 0 && !reviewData && (
-                  <span style={{ fontSize: '12px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 8px', borderRadius: '12px', fontWeight: '500' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--accent-success-text)', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', background: 'var(--accent-success-muted)', border: '1px solid var(--accent-success-border)', padding: '4px 8px', borderRadius: '999px', fontWeight: '600', fontVariantNumeric: 'tabular-nums' }}>
                     <CheckCircle2 size={14} /> Generated {generatedTasksCount} tasks
                   </span>
                 )}
               </div>
-              
+
               {reviewData ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.3s ease' }}>
                   {reviewData.issuesDetected && reviewData.issuesDetected.length > 0 && (
-                    <div style={{ padding: '12px', backgroundColor: 'var(--alert-warning-bg, rgba(245, 158, 11, 0.1))', border: '1px solid var(--alert-warning-border, rgba(245, 158, 11, 0.3))', borderRadius: '8px' }}>
-                      <h5 style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--alert-warning-text, #d97706)', margin: '0 0 8px 0' }}>Magic Task Generator spotted a few typos and fixed them:</h5>
+                    <div style={{ padding: '12px', backgroundColor: 'var(--accent-warning-muted)', border: '1px solid var(--accent-warning-text)', borderRadius: 'var(--radius-md)' }}>
+                      <h5 style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--accent-warning-text)', margin: '0 0 8px 0' }}>Magic Task Generator spotted a few typos and fixed them:</h5>
                       <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
                         {reviewData.issuesDetected.map((issue, idx) => (
                           <li key={idx} style={{ marginBottom: '8px' }}>
-                            <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--alert-error-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.originalText}"</span>
+                            <span style={{ backgroundColor: 'var(--alert-error-bg)', color: 'var(--alert-error-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.originalText}"</span>
                             {' '}was detected as an issue and has been fixed to{' '}
-                            <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: 'var(--accent-success-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.fixedText}"</span>.
+                            <span style={{ backgroundColor: 'var(--accent-success-muted)', color: 'var(--accent-success-text)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>"{issue.fixedText}"</span>.
                           </li>
                         ))}
                       </ul>
@@ -437,7 +444,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {reviewData.tasks.map((t, idx) => (
                       <div key={idx} style={{ padding: '12px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
-                        <h5 
+                        <h5
                           contentEditable
                           suppressContentEditableWarning
                           onBlur={e => {
@@ -449,7 +456,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                           onFocus={e => e.currentTarget.style.borderBottom = '1px dashed var(--border-color)'}
                           onBlurCapture={e => e.currentTarget.style.borderBottom = '1px dashed transparent'}
                         >{t.title}</h5>
-                        <div 
+                        <div
                           contentEditable
                           suppressContentEditableWarning
                           onBlur={e => {
@@ -462,15 +469,15 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                           style={{ fontSize: '12px', color: 'var(--text-secondary)', outline: 'none', minHeight: '30px', padding: '8px 12px', border: '1px solid transparent', borderRadius: '4px', backgroundColor: 'var(--bg-secondary)', marginTop: '6px' }}
                           onFocus={e => { e.currentTarget.style.border = '1px solid var(--border-color)'; e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; }}
                           onBlurCapture={e => { e.currentTarget.style.border = '1px solid transparent'; e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
-                          dangerouslySetInnerHTML={{ __html: t.description }} 
+                          dangerouslySetInnerHTML={{ __html: t.description }}
                         />
                       </div>
                     ))}
                   </div>
 
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setReviewData(null)}
                       className="btn btn-secondary"
                       style={{ fontSize: '12px', padding: '6px 12px' }}
@@ -478,11 +485,11 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                     >
                       Cancel
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleApproveGeneration}
                       className="btn btn-primary"
-                      style={{ fontSize: '12px', padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none' }}
+                      style={{ fontSize: '12px', padding: '6px 12px' }}
                       disabled={isMagicLoading}
                     >
                       {isMagicLoading ? <Loader2 size={14} className="animate-spin" /> : 'Approve & Generate'}
@@ -497,7 +504,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
 
                   <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                 {/* Drag and drop zone */}
-                <div 
+                <div
                   onClick={() => document.getElementById('magic-file-upload').click()}
                   onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                   onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -506,7 +513,7 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                   style={{
                     flex: 1,
                     minWidth: '250px',
-                    border: `2px dashed ${isDragOver ? '#8b5cf6' : 'var(--border-color)'}`,
+                    border: `2px dashed ${isDragOver ? 'var(--accent-primary)' : 'var(--border-color)'}`,
                     borderRadius: '8px',
                     padding: '24px',
                     display: 'flex',
@@ -514,28 +521,28 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '12px',
-                    background: isDragOver ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-secondary)',
+                    background: isDragOver ? 'var(--accent-primary-muted)' : 'var(--bg-secondary)',
                     transition: 'all 0.2s ease',
                     cursor: 'pointer',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
                 >
-                  <input 
-                    type="file" 
-                    id="magic-file-upload" 
-                    style={{ display: 'none' }} 
+                  <input
+                    type="file"
+                    id="magic-file-upload"
+                    style={{ display: 'none' }}
                     accept=".pdf,.docx,.txt"
-                    onChange={handleFileSelect} 
+                    onChange={handleFileSelect}
                   />
                   {isMagicLoading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                      <Loader2 className="animate-spin text-primary" size={24} />
+                      <Loader2 className="animate-spin" size={24} color="var(--accent-primary-text)" />
                       <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: '500', textAlign: 'center' }}>{magicStatus}</span>
                     </div>
                   ) : (
                     <>
-                      <UploadCloud size={24} color={isDragOver ? '#8b5cf6' : 'var(--text-tertiary)'} />
+                      <UploadCloud size={24} color={isDragOver ? 'var(--accent-primary)' : 'var(--text-tertiary)'} />
                       <div style={{ textAlign: 'center' }}>
                         <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', display: 'block' }}>Drop file here</span>
                         <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>PDF, DOCX, TXT</span>
@@ -550,8 +557,8 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                     <Link size={12} /> Or paste URL
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <input 
-                      type="url" 
+                    <input
+                      type="url"
                       value={magicUrl}
                       onChange={e => setMagicUrl(e.target.value)}
                       placeholder="https://..."
@@ -559,21 +566,17 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
                       style={{ padding: '10px 12px', fontSize: '13px', borderRadius: '8px' }}
                       disabled={isMagicLoading}
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleMagicUrlSubmit}
                       disabled={isMagicLoading || !magicUrl.trim()}
-                      className="btn"
-                      style={{ 
-                        background: '#8b5cf6', 
-                        color: 'white', 
-                        padding: '10px 16px', 
+                      className="btn btn-primary"
+                      style={{
+                        padding: '10px 16px',
                         borderRadius: '8px',
-                        border: 'none',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        fontWeight: '500',
                         fontSize: '13px',
                         opacity: (isMagicLoading || !magicUrl.trim()) ? 0.6 : 1
                       }}
@@ -591,11 +594,11 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
 
           </div>
 
-          <div style={{ padding: '20px 24px', backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button 
-              type="button" 
+          <div style={{ padding: '20px 24px', backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button
+              type="button"
               className="btn flex items-center gap-2"
-              style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--alert-error-text)', border: 'none', padding: '8px 12px' }}
+              style={{ backgroundColor: 'var(--alert-error-bg)', color: 'var(--alert-error-text)', border: '1px solid var(--alert-error-border)', padding: '8px 12px' }}
               onClick={async () => {
                 const confirmed = await showConfirm('Are you sure you want to delete this project? This action cannot be undone and will delete all tasks.', 'Delete Project?');
                 if (confirmed) {
@@ -612,16 +615,16 @@ export default function ProjectSettingsModal({ project, onClose, onProjectUpdate
               <Trash2 size={16} /> Delete Project
             </button>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button 
-                type="button" 
-                disabled={isSubmitting} 
+              <button
+                type="button"
+                disabled={isSubmitting}
                 onClick={onClose}
                 className="btn btn-secondary"
               >
                 Cancel
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleSave}
                 disabled={isSubmitting || !projectName}
                 className="btn btn-primary"

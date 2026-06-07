@@ -530,7 +530,7 @@ const TaskDetailModal = ({
   return (
     <div
       className="fixed inset-0 z-[100] animate-fade-in flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(8,7,6,0.62)', backdropFilter: 'blur(4px)' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(8,7,6,0.62)', backdropFilter: 'blur(4px)' }}
       onClick={handleClose}
     >
       <div

@@ -15,6 +15,7 @@ import { projectService } from '../lib/services/projectService';
 import { userService } from '../lib/services/userService';
 import ProjectVault from './ProjectVault';
 import ProjectSettingsModal from '../components/ProjectSettingsModal';
+import CustomSelect from '../components/CustomSelect';
 import { useSystem } from '../components/SystemUI';
 import DOMPurify from 'dompurify';
 import { maskDateInput as formatToDateMask, parseDDMMYYYYtoISO } from '../lib/utils/date';
@@ -301,11 +302,13 @@ export default function Projects({ currentUser }) {
             <p style={{ marginTop: 4, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
               Select a new lead worker for this project.
             </p>
-            <select value={newAssignee} onChange={e => setNewAssignee(e.target.value)}
-              className="input" style={{ marginTop: 14 }}>
-              <option value="">Unassigned</option>
-              {users.map(dev => <option key={dev.id} value={dev.id}>{dev.name}</option>)}
-            </select>
+            <CustomSelect
+              value={newAssignee}
+              onChange={setNewAssignee}
+              placeholder="Unassigned"
+              style={{ marginTop: 14 }}
+              options={[{ value: '', label: 'Unassigned' }, ...users.map(dev => ({ value: dev.id, label: dev.name }))]}
+            />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
               <button className="btn btn-secondary" onClick={() => setReassignProjectId(null)}>Cancel</button>
               <button className="btn btn-primary" onClick={handleReassign}>Save</button>
@@ -566,10 +569,12 @@ const CreateProjectModal = ({
           </div>
 
           <FieldLabel label="Assigned worker">
-            <select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="input">
-              <option value="">Unassigned</option>
-              {users.map(dev => <option key={dev.id} value={dev.id}>{dev.name}</option>)}
-            </select>
+            <CustomSelect
+              value={assignee}
+              onChange={setAssignee}
+              placeholder="Unassigned"
+              options={[{ value: '', label: 'Unassigned' }, ...users.map(dev => ({ value: dev.id, label: dev.name }))]}
+            />
           </FieldLabel>
 
           <FieldLabel label="Project start">

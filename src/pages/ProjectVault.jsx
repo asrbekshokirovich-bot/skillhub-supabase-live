@@ -103,7 +103,7 @@ export default function ProjectVault({ projectId, projectName, onClose }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
-      style={{ backgroundColor: 'rgba(0,0,0,0.7)', padding: '1rem', backdropFilter: 'blur(4px)' }}
+      style={{ backgroundColor: 'rgba(8,7,6,0.62)', padding: '1rem', backdropFilter: 'blur(4px)' }}
     >
       {/* SYSTEM RULE: All colors are CSS variables — theme-aware by default. */}
       <div

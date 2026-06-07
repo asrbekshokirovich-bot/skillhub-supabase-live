@@ -129,10 +129,11 @@ export default function TaskCommentsTab({
 const Avatar = ({ name = '?' }) => (
   <div style={{
     width: 32, height: 32, borderRadius: '50%',
-    background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-primary-text))',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    background: 'var(--accent-primary-muted)',
+    color: 'var(--accent-primary-text)',
+    border: '1px solid var(--accent-primary-border)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 13, color: 'var(--text-primary)', fontWeight: 700, flexShrink: 0,
+    fontSize: 13, fontWeight: 700, flexShrink: 0, textTransform: 'uppercase',
   }}>
     {name.charAt(0).toUpperCase()}
   </div>
