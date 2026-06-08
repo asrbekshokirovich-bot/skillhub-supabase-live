@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, CreditCard, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CreditCard, Users, Settings, Mic } from 'lucide-react';
 
 export const MobileTabBar = ({ currentUser }) => {
   const location = useLocation();
@@ -12,6 +12,7 @@ export const MobileTabBar = ({ currentUser }) => {
   const navItems = [
     { name: 'Home', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
+    { name: 'Voice', path: '/voice-reports', icon: <Mic size={20} /> },
     ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={20} /> }] : []),
     ...(currentUser.role === 'ceo' ? [{ name: 'Team', path: '/team', icon: <Users size={20} /> }] : []),
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }

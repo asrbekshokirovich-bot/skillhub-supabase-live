@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut,
-  Users, Loader2,
+  Users, Loader2, Mic,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
@@ -21,17 +21,19 @@ import Projects from './pages/Projects';
 import Finance from './pages/Finance';
 import SettingsView from './pages/Settings';
 import Team from './pages/Team';
+import VoiceReports from './pages/VoiceReports';
 import logoMarkLight from './assets/logo-mark-dark-256.png';
 import logoMarkDark  from './assets/logo-mark-white-256.png';
 import './App.css';
 
 // ── Sidebar ──────────────────────────────────────────────────────────────
 
-const Sidebar = ({ currentUser, onLogout, isDark, actionCount }) => {
+const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount }) => {
   const location = useLocation();
   const navItems = [
     { name: 'Home',     path: '/',         icon: <Home size={16}/>,        badge: actionCount },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={16}/> },
+    { name: 'Voice Reports', path: '/voice-reports', icon: <Mic size={16}/>, badge: voiceCount },
     ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
     ...(currentUser.role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
   ];
@@ -184,6 +186,25 @@ const Header = ({ currentUser, title }) => {
 const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const location = useLocation();
   const [actionCount, setActionCount] = useState(0);
+  const [voiceCount, setVoiceCount] = useState(0);
+
+  // Badge for the Voice Reports tab: CEO -> today's approved reports;
+  // worker -> their own pending drafts. Fails silently if the table is absent.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        let query = supabase.from('voice_reports').select('id', { count: 'exact', head: true });
+        query = currentUser.role === 'ceo'
+          ? query.eq('status', 'approved').eq('reportDate', today)
+          : query.eq('workerId', currentUser.id).eq('status', 'draft');
+        const { count } = await query;
+        if (!cancelled) setVoiceCount(count || 0);
+      } catch { /* table may not exist yet */ }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser.id, currentUser.role, location.pathname]);
 
   useEffect(() => {
     let cancelled = false;
@@ -233,6 +254,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
     switch (location.pathname) {
       case '/':         return 'Home';
       case '/projects': return 'Projects';
+      case '/voice-reports': return 'Voice Reports';
       case '/finance':  return 'Finance';
       case '/settings': return 'Settings';
       case '/team':     return 'Team';
@@ -242,7 +264,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
 
   return (
     <div className="app-layout">
-      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount}/>
+      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount} voiceCount={voiceCount}/>
       <div className="main-content">
         <Header currentUser={currentUser} title={getRouteTitle()}/>
         <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto', width: '100%' }}>
@@ -251,6 +273,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
               <Route path="/"                     element={<Inbox       currentUser={currentUser}/>}/>
               <Route path="/projects"             element={<Projects    currentUser={currentUser}/>}/>
               <Route path="/projects/:projectId"  element={<Discussions currentUser={currentUser}/>}/>
+              <Route path="/voice-reports"        element={<VoiceReports currentUser={currentUser}/>}/>
               <Route path="/finance"              element={<Finance     currentUser={currentUser}/>}/>
               <Route path="/team"                 element={<Team        currentUser={currentUser}/>}/>
               <Route path="/settings"             element={<SettingsView currentUser={currentUser} theme={theme} setTheme={setTheme}/>}/>
