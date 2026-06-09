@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut,
-  Users, Loader2, Mic,
+  Users, Loader2, Mic, Clock,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
@@ -22,6 +22,7 @@ import Finance from './pages/Finance';
 import SettingsView from './pages/Settings';
 import Team from './pages/Team';
 import VoiceReports from './pages/VoiceReports';
+import History from './pages/History';
 import logoMarkLight from './assets/logo-mark-dark-256.png';
 import logoMarkDark  from './assets/logo-mark-white-256.png';
 import './App.css';
@@ -36,6 +37,7 @@ const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount }) => 
     { name: 'Voice Reports', path: '/voice-reports', icon: <Mic size={16}/>, badge: voiceCount },
     ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
     ...(currentUser.role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
+    ...(currentUser.role === 'ceo'    ? [{ name: 'History', path: '/history', icon: <Clock size={16}/> }] : []),
   ];
 
   return (
@@ -258,6 +260,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
       case '/finance':  return 'Finance';
       case '/settings': return 'Settings';
       case '/team':     return 'Team';
+      case '/history':  return 'History';
       default:          return 'Skillhub';
     }
   };
@@ -274,6 +277,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
               <Route path="/projects"             element={<Projects    currentUser={currentUser}/>}/>
               <Route path="/projects/:projectId"  element={<Discussions currentUser={currentUser}/>}/>
               <Route path="/voice-reports"        element={<VoiceReports currentUser={currentUser}/>}/>
+              <Route path="/history"              element={<History     currentUser={currentUser}/>}/>
               <Route path="/finance"              element={<Finance     currentUser={currentUser}/>}/>
               <Route path="/team"                 element={<Team        currentUser={currentUser}/>}/>
               <Route path="/settings"             element={<SettingsView currentUser={currentUser} theme={theme} setTheme={setTheme}/>}/>
