@@ -19,12 +19,17 @@ class AuthService {
       const { data, error } = await secondarySupabase.auth.signUp({
         email,
         password,
+        // Pass role + name as user metadata. The handle_new_user DB trigger reads
+        // raw_user_meta_data->>'role' / ->>'name' when populating public.users;
+        // without this it always defaults to 'worker', so the chosen role was ignored.
+        options: { data: { role, name: username.trim() } },
       });
 
       if (error) throw error;
-      
+
       // The Supabase trigger handle_new_user automatically populates public.users
-      // so we don't need to manually insert here (which would fail due to RLS).
+      // (reading the role/name metadata above), so we don't need to manually
+      // insert here (which would fail due to RLS).
 
       return data.user;
     } catch (err) {
