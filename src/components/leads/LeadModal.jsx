@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  X, Send, FolderPlus, Boxes, Repeat, Sparkles, Building2, User, Wallet,
-  UserCircle, Clock, Plus, Loader2,
+  X, Send, FolderPlus, Boxes, Repeat, Sparkles, User, Wallet,
+  UserCircle, Plus, Loader2, Pencil, Wand2,
 } from 'lucide-react';
 import ScoreRing from './ScoreRing';
 import StageStepper from './StageStepper';
@@ -16,12 +16,13 @@ const fmtTime = (iso) => {
     d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 };
 
-export default function LeadModal({ lead, ownerName, onClose, onStage, onIntent, onConvert, onLog }) {
+export default function LeadModal({ lead, ownerName, onClose, onStage, onIntent, onConvert, onLog, onEdit, onAIUpdate }) {
   const [activities, setActivities] = useState([]);
   const [loadingAct, setLoadingAct] = useState(true);
   const [note, setNote] = useState('');
   const [posting, setPosting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
   const composerRef = useRef(null);
 
   const t = tierTone(lead.score);
@@ -60,6 +61,12 @@ export default function LeadModal({ lead, ownerName, onClose, onStage, onIntent,
   const handleConvert = async () => {
     setConverting(true);
     try { await onConvert(lead); } finally { setConverting(false); }
+  };
+
+  const handleAI = async () => {
+    if (!onAIUpdate || aiBusy) return;
+    setAiBusy(true);
+    try { await onAIUpdate(lead, activities); } finally { setAiBusy(false); }
   };
 
   const submitNote = async () => {
@@ -134,6 +141,19 @@ export default function LeadModal({ lead, ownerName, onClose, onStage, onIntent,
               {converting ? <Loader2 size={14} className="animate-spin" /> : <FolderPlus size={14} />}
               {lead.stage === 'won' ? 'Converted' : 'Convert to project'}
             </button>
+            <div style={{ flex: 1 }} />
+            {onAIUpdate && (
+              <button onClick={handleAI} disabled={aiBusy} title="Let AI read the notes and update stage, interest and score"
+                className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {aiBusy ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}AI update from notes
+              </button>
+            )}
+            {onEdit && (
+              <button onClick={() => onEdit(lead)} className="btn btn-secondary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Pencil size={14} />Edit
+              </button>
+            )}
           </div>
         </div>
 

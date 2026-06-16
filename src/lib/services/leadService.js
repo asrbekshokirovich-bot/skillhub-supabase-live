@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { projectService } from './projectService';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 // ─────────────────────────────────────────────────────────────────────────
 // leadService — data access for the Leads / CRM module.
@@ -164,6 +165,78 @@ export const leadService = {
     const weighted = s.reduce((acc, v, i) => acc + (Number(v) || 0) * weights[i], 0);
     return Math.max(0, Math.min(100, Math.round(weighted)));
     // =======================================================================
+  },
+
+  // ── AI: analyse a lead's notes and recommend status/intent/score ──
+  // Reads the lead + its activity log and returns a structured recommendation
+  // the UI can apply. Mirrors the Gemini pattern in aiTaskService/voiceAiService.
+  async analyzeLead(lead, activities = []) {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) throw new Error('Missing VITE_GEMINI_API_KEY in environment variables.');
+
+    const schema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        stage:    { type: SchemaType.STRING, format: 'enum', enum: ['new', 'contacted', 'inprocess', 'proposal', 'won', 'lost'],
+                    description: 'Best current pipeline stage given the notes. lost only if the client clearly declined / went cold.' },
+        intent:   { type: SchemaType.STRING, format: 'enum', enum: ['build', 'subscribe', 'unknown'],
+                    description: "build = wants a custom solution; subscribe = wants a ready SaaS/subscription; unknown if the notes don't say." },
+        score:    { type: SchemaType.NUMBER, description: 'AI lead score 0-100. Hot >=80, Warm >=60, Cold otherwise.' },
+        signals:  { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER }, description: 'Exactly 4 values 0-100: [intent, engagement, budget, timeline].' },
+        summary:  { type: SchemaType.STRING, description: 'A concise English summary (1-2 sentences) of where this lead stands, grounded in the notes.' },
+        nextStep: { type: SchemaType.STRING, description: 'One concrete next action for the operator. Telegram only — never suggest calling or emailing.' },
+      },
+      required: ['stage', 'intent', 'score', 'signals', 'summary', 'nextStep'],
+    };
+
+    const notes = [
+      lead.summary && `Existing summary: ${lead.summary}`,
+      ...activities.map(a => `Activity: ${a.body}`),
+    ].filter(Boolean).join('\n') || '(no notes recorded)';
+
+    const prompt = `You are a sales operations analyst for Skillhub, a software agency in Uzbekistan. ` +
+      `Analyse one CRM lead and decide its correct pipeline stage, the client's interest, a 0-100 score, and the next step. ` +
+      `These are Telegram-first leads (no email, no phone calls) — any next step must use Telegram.\n\n` +
+      `Pipeline stages: new -> contacted -> inprocess -> proposal -> won (lost is terminal).\n` +
+      `Rules: move forward only as far as the notes justify. If the notes mention a sent/awaited proposal or pricing, use "proposal". ` +
+      `If there is active back-and-forth or a scoping discussion, use "inprocess". If only a first touch, "contacted". ` +
+      `If the client declined, went silent after rejection, or is a junk/test entry, use "lost". ` +
+      `Infer intent (build vs subscribe) from the notes (e.g. CRM/3D/chatbot/custom dashboard = build; ready catalog/subscription = subscribe).\n\n` +
+      `LEAD\nCompany: ${lead.company}\nField: ${lead.field || '—'}\nSource: ${lead.source || '—'}\n` +
+      `Current stage: ${lead.stage}\nCurrent intent: ${lead.intent || 'unmarked'}\n\nNOTES\n${notes}`;
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const attempt = async (modelName, retries = 2) => {
+      const model = genAI.getGenerativeModel({ model: modelName, generationConfig: { responseMimeType: 'application/json', responseSchema: schema } });
+      for (let i = 0; i <= retries; i++) {
+        try { const r = await model.generateContent([{ text: prompt }]); return r.response.text(); }
+        catch (err) {
+          const overloaded = err.message?.includes('503') || err.message?.includes('429');
+          if (overloaded && i < retries) { await new Promise(res => setTimeout(res, (2 ** i) * 1000)); continue; }
+          throw err;
+        }
+      }
+    };
+
+    let text;
+    try { text = await attempt('gemini-2.5-flash'); }
+    catch { text = await attempt('gemini-flash-latest'); }
+
+    let p;
+    try { p = JSON.parse(text); } catch { throw new Error('AI returned invalid data format.'); }
+
+    const sig = Array.isArray(p.signals) ? p.signals.slice(0, 4).map(n => Math.max(0, Math.min(100, Math.round(Number(n) || 0)))) : [0, 0, 0, 0];
+    while (sig.length < 4) sig.push(0);
+    const stage = STAGES.includes(p.stage) ? p.stage : lead.stage;
+    const intent = p.intent === 'build' || p.intent === 'subscribe' ? p.intent : null;
+    return {
+      stage,
+      intent,
+      score: Math.max(0, Math.min(100, Math.round(Number(p.score) || 0))),
+      signals: sig,
+      summary: (p.summary || '').trim() || lead.summary || null,
+      nextStep: (p.nextStep || '').trim() || lead.nextStep || null,
+    };
   },
 
   // ── Aggregates ──
