@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut,
-  Users, Loader2, Mic, Clock,
+  Users, Loader2, Mic, Clock, Target,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
@@ -22,6 +22,7 @@ import Finance from './pages/Finance';
 import SettingsView from './pages/Settings';
 import Team from './pages/Team';
 import VoiceReports from './pages/VoiceReports';
+import Leads from './pages/Leads';
 import History from './pages/History';
 import logoMarkLight from './assets/logo-mark-dark-256.png';
 import logoMarkDark  from './assets/logo-mark-white-256.png';
@@ -29,11 +30,12 @@ import './App.css';
 
 // ── Sidebar ──────────────────────────────────────────────────────────────
 
-const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount }) => {
+const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount, leadCount }) => {
   const location = useLocation();
   const navItems = [
     { name: 'Home',     path: '/',         icon: <Home size={16}/>,        badge: actionCount },
     { name: 'Projects', path: '/projects', icon: <FolderKanban size={16}/> },
+    ...(currentUser.role !== 'worker' ? [{ name: 'Leads', path: '/leads', icon: <Target size={16}/>, badge: leadCount }] : []),
     { name: 'Voice Reports', path: '/voice-reports', icon: <Mic size={16}/>, badge: voiceCount },
     ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
     ...(currentUser.role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
@@ -189,6 +191,23 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
   const location = useLocation();
   const [actionCount, setActionCount] = useState(0);
   const [voiceCount, setVoiceCount] = useState(0);
+  const [leadCount, setLeadCount] = useState(0);
+
+  // Sidebar badge for Leads: count of open leads (not won/lost). CEO + staff only.
+  useEffect(() => {
+    if (currentUser.role === 'worker') { setLeadCount(0); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { count } = await supabase
+          .from('leads')
+          .select('id', { count: 'exact', head: true })
+          .not('stage', 'in', '(won,lost)');
+        if (!cancelled) setLeadCount(count || 0);
+      } catch { /* table may not exist yet */ }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser.role, location.pathname]);
 
   // Badge for the Voice Reports tab: CEO -> today's approved reports;
   // worker -> their own pending drafts. Fails silently if the table is absent.
@@ -257,6 +276,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
       case '/':         return 'Home';
       case '/projects': return 'Projects';
       case '/voice-reports': return 'Voice Reports';
+      case '/leads':    return 'Leads';
       case '/finance':  return 'Finance';
       case '/settings': return 'Settings';
       case '/team':     return 'Team';
@@ -267,7 +287,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
 
   return (
     <div className="app-layout">
-      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount} voiceCount={voiceCount}/>
+      <Sidebar currentUser={currentUser} onLogout={onLogout} isDark={isDark} actionCount={actionCount} voiceCount={voiceCount} leadCount={leadCount}/>
       <div className="main-content">
         <Header currentUser={currentUser} title={getRouteTitle()}/>
         <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto', width: '100%' }}>
@@ -277,6 +297,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
               <Route path="/projects"             element={<Projects    currentUser={currentUser}/>}/>
               <Route path="/projects/:projectId"  element={<Discussions currentUser={currentUser}/>}/>
               <Route path="/voice-reports"        element={<VoiceReports currentUser={currentUser}/>}/>
+              <Route path="/leads"                element={<Leads       currentUser={currentUser}/>}/>
               <Route path="/history"              element={<History     currentUser={currentUser}/>}/>
               <Route path="/finance"              element={<Finance     currentUser={currentUser}/>}/>
               <Route path="/team"                 element={<Team        currentUser={currentUser}/>}/>

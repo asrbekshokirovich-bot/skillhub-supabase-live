@@ -660,6 +660,27 @@ select {
     display: none; /* Hide role badge to save space */
   }
 
+  /* Leads module — stack everything on mobile */
+  .responsive-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .responsive-tiles {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .leads-board {
+    grid-template-columns: 1fr !important;
+  }
+  .leads-focus {
+    grid-template-columns: 1fr !important;
+  }
+  .lead-modal-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .lead-modal-grid > div:first-child {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color);
+  }
+
   /* Kanban Mobile Optimization */
   .kanban-board {
     padding-left: 1rem !important;
