@@ -111,9 +111,10 @@ const Team = ({ currentUser }) => {
     return true;
   });
 
-  const ceoCount    = profiles.filter(p => p.role === 'ceo').length;
-  const workerCount = profiles.filter(p => p.role === 'worker').length;
-  const clientCount = profiles.filter(p => p.role === 'client').length;
+  const ceoCount       = profiles.filter(p => p.role === 'ceo').length;
+  const workerCount    = profiles.filter(p => p.role === 'worker').length;
+  const marketingCount = profiles.filter(p => p.role === 'marketing').length;
+  const clientCount    = profiles.filter(p => p.role === 'client').length;
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%' }}>
@@ -238,10 +239,11 @@ const Team = ({ currentUser }) => {
             display: 'flex', gap: 4,
           }}>
             {[
-              { id: 'all',    label: 'All',    count: profiles.length },
-              { id: 'ceo',    label: 'CEO',    count: ceoCount },
-              { id: 'worker', label: 'Worker', count: workerCount },
-              { id: 'client', label: 'Client', count: clientCount },
+              { id: 'all',       label: 'All',       count: profiles.length },
+              { id: 'ceo',       label: 'CEO',       count: ceoCount },
+              { id: 'marketing', label: 'Marketing', count: marketingCount },
+              { id: 'worker',    label: 'Worker',    count: workerCount },
+              { id: 'client',    label: 'Client',    count: clientCount },
             ].map(t => (
               <button key={t.id} onClick={() => setRoleFilter(t.id)}
                 style={{
@@ -286,6 +288,8 @@ const Team = ({ currentUser }) => {
                   const role = profile.role;
                   const roleColors = role === 'ceo'
                     ? { bg: 'var(--badge-ceo-bg)',    fg: 'var(--badge-ceo-text)',    br: 'var(--badge-ceo-border)' }
+                    : role === 'marketing'
+                    ? { bg: 'var(--accent-warning-muted)', fg: 'var(--accent-warning-text)', br: 'var(--accent-warning-text)' }
                     : role === 'client'
                     ? { bg: 'var(--bg-tertiary)',     fg: 'var(--text-secondary)',    br: 'var(--border-color)' }
                     : { bg: 'var(--badge-worker-bg)', fg: 'var(--badge-worker-text)', br: 'var(--badge-worker-border)' };
@@ -439,8 +443,9 @@ const Alert = ({ tone, children }) => {
 
 const SegmentedRole = ({ value, onChange }) => {
   const opts = [
-    { id: 'worker', label: 'Worker' },
-    { id: 'ceo',    label: 'Manager / CEO' },
+    { id: 'worker',    label: 'Worker' },
+    { id: 'marketing', label: 'Marketing' },
+    { id: 'ceo',       label: 'Manager / CEO' },
   ];
   return (
     <div style={{

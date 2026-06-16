@@ -7,7 +7,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import {
   Home, FolderKanban, CreditCard, MessageSquare, Settings, LogOut,
   Users, Loader2, Mic, Clock, Target,
@@ -32,15 +32,20 @@ import './App.css';
 
 const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount, leadCount }) => {
   const location = useLocation();
-  const navItems = [
-    { name: 'Home',     path: '/',         icon: <Home size={16}/>,        badge: actionCount },
-    { name: 'Projects', path: '/projects', icon: <FolderKanban size={16}/> },
-    ...(currentUser.role !== 'worker' ? [{ name: 'Leads', path: '/leads', icon: <Target size={16}/>, badge: leadCount }] : []),
-    { name: 'Voice Reports', path: '/voice-reports', icon: <Mic size={16}/>, badge: voiceCount },
-    ...(currentUser.role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
-    ...(currentUser.role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
-    ...(currentUser.role === 'ceo'    ? [{ name: 'History', path: '/history', icon: <Clock size={16}/> }] : []),
-  ];
+  const role = currentUser.role;
+  const isMarketing = role === 'marketing';
+  // Marketing team is scoped to the Leads/CRM module only.
+  const navItems = isMarketing
+    ? [{ name: 'Leads', path: '/leads', icon: <Target size={16}/>, badge: leadCount }]
+    : [
+        { name: 'Home',     path: '/',         icon: <Home size={16}/>,        badge: actionCount },
+        { name: 'Projects', path: '/projects', icon: <FolderKanban size={16}/> },
+        ...(role !== 'worker' ? [{ name: 'Leads', path: '/leads', icon: <Target size={16}/>, badge: leadCount }] : []),
+        { name: 'Voice Reports', path: '/voice-reports', icon: <Mic size={16}/>, badge: voiceCount },
+        ...(role !== 'worker' ? [{ name: 'Finance', path: '/finance', icon: <CreditCard size={16}/> }] : []),
+        ...(role === 'ceo'    ? [{ name: 'Team',    path: '/team',    icon: <Users size={16}/> }] : []),
+        ...(role === 'ceo'    ? [{ name: 'History', path: '/history', icon: <Clock size={16}/> }] : []),
+      ];
 
   return (
     <div className="sidebar">
@@ -139,9 +144,10 @@ const Sidebar = ({ currentUser, onLogout, isDark, actionCount, voiceCount, leadC
 const Header = ({ currentUser, title }) => {
   const role = (currentUser.role || 'worker').toLowerCase();
   const roleColors = {
-    ceo:    { bg: 'var(--accent-primary-muted)', fg: 'var(--accent-primary-text)', br: 'var(--accent-primary-border)' },
-    worker: { bg: 'var(--accent-success-muted)', fg: 'var(--accent-success-text)', br: 'var(--accent-success-border)' },
-    client: { bg: 'var(--bg-tertiary)',          fg: 'var(--text-secondary)',      br: 'var(--border-color)' },
+    ceo:       { bg: 'var(--accent-primary-muted)', fg: 'var(--accent-primary-text)', br: 'var(--accent-primary-border)' },
+    worker:    { bg: 'var(--accent-success-muted)', fg: 'var(--accent-success-text)', br: 'var(--accent-success-border)' },
+    marketing: { bg: 'var(--accent-warning-muted)', fg: 'var(--accent-warning-text)', br: 'var(--accent-warning-text)' },
+    client:    { bg: 'var(--bg-tertiary)',          fg: 'var(--text-secondary)',      br: 'var(--border-color)' },
   }[role] || { bg: 'var(--bg-tertiary)', fg: 'var(--text-secondary)', br: 'var(--border-color)' };
 
   return (
@@ -293,7 +299,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
         <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto', width: '100%' }}>
           <div style={{ width: '100%' }}>
             <Routes>
-              <Route path="/"                     element={<Inbox       currentUser={currentUser}/>}/>
+              <Route path="/"                     element={currentUser.role === 'marketing' ? <Navigate to="/leads" replace/> : <Inbox currentUser={currentUser}/>}/>
               <Route path="/projects"             element={<Projects    currentUser={currentUser}/>}/>
               <Route path="/projects/:projectId"  element={<Discussions currentUser={currentUser}/>}/>
               <Route path="/voice-reports"        element={<VoiceReports currentUser={currentUser}/>}/>
