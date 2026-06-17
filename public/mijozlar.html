@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MebelCRM — Mijozlar ro'yxati</title>
+<style>
+  :root{
+    --navy:#0e1730; --panel:#111d3a; --panel2:#0c1631;
+    --line:#243150; --line2:#2f3f63;
+    --ink:#e5ebf7; --muted:#93a4c6; --muted2:#6f7fa3;
+    --accent:#f4a93c; --green:#3fae74; --blue:#5b8def; --cyan:#39e0c7; --red:#ff6b6b;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 70% -10%, #16223f 0%, transparent 60%), linear-gradient(180deg,#0c1429,#0a1020);
+    background-color:#0a1020; color:var(--ink); min-height:100vh; padding:22px 16px 48px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  .appbar{display:flex;align-items:center;gap:11px;margin-bottom:16px;flex-wrap:wrap}
+  .lg{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7b61ff,#4f7bff);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .brand{font-size:17px;font-weight:800}
+  .brand small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+  .demo-pill{margin-left:auto;font-size:11px;font-weight:700;color:var(--accent);background:rgba(244,169,60,.12);border:1px solid rgba(244,169,60,.3);padding:5px 11px;border-radius:14px}
+
+  .note{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(135deg, rgba(123,97,255,.12), rgba(79,123,255,.05));border:1px solid #2c3a63;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+  .note .ni{font-size:22px;flex-shrink:0}
+  .note .nt{font-size:13px;line-height:1.5;color:var(--muted)}
+  .note .nt b{color:var(--ink)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .stat{background:var(--navy);border:1px solid var(--line);border-radius:13px;padding:13px 14px}
+  .stat .lbl{font-size:10.5px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+  .stat .val{font-size:21px;font-weight:800;font-family:ui-monospace,monospace;line-height:1}
+  .stat.a .val{color:var(--ink)} .stat.b .val{color:var(--accent)} .stat.c .val{color:var(--green)} .stat.d .val{color:var(--cyan)}
+
+  .card{background:var(--navy);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 12px 34px rgba(0,0,0,.28);margin-bottom:16px}
+  .card-h{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+
+  .src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
+  .src-cell{display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+  .src-cell .si{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .src-cell .sn{font-size:12px;color:var(--muted);font-weight:600;line-height:1.2}
+  .src-cell .sc{font-size:17px;font-weight:800;font-family:ui-monospace,monospace;margin-left:auto}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar input,.toolbar select{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;color:var(--ink);font-size:14px;padding:11px 13px;outline:none}
+  .toolbar input{flex:1;min-width:150px}
+  .toolbar input:focus,.toolbar select:focus{border-color:var(--accent)}
+  .addbtn{background:var(--accent);border:none;color:#241600;font-size:14px;font-weight:800;padding:11px 16px;border-radius:10px;cursor:pointer;flex-shrink:0}
+
+  .filt{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .filt button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:600;padding:7px 12px;border-radius:16px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .filt button.active{border-color:var(--accent);color:var(--ink);background:rgba(244,169,60,.1)}
+
+  .leads{display:flex;flex-direction:column;gap:9px}
+  .lead{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:12px 13px;transition:border-color .15s}
+  .lead:hover{border-color:var(--line2)}
+  .lead.new{border-left:3px solid var(--accent)}
+  .lead .av{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+  .lead .mid{flex:1;min-width:0}
+  .lead .nm{font-size:14.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .src-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:4px}
+  .lead .msg{font-size:12.5px;color:var(--muted2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lead .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+  .lead .tm{font-size:10.5px;color:var(--muted2)}
+  .st-sel{background:var(--panel);border:1px solid var(--line2);border-radius:9px;color:var(--ink);font-size:12px;font-weight:700;padding:6px 8px;cursor:pointer;outline:none}
+  .lead .del{background:none;border:none;color:var(--muted2);font-size:17px;cursor:pointer;padding:0 2px}
+  .lead .del:hover{color:var(--red)}
+  .empty{text-align:center;color:var(--muted2);font-size:13.5px;padding:26px 0}
+
+  .ov{position:fixed;inset:0;background:rgba(6,10,20,.7);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+  .ov.show{display:flex}
+  .modal{background:var(--navy);border:1px solid var(--line2);border-radius:18px;max-width:440px;width:100%;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .modal h2{font-size:18px;font-weight:800;margin-bottom:16px}
+  .fl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:12px 0 6px}
+  .fi{width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;color:var(--ink);font-size:14px;padding:11px 13px;outline:none}
+  .fi:focus{border-color:var(--accent)}
+  textarea.fi{resize:vertical;min-height:62px;font-family:inherit}
+  .macts{display:flex;gap:10px;margin-top:18px}
+  .macts button{flex:1;border:none;border-radius:11px;font-size:14px;font-weight:700;padding:12px;cursor:pointer}
+  .b-save{background:var(--accent);color:#241600} .b-x{background:var(--panel2);color:var(--ink);border:1px solid var(--line)!important}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1a2540;border:1px solid var(--line2);color:var(--ink);font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:24px;opacity:0;transition:all .25s;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:680px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:520px){
+    body{padding:18px 12px 42px}
+    .lead{flex-wrap:wrap}
+    .lead .right{flex-direction:row;align-items:center;width:100%;justify-content:space-between;margin-top:4px;padding-left:54px}
+    .lead .msg{white-space:normal}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="appbar">
+    <span class="lg">👥</span>
+    <div class="brand">MebelCRM — Mijozlar ro'yxati<small>Hamma manbadan kelgan lidlar bitta joyda</small></div>
+    <span class="demo-pill">DEMO</span>
+  </div>
+
+  <div class="note">
+    <span class="ni">📥</span>
+    <div class="nt"><b>Lidlar hamma joydan avtomatik yig'iladi.</b> Instagram Direct, Instagram postlardagi izohlar, Telegram lichka, telefon qo'ng'iroqlari va saytdagi forma — barchasi shu ro'yxatga tushadi. Endi turli ilovalarni alohida ochib o'tirmaysiz va hech bir mijoz javobsiz qolmaydi.</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat a"><div class="lbl">Jami lidlar</div><div class="val" id="s-all">0</div></div>
+    <div class="stat b"><div class="lbl">Yangi (javob kutyapti)</div><div class="val" id="s-new">0</div></div>
+    <div class="stat c"><div class="lbl">Buyurtmaga aylandi</div><div class="val" id="s-ord">0</div></div>
+    <div class="stat d"><div class="lbl">Konversiya</div><div class="val" id="s-conv">0%</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">Manba bo'yicha taqsimot</div>
+    <div class="src-grid" id="src-grid"></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="q" placeholder="Ism yoki xabar bo'yicha qidirish..." oninput="render()">
+    <select id="fstatus" class="" onchange="render()">
+      <option value="all">Barcha holatlar</option>
+      <option value="yangi">Yangi</option>
+      <option value="boglanildi">Bog'lanildi</option>
+      <option value="olchov">O'lchov</option>
+      <option value="buyurtma">Buyurtma</option>
+      <option value="tugatildi">Tugatildi</option>
+      <option value="yoqotildi">Yo'qotildi</option>
+    </select>
+    <button class="addbtn" onclick="openAdd()">+ Lid qo'shish</button>
+  </div>
+
+  <div class="filt" id="filt"></div>
+
+  <div class="leads" id="leads"></div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="modal">
+    <h2>Yangi lid qo'shish</h2>
+    <label class="fl">Mijoz ismi / username</label>
+    <input class="fi" id="f-nm" placeholder="Masalan: Dilnoza yoki @username">
+    <label class="fl">Manba</label>
+    <select class="fi" id="f-src"></select>
+    <label class="fl">Xabar / nima xohlayapti</label>
+    <textarea class="fi" id="f-msg" placeholder="Masalan: Oshxona garnituri narxi qancha?"></textarea>
+    <label class="fl">Holat</label>
+    <select class="fi" id="f-st"></select>
+    <div class="macts">
+      <button class="b-x" onclick="closeAdd()">Bekor</button>
+      <button class="b-save" onclick="saveLead()">Qo'shish</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var mem={};
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return mem[k]||null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
+
+var SRC={
+  ig_direct: {label:"Instagram Direct", ic:"📩", col:"#ff7eb3", bg:"rgba(225,48,108,.18)"},
+  ig_comment:{label:"Instagram izoh",   ic:"💬", col:"#ff9ec7", bg:"rgba(225,48,108,.12)"},
+  telegram:  {label:"Telegram",         ic:"✈️", col:"#5cc8ff", bg:"rgba(34,158,217,.18)"},
+  telefon:   {label:"Telefon",          ic:"📞", col:"#5fe0a0", bg:"rgba(63,174,116,.18)"},
+  sayt:      {label:"Sayt (web)",       ic:"🌐", col:"#ffc266", bg:"rgba(244,169,60,.18)"},
+  whatsapp:  {label:"WhatsApp",         ic:"🟢", col:"#6ee7a8", bg:"rgba(37,211,102,.16)"}
+};
+var SRCORD=['ig_direct','ig_comment','telegram','telefon','sayt','whatsapp'];
+var STT={
+  yangi:     {label:"Yangi",       col:"#ffc266", bg:"rgba(244,169,60,.18)"},
+  boglanildi:{label:"Bog'lanildi", col:"#5cc8ff", bg:"rgba(34,158,217,.16)"},
+  olchov:    {label:"O'lchov",     col:"#b89cff", bg:"rgba(150,120,255,.16)"},
+  buyurtma:  {label:"Buyurtma",    col:"#5fe0a0", bg:"rgba(63,174,116,.18)"},
+  tugatildi: {label:"Tugatildi",   col:"#7fd4a8", bg:"rgba(63,174,116,.12)"},
+  yoqotildi: {label:"Yo'qotildi",  col:"#ff8a8a", bg:"rgba(255,107,107,.14)"}
+};
+var STORD=['yangi','boglanildi','olchov','buyurtma','tugatildi','yoqotildi'];
+
+var leads, srcFilter='all';
+function uid(){ return Date.now()+''+Math.floor(Math.random()*99999); }
+
+function seed(){
+  leads=[
+    {id:uid(), nm:"Dilnoza Karimova", src:"ig_direct",  msg:"Salom! Oshxona garnituri narxi qancha bo'ladi?", st:"yangi", t:"5 daqiqa oldin"},
+    {id:uid(), nm:"@rustam_uy", src:"ig_comment", msg:"Bu kravat sotuvda bormi? Izohga yozdim", st:"yangi", t:"18 daqiqa oldin"},
+    {id:uid(), nm:"Sardor Toshmatov", src:"telegram",  msg:"Yotoq xona to'plami kerak edi, o'lchovga kelasizmi?", st:"boglanildi", t:"1 soat oldin"},
+    {id:uid(), nm:"Nodira opa", src:"telefon",   msg:"Bolalar uchun 2 qavatli karavot, o'lchov oldik", st:"olchov", t:"3 soat oldin"},
+    {id:uid(), nm:"@home_design_uz", src:"ig_direct",  msg:"Ofis stollari 5 ta kerak, buyurtma berdim", st:"buyurtma", t:"Kecha"},
+    {id:uid(), nm:"Jasur aka", src:"telegram",  msg:"Mehmonxona divani, oq rangda", st:"buyurtma", t:"Kecha"},
+    {id:uid(), nm:"Sayt orqali (forma)", src:"sayt", msg:"Shkaf-kupe, 3 metr, kunduzgi vaqtda qo'ng'iroq qiling", st:"boglanildi", t:"2 kun oldin"},
+    {id:uid(), nm:"Madina Yusupova", src:"ig_comment", msg:"Narxi? Topshirdik, mijoz rozi bo'ldi", st:"tugatildi", t:"3 kun oldin"},
+    {id:uid(), nm:"Bekzod", src:"whatsapp", msg:"TV tagligi kerak edi", st:"boglanildi", t:"3 kun oldin"},
+    {id:uid(), nm:"Aziza", src:"telegram", msg:"Faqat narx so'radi, javob bermadi", st:"yoqotildi", t:"5 kun oldin"}
+  ];
+  save();
+}
+function load(){
+  var raw=lsGet('mcrm_leads1');
+  if(raw===null){ seed(); return; }
+  try{ leads=JSON.parse(raw); }catch(e){ leads=null; }
+  if(!Array.isArray(leads)) leads=[];
+}
+function save(){ lsSet('mcrm_leads1', JSON.stringify(leads)); }
+
+function initials(nm){ var s=nm.replace('@','').trim(); return s? s[0].toUpperCase():'?'; }
+
+function renderStats(){
+  var all=leads.length;
+  var nw=leads.filter(function(l){return l.st==='yangi';}).length;
+  var ord=leads.filter(function(l){return l.st==='buyurtma'||l.st==='tugatildi';}).length;
+  document.getElementById('s-all').textContent=all;
+  document.getElementById('s-new').textContent=nw;
+  document.getElementById('s-ord').textContent=ord;
+  document.getElementById('s-conv').textContent=(all?Math.round(ord/all*100):0)+'%';
+}
+function renderSrc(){
+  var cnt={}; leads.forEach(function(l){ cnt[l.src]=(cnt[l.src]||0)+1; });
+  document.getElementById('src-grid').innerHTML=SRCORD.map(function(k){
+    var m=SRC[k];
+    return '<div class="src-cell"><div class="si" style="background:'+m.bg+'">'+m.ic+'</div>'
+      +'<div class="sn">'+m.label+'</div><div class="sc" style="color:'+m.col+'">'+(cnt[k]||0)+'</div></div>';
+  }).join('');
+}
+function renderFilt(){
+  var cnt={}; leads.forEach(function(l){ cnt[l.src]=(cnt[l.src]||0)+1; });
+  var btns='<button class="'+(srcFilter==='all'?'active':'')+'" onclick="setSrc(\'all\')">Hammasi <b style="margin-left:3px">'+leads.length+'</b></button>';
+  btns+=SRCORD.map(function(k){ var m=SRC[k];
+    return '<button class="'+(srcFilter===k?'active':'')+'" onclick="setSrc(\''+k+'\')"><span>'+m.ic+'</span>'+m.label+' '+(cnt[k]||0)+'</button>';
+  }).join('');
+  document.getElementById('filt').innerHTML=btns;
+}
+function setSrc(k){ srcFilter=k; render(); }
+
+function render(){
+  renderStats(); renderSrc(); renderFilt();
+  var q=(document.getElementById('q').value||'').toLowerCase();
+  var fs=document.getElementById('fstatus').value;
+  var list=leads.filter(function(l){
+    if(srcFilter!=='all' && l.src!==srcFilter) return false;
+    if(fs!=='all' && l.st!==fs) return false;
+    if(q && (l.nm+' '+l.msg).toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  var box=document.getElementById('leads');
+  if(!list.length){ box.innerHTML='<div class="empty">Bu shartga mos lid topilmadi.</div>'; return; }
+  box.innerHTML=list.map(function(l){
+    var m=SRC[l.src]||SRC.telegram, st=STT[l.st]||STT.yangi;
+    var opts=STORD.map(function(k){ return '<option value="'+k+'"'+(k===l.st?' selected':'')+'>'+STT[k].label+'</option>'; }).join('');
+    return '<div class="lead '+(l.st==='yangi'?'new':'')+'">'
+      +'<div class="av" style="background:'+m.bg+';color:'+m.col+'">'+m.ic+'</div>'
+      +'<div class="mid"><div class="nm">'+l.nm+' <span class="src-tag" style="background:'+m.bg+';color:'+m.col+'">'+m.ic+' '+m.label+'</span></div>'
+      +'<div class="msg">'+l.msg+'</div></div>'
+      +'<div class="right"><span class="tm">'+l.t+'</span>'
+      +'<select class="st-sel" style="color:'+st.col+'" onchange="setStatus(\''+l.id+'\',this.value)">'+opts+'</select></div>'
+      +'<button class="del" onclick="delLead(\''+l.id+'\')" title="O\'chirish">×</button></div>';
+  }).join('');
+}
+function setStatus(id,v){
+  var l=leads.filter(function(x){return x.id===id;})[0]; if(!l) return;
+  l.st=v; save(); render();
+  if(v==='buyurtma') toast("Buyurtma yaratildi: "+l.nm);
+  else toast("Holat yangilandi: "+(STT[v]?STT[v].label:v));
+}
+function delLead(id){ leads=leads.filter(function(x){return x.id!==id;}); save(); render(); }
+
+function fillSelects(){
+  document.getElementById('f-src').innerHTML=SRCORD.map(function(k){return '<option value="'+k+'">'+SRC[k].label+'</option>';}).join('');
+  document.getElementById('f-st').innerHTML=STORD.map(function(k){return '<option value="'+k+'"'+(k==='yangi'?' selected':'')+'>'+STT[k].label+'</option>';}).join('');
+}
+function openAdd(){ document.getElementById('f-nm').value=''; document.getElementById('f-msg').value=''; document.getElementById('f-src').value='ig_direct'; document.getElementById('f-st').value='yangi'; document.getElementById('ov').classList.add('show'); document.getElementById('f-nm').focus(); }
+function closeAdd(){ document.getElementById('ov').classList.remove('show'); }
+function saveLead(){
+  var nm=document.getElementById('f-nm').value.trim();
+  if(!nm){ toast("Ism kiriting"); return; }
+  leads.unshift({ id:uid(), nm:nm, src:document.getElementById('f-src').value, msg:document.getElementById('f-msg').value.trim()||'(xabar yo\'q)', st:document.getElementById('f-st').value, t:"Hozir" });
+  save(); render(); closeAdd(); toast("Lid qo'shildi: "+nm);
+}
+
+var toastT;
+function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove('show'); },2200); }
+
+fillSelects(); load(); render();
+</script>
+</body>
+</html>
