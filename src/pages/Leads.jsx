@@ -22,6 +22,7 @@ import ScoreRing from '../components/leads/ScoreRing';
 import InterestBadge from '../components/leads/InterestBadge';
 import LeadModal from '../components/leads/LeadModal';
 import AddLeadModal from '../components/leads/AddLeadModal';
+import EditLeadModal from '../components/leads/EditLeadModal';
 import DemandView from '../components/leads/DemandView';
 
 const BOARD_STAGES = ['new', 'contacted', 'inprocess', 'proposal', 'won'];
@@ -55,6 +56,7 @@ export default function Leads({ currentUser }) {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState('all');
   const [selected, setSelected] = useState(null);
+  const [editLead, setEditLead] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [rescoring, setRescoring] = useState(false);
 
@@ -176,6 +178,34 @@ export default function Leads({ currentUser }) {
     toast.success(`Added ${lead.company}.`);
   };
 
+  const onSaved = (updated) => {
+    applyUpdate(updated);
+    setEditLead(null);
+    toast.success('Lead updated.');
+  };
+
+  // AI reads the lead's notes/activity and updates stage, interest, score, next step.
+  const onAIUpdate = async (lead, activities = []) => {
+    try {
+      const a = await leadService.analyzeLead(lead, activities);
+      const updated = await leadService.updateLead(lead.id, {
+        stage: a.stage, intent: a.intent, score: a.score,
+        signals: a.signals, summary: a.summary, nextStep: a.nextStep,
+      });
+      applyUpdate(updated);
+      const changes = [];
+      if (a.stage !== lead.stage) changes.push(`stage → ${STAGE_LABELS[a.stage]}`);
+      if (a.intent !== lead.intent) changes.push(`interest → ${a.intent || 'unmarked'}`);
+      if (a.score !== lead.score) changes.push(`score → ${a.score}`);
+      const summary = changes.length ? changes.join(', ') : 'no status change';
+      await leadService.logActivity(lead.id, `AI analysed the notes — ${summary}.`, currentUser?.id || null);
+      toast.success(`AI updated ${lead.company} (${summary}).`);
+    } catch (err) {
+      console.error(err);
+      toast.error('AI update failed: ' + (err.message || 'error'));
+    }
+  };
+
   const onDragEnd = (result) => {
     const { destination, draggableId } = result;
     if (!destination) return;
@@ -292,7 +322,11 @@ export default function Leads({ currentUser }) {
       {selectedLive && (
         <LeadModal lead={selectedLive} ownerName={ownerName(selectedLive.owner)}
           onClose={() => setSelected(null)}
-          onStage={onStage} onIntent={onIntent} onConvert={onConvert} onLog={onLog} />
+          onStage={onStage} onIntent={onIntent} onConvert={onConvert} onLog={onLog}
+          onEdit={setEditLead} onAIUpdate={onAIUpdate} />
+      )}
+      {editLead && (
+        <EditLeadModal lead={editLead} users={users} onClose={() => setEditLead(null)} onSaved={onSaved} />
       )}
       {showAdd && (
         <AddLeadModal currentUser={currentUser} onClose={() => setShowAdd(false)} onCreated={onCreated} />
