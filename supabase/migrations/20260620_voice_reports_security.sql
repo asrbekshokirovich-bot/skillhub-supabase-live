@@ -24,9 +24,13 @@ CREATE POLICY "Allow authenticated read access to skillhub-bucket"
   USING (bucket_id = 'skillhub-bucket');
 
 -- 2) Destructive RPCs should never be reachable by the anonymous role.
---    (They are SECURITY DEFINER; `authenticated` keeps EXECUTE so the app works.)
-REVOKE EXECUTE ON FUNCTION public.delete_my_account()        FROM anon;
-REVOKE EXECUTE ON FUNCTION public.delete_user_by_id(uuid)    FROM anon;
+--    These are granted to PUBLIC (which anon inherits), so revoke from PUBLIC
+--    and keep an explicit grant to `authenticated` (matches v10) so the app's
+--    CEO / self-delete flows keep working.
+REVOKE EXECUTE ON FUNCTION public.delete_my_account()     FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.delete_user_by_id(uuid) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.delete_my_account()     TO authenticated;
+GRANT  EXECUTE ON FUNCTION public.delete_user_by_id(uuid) TO authenticated;
 
 -- ── NOT done here (need a product decision — left for a follow-up) ──
 --  a) True privacy for voice recordings: make `skillhub-bucket` PRIVATE and
