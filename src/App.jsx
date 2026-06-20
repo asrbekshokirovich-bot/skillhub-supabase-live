@@ -221,7 +221,8 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
     let cancelled = false;
     (async () => {
       try {
-        const today = new Date().toISOString().slice(0, 10);
+        // Match the Asia/Tashkent business day used when reports are created.
+        const today = new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
         let query = supabase.from('voice_reports').select('id', { count: 'exact', head: true });
         query = currentUser.role === 'ceo'
           ? query.eq('status', 'approved').eq('reportDate', today)
@@ -241,7 +242,7 @@ const AppLayout = ({ currentUser, onLogout, theme, setTheme, isDark }) => {
         const { data: tasks } = await supabase
           .from('tasks')
           .select('id, status, assignee, dueDate, isApproved, comments')
-          .neq('isArchived', true);
+          .or('isArchived.is.null,isArchived.eq.false');
 
         const my = (tasks || []).filter(t =>
           t.assignee === currentUser.id && t.status !== 'Done' && t.status !== 'Completed'

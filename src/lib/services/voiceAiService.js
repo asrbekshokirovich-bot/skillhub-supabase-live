@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { generateContent, SchemaType } from "./geminiClient";
 
 // ─────────────────────────────────────────────────────────────────────────
 // voiceAiService — Gemini-powered voice standup.
@@ -9,8 +9,8 @@ import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 //    grounded in the real tasks so it stays at "real task" altitude.
 //  • answerManagerQuestion(): the CEO's in-app follow-up Q&A over one report.
 //
-// Mirrors the existing Gemini pattern in aiTaskService.js (same key, model
-// names, structured-JSON output, and overload retry/fallback).
+// All Gemini traffic now goes through the authenticated `gemini` Edge Function
+// (see geminiClient.js) — the API key is no longer present in the browser.
 // ─────────────────────────────────────────────────────────────────────────
 
 const REPORT_SCHEMA = {
@@ -73,53 +73,22 @@ function buildContextText(context = {}) {
     : "(No prior context available for this worker.)";
 }
 
+// Turn a Gemini safety-block / empty response into a clear, localised error so
+// the UI can keep the recording and offer a retry instead of a generic failure.
+function ensureUsableText({ text, blockReason, finishReason }) {
+  if (blockReason) {
+    throw new Error(`AI javobni bloklab qo'ydi (${blockReason}). Qayta urinib ko'ring.`);
+  }
+  if (!text || !text.trim()) {
+    if (finishReason && finishReason !== "STOP") {
+      throw new Error(`AI javobni yakunlay olmadi (${finishReason}). Qayta urinib ko'ring.`);
+    }
+    throw new Error("AI bo'sh javob qaytardi. Qayta urinib ko'ring.");
+  }
+  return text;
+}
+
 class VoiceAiService {
-  _genAI() {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error(
-        "Missing VITE_GEMINI_API_KEY in environment variables. Please add it to your .env file."
-      );
-    }
-    return new GoogleGenerativeAI(apiKey);
-  }
-
-  // Run a generateContent call with the same overload-retry + model fallback
-  // strategy used by aiTaskService.
-  async _generate(parts, generationConfig) {
-    const genAI = this._genAI();
-
-    const attempt = async (modelName, retries = 2) => {
-      const model = genAI.getGenerativeModel({ model: modelName, generationConfig });
-      for (let i = 0; i <= retries; i++) {
-        try {
-          const result = await model.generateContent(parts);
-          return result.response.text();
-        } catch (error) {
-          const overloaded =
-            error.message?.includes("503") || error.message?.includes("429");
-          if (overloaded && i < retries) {
-            await new Promise((res) => setTimeout(res, 2 ** i * 1000));
-            continue;
-          }
-          throw error;
-        }
-      }
-    };
-
-    try {
-      return await attempt("gemini-2.5-flash");
-    } catch (primaryError) {
-      try {
-        return await attempt("gemini-flash-latest");
-      } catch (fallbackError) {
-        throw new Error(
-          `Primary error: ${primaryError.message} | Fallback error: ${fallbackError.message}`
-        );
-      }
-    }
-  }
-
   /**
    * Transcribe the recorded standup and structure it into Yesterday/Blockers/Today,
    * grounded in the worker's real tasks/context.
@@ -144,10 +113,15 @@ ${buildContextText(context)}
       { inlineData: { data: audioBase64, mimeType: mimeType || "audio/webm" } },
     ];
 
-    const responseText = await this._generate(parts, {
-      responseMimeType: "application/json",
-      responseSchema: REPORT_SCHEMA,
+    const res = await generateContent({
+      parts,
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: REPORT_SCHEMA,
+      },
     });
+
+    const responseText = ensureUsableText(res);
 
     let payload;
     try {
@@ -192,8 +166,8 @@ ${buildContextText(context)}
 
 MANAGER'S QUESTION: ${question}`;
 
-    const text = await this._generate([{ text: prompt }], {});
-    return (text || "").trim();
+    const res = await generateContent({ parts: [{ text: prompt }] });
+    return ensureUsableText(res).trim();
   }
 }
 

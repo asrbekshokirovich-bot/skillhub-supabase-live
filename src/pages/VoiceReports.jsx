@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Sparkles, Check, AlertTriangle, ListChecks, ChevronRight, ChevronDown,
-  Calendar, Loader2, Send,
+  Calendar, Loader2, Send, RotateCcw,
 } from 'lucide-react';
 import VoiceRecorder from '../components/VoiceRecorder';
 import {
@@ -19,6 +19,11 @@ const blobToBase64 = (blob) => new Promise((resolve, reject) => {
   r.onerror = reject;
   r.readAsDataURL(blob);
 });
+
+// Business day in Asia/Tashkent (UTC+5, no DST). The DB default is CURRENT_DATE
+// in UTC, which rolls over at 05:00 local and mislabels early-morning standups.
+const tashkentToday = () =>
+  new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 const fmtDate = (r) => {
   const d = r?.reportDate || r?.createdAt;
@@ -60,13 +65,17 @@ function AiProcessing() {
 
 function WorkerView({ currentUser }) {
   const { toast } = useSystem();
-  const [stage, setStage] = useState('record');   // record | processing | review
+  const [stage, setStage] = useState('record');   // record | processing | review | failed
   const [draft, setDraft] = useState(null);
   const [edits, setEdits] = useState({ yesterday: '', blockers: '', today: '', transcript: '' });
   const [clarify, setClarify] = useState([]);
   const [showTranscript, setShowTranscript] = useState(false);
   const [myReports, setMyReports] = useState([]);
   const [saving, setSaving] = useState(false);
+  // Hold the last recording so a failed AI/upload step can be retried WITHOUT
+  // forcing the worker to record again.
+  const [lastRec, setLastRec] = useState(null);   // { blob, durationSec, mimeType }
+  const [errMsg, setErrMsg] = useState('');
 
   const loadMine = useCallback(async () => {
     try { setMyReports(await voiceReportService.getMyReports(currentUser.id)); }
@@ -75,19 +84,26 @@ function WorkerView({ currentUser }) {
 
   useEffect(() => { loadMine(); }, [loadMine]);
 
-  // ── unchanged logic: upload -> Gemini -> draft ──
+  // Transcribe with the AI FIRST; only upload the audio once that succeeds, so a
+  // failed AI step never leaves an orphan file in storage. On any failure we keep
+  // the recording and move to a retryable 'failed' state.
   const handleSubmit = async (blob, durationSec, mimeType) => {
+    setLastRec({ blob, durationSec, mimeType });
+    setErrMsg('');
     setStage('processing');
     try {
-      const audioUrl = await voiceReportService.uploadAudio(currentUser.id, blob, mimeType);
       const audioBase64 = await blobToBase64(blob);
       const context = await voiceReportService.getWorkerContext(currentUser.id);
       const ai = await voiceAiService.transcribeAndStructure({ audioBase64, mimeType, context });
+
+      // AI succeeded — now persist the audio + the draft row.
+      const audioUrl = await voiceReportService.uploadAudio(currentUser.id, blob, mimeType);
       const created = await voiceReportService.createDraft({
         workerId: currentUser.id,
         projectId: context.projects?.[0]?.id || null,
         audioUrl,
         durationSec,
+        reportDate: tashkentToday(),
         transcript: ai.transcript,
         yesterday: ai.yesterday,
         blockers: ai.blockers,
@@ -101,9 +117,21 @@ function WorkerView({ currentUser }) {
       setStage('review');
     } catch (e) {
       console.error(e);
-      toast.error(`Xatolik: ${e.message || e}`);
-      setStage('record');
+      const msg = e?.message || String(e);
+      setErrMsg(msg);
+      toast.error(`Xatolik: ${msg}`);
+      setStage('failed');
     }
+  };
+
+  const retryLast = () => {
+    if (lastRec) handleSubmit(lastRec.blob, lastRec.durationSec, lastRec.mimeType);
+  };
+
+  const discardLast = () => {
+    setLastRec(null);
+    setErrMsg('');
+    setStage('record');
   };
 
   const handleApprove = async () => {
@@ -135,6 +163,28 @@ function WorkerView({ currentUser }) {
       )}
 
       {stage === 'processing' && <AiProcessing />}
+
+      {stage === 'failed' && (
+        <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--alert-error-border)', borderRadius: 16, padding: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <AlertTriangle size={18} style={{ color: 'var(--alert-error-text)' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Tahlil qilishda xatolik</span>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8 }}>
+            Ovoz yozuvingiz saqlanib qoldi — qayta urinib ko'rishingiz mumkin.
+          </div>
+          {errMsg && (
+            <div style={{ fontSize: 12.5, color: 'var(--alert-error-text)', background: 'var(--alert-error-bg)', border: '1px solid var(--alert-error-border)', borderRadius: 10, padding: '8px 12px', marginBottom: 16 }}>
+              {errMsg}
+            </div>
+          )}
+          {lastRec?.blob && <AudioBar src={URL.createObjectURL(lastRec.blob)} knownDur={lastRec.durationSec || 0} />}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 18 }}>
+            <Btn kind="ghost" onClick={discardLast}>Bekor qilish</Btn>
+            <Btn kind="primary" onClick={retryLast}><RotateCcw size={14} stroke={ON_ACCENT} /> Qayta urinish</Btn>
+          </div>
+        </div>
+      )}
 
       {stage === 'review' && draft && (
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 24 }}>

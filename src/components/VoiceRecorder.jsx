@@ -28,6 +28,10 @@ function pickMimeType() {
 
 const fmt = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
 
+// Hard cap on recording length. Keeps the base64-inlined audio well under the
+// AI request size limit and stops a forgotten recorder running forever.
+const MAX_SECONDS = 480; // 8 minutes
+
 export default function VoiceRecorder({ onSubmit, busy = false }) {
   const [phase, setPhase] = useState('idle');     // idle | recording | recorded
   const [seconds, setSeconds] = useState(0);
@@ -41,6 +45,7 @@ export default function VoiceRecorder({ onSubmit, busy = false }) {
   const blobRef = useRef(null);
   const mimeRef = useRef('');
   const durationRef = useRef(0);
+  const submittingRef = useRef(false);
 
   const stopStream = useCallback(() => {
     if (streamRef.current) {
@@ -85,7 +90,17 @@ export default function VoiceRecorder({ onSubmit, busy = false }) {
       durationRef.current = 0;
       setPhase('recording');
       timerRef.current = setInterval(() => {
-        setSeconds((s) => { durationRef.current = s + 1; return s + 1; });
+        setSeconds((s) => {
+          const next = s + 1;
+          durationRef.current = next;
+          // Auto-stop at the cap so long recordings can't blow the AI payload.
+          if (next >= MAX_SECONDS) {
+            clearTimer();
+            const m = recorderRef.current;
+            if (m && m.state !== 'inactive') m.stop();
+          }
+          return next;
+        });
       }, 1000);
     } catch (err) {
       setError(
@@ -108,11 +123,16 @@ export default function VoiceRecorder({ onSubmit, busy = false }) {
     blobRef.current = null;
     setSeconds(0);
     durationRef.current = 0;
+    submittingRef.current = false;
     setPhase('idle');
   };
 
   const submit = () => {
-    if (blobRef.current) onSubmit?.(blobRef.current, durationRef.current, mimeRef.current);
+    // Guard against a double-tap firing onSubmit twice before the parent swaps
+    // this component out for the processing view.
+    if (submittingRef.current || !blobRef.current) return;
+    submittingRef.current = true;
+    onSubmit?.(blobRef.current, durationRef.current, mimeRef.current);
   };
 
   // ── render: error banner (if any) + the current phase ──
@@ -139,7 +159,7 @@ export default function VoiceRecorder({ onSubmit, busy = false }) {
             </button>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--text-tertiary)' }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--alert-error-text)' }} />
-              Yozilmoqda… tugatganda to'xtatish tugmasini bosing
+              Yozilmoqda… tugatganda to'xtatish tugmasini bosing · maks {fmt(MAX_SECONDS)}
             </div>
           </div>
         </RecorderCard>
