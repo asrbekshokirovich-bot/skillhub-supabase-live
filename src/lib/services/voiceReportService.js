@@ -102,12 +102,14 @@ class VoiceReportService {
   async getWorkerContext(workerId) {
     const ctx = { tasks: [], projects: [], recentReports: [] };
 
-    // Open tasks assigned to this worker.
+    // Open tasks assigned to this worker. NOTE: `.neq('isArchived', true)` would
+    // silently drop rows where isArchived IS NULL (Postgres three-valued logic),
+    // so match null-or-false explicitly to keep their task context.
     const { data: tasks } = await supabase
       .from('tasks')
       .select('id, title, status, projectId, dueDate')
       .eq('assignee', workerId)
-      .neq('isArchived', true)
+      .or('isArchived.is.null,isArchived.eq.false')
       .not('status', 'in', '("Done","Completed")');
     ctx.tasks = tasks || [];
 

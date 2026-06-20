@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Mic, Play, Pause } from 'lucide-react';
+import { Mic, Play, Pause, Download } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────
 // voiceUi — shared PRESENTATIONAL primitives for the Voice Reports redesign.
@@ -71,21 +71,41 @@ export function AudioBar({ src, knownDur = 0 }) {
   const [playing, setPlaying] = useState(false);
   const [cur, setCur] = useState(0);
   const [dur, setDur] = useState(0);
+  // Safari/iOS can't decode webm/opus recorded in Chrome/Firefox. When the
+  // <audio> element fails to load the source we fall back to a download link
+  // so the recording is never silently unplayable.
+  const [unsupported, setUnsupported] = useState(false);
 
   const effDur = (isFinite(dur) && dur > 0) ? dur : (knownDur || 0);
   const progress = effDur ? Math.min(100, (cur / effDur) * 100) : 0;
 
-  const toggle = () => { const a = ref.current; if (!a) return; if (a.paused) a.play().catch(() => {}); else a.pause(); };
+  const toggle = () => {
+    const a = ref.current; if (!a) return;
+    if (a.paused) a.play().catch(() => setUnsupported(true)); else a.pause();
+  };
   const seek = (e) => {
     const a = ref.current; if (!a || !effDur) return;
     const r = e.currentTarget.getBoundingClientRect();
     a.currentTime = Math.min(effDur, Math.max(0, ((e.clientX - r.left) / r.width) * effDur));
   };
 
+  if (unsupported) {
+    return (
+      <a href={src} target="_blank" rel="noopener noreferrer" download
+        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 10, width: '100%', textDecoration: 'none', color: 'var(--text-secondary)', fontSize: 12.5, fontWeight: 600 }}>
+        <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Download size={14} stroke={ON_ACCENT} />
+        </span>
+        Bu brauzerda ijro etib bo'lmadi — yuklab oling ({fmtClock(effDur)})
+      </a>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 10, width: '100%' }}>
       <audio ref={ref} src={src} preload="metadata" style={{ display: 'none' }}
         onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
+        onError={() => setUnsupported(true)}
         onTimeUpdate={() => setCur(ref.current?.currentTime || 0)}
         onLoadedMetadata={() => setDur(ref.current?.duration || 0)} />
       <button onClick={toggle} aria-label={playing ? 'Pause' : 'Play'} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-primary)', border: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
